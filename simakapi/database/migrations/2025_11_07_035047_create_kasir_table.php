@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dokter', function (Blueprint $table) {
-            $table->char('id_dokter', 4)->primary();
-            $table->integer('id_poli')->nullable()->index('id_poli');
+        Schema::create('kasir', function (Blueprint $table) {
+            $table->char('id_kasir', 4)->primary();
             $table->string('nama', 150)->nullable();
             $table->date('tanggal_lahir')->nullable();
-            $table->integer('gaji')->nullable();
-            $table->string('nomor_telepon', 20)->nullable();
-            $table->string('spesialis', 50)->nullable();
-            $table->string('nomor_lisensi', 50)->nullable()->unique('nomor_lisensi');
-            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable();
+            $table->string('nomor_telepon', 20)->nullable()->unique('nomor_telepon');
             $table->text('alamat')->nullable();
+            $table->integer('gaji')->nullable();
+            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable();
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dokter');
+        Schema::dropIfExists('kasir');
     }
 };

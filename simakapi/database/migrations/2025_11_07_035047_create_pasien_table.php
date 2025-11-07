@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kasir', function (Blueprint $table) {
-            $table->char('id_kasir', 4)->primary();
-            $table->string('nama', 150)->nullable();
-            $table->date('tanggal_lahir')->nullable();
-            $table->string('nomor_telepon', 20)->nullable();
-            $table->text('alamat')->nullable();
-            $table->integer('gaji')->nullable();
+        Schema::create('pasien', function (Blueprint $table) {
+            $table->integer('id_pasien', true);
+            $table->string('NIK', 16)->nullable()->unique('nik');
+            $table->string('nama', 100)->nullable();
+            $table->string('nomor_telepon', 15)->nullable()->unique('nomor_telepon');
             $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable();
+            $table->date('tanggal_lahir')->nullable();
+            $table->text('alamat')->nullable();
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kasir');
+        Schema::dropIfExists('pasien');
     }
 };

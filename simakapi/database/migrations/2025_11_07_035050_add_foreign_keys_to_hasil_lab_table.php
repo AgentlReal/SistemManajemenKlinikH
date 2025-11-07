@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('hasil_lab', function (Blueprint $table) {
             $table->foreign(['id_staf_lab'], 'hasil_lab_ibfk_1')->references(['id_staf_lab'])->on('staf_lab')->onUpdate('no action')->onDelete('no action');
-            $table->foreign(['id_rekam_medis'], 'hasil_lab_ibfk_2')->references(['id_rekam_medis'])->on('rekam_medis')->onUpdate('no action')->onDelete('no action');
+            $table->foreign(['id_rekam_medis'], 'hasil_lab_ibfk_2')->references(['id_rekam_medis'])->on('rekam_medis')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign(['id_tarif_layanan'], 'hasil_lab_ibfk_3')->references(['id_tarif_layanan'])->on('tarif_layanan')->onUpdate('no action')->onDelete('no action');
         });
     }

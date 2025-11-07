@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('soap', function (Blueprint $table) {
-            $table->foreign(['id_rekam_medis'], 'soap_ibfk_1')->references(['id_rekam_medis'])->on('rekam_medis')->onUpdate('no action')->onDelete('no action');
+            $table->foreign(['id_rekam_medis'], 'soap_ibfk_1')->references(['id_rekam_medis'])->on('rekam_medis')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign(['id_dokter'], 'soap_ibfk_2')->references(['id_dokter'])->on('dokter')->onUpdate('no action')->onDelete('no action');
         });
     }

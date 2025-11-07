@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama', 150)->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->integer('gaji')->nullable();
-            $table->string('nomor_telepon', 20)->nullable();
+            $table->string('nomor_telepon', 20)->nullable()->unique('nomor_telepon');
             $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable();
             $table->text('alamat')->nullable();
         });

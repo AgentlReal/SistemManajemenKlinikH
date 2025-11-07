@@ -1,0 +1,47 @@
+[
+  {
+    "id": "1",
+    "nik": "3201012345670001",
+    "name": "John Doe",
+    "birthDate": "1994-11-09",
+    "gender": "male",
+    "address": "123 Main St, Jakarta",
+    "phone": "081234567890"
+  },
+  {
+    "id": "2",
+    "nik": "3201012345670002",
+    "name": "Jane Smith",
+    "birthDate": "1995-10-12",
+    "gender": "female",
+    "address": "456 Oak Ave, Bandung",
+    "phone": "081234567891"
+  },
+  {
+    "id": "3",
+    "nik": "3201012345670003",
+    "name": "Robert Johnson",
+    "birthDate": "1990-07-09",
+    "gender": "male",
+    "address": "789 Pine Rd, Surabaya",
+    "phone": "081234567892"
+  },
+  {
+    "id": "4",
+    "nik": "3201012345670004",
+    "name": "Emily Davis",
+    "birthDate": "1992-05-25",
+    "gender": "female",
+    "address": "321 Elm St, Medan",
+    "phone": "081234567893"
+  },
+  {
+    "id": "5",
+    "nik": "3201012345670005",
+    "name": "Michael Brown",
+    "birthDate": "1989-06-29",
+    "gender": "male",
+    "address": "654 Maple Dr, Semarang",
+    "phone": "081234567894"
+  }
+]

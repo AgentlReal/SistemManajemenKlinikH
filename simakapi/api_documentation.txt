@@ -1,0 +1,228 @@
+API Documentation
+
+Base URL: http://localhost:8000/api
+
+Authentication
+- POST /register
+  - Parameters: name, username, password, role (receptionist, doctor, lab, cashier, manager)
+  - Example: curl -X POST http://localhost:8000/api/register -H "Content-Type: application/json" -d '{"name":"John Doe","username":"johndoe","password":"password123","role":"manager"}'
+- POST /login
+  - Parameters: username, password
+  - Example: curl -X POST http://localhost:8000/api/login -H "Content-Type: application/json" -d '{"username":"johndoe","password":"password123"}'
+- POST /logout
+  - Requires Authentication
+  - Example: curl -X POST http://localhost:8000/api/logout -H "Authorization: Bearer <token>"
+- GET /user
+  - Requires Authentication
+  - Example: curl http://localhost:8000/api/user -H "Authorization: Bearer <token>"
+- GET /users
+  - Requires Authentication
+  - Example: curl http://localhost:8000/api/users -H "Authorization: Bearer <token>"
+
+CRUD APIs (require authentication and admin/manager role)
+
+Klinik
+- GET /klinik
+  - Example: curl http://localhost:8000/api/klinik -H "Authorization: Bearer <token>"
+- GET /klinik/{klinik}
+  - Example: curl http://localhost:8000/api/klinik/1 -H "Authorization: Bearer <token>"
+- POST /klinik
+  - Parameters: nama_klinik, alamat, nomor_telepon, email
+  - Example: curl -X POST http://localhost:8000/api/klinik -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama_klinik":"Klinik Sehat","alamat":"Jl. Kesehatan No. 1","nomor_telepon":"021123456","email":"sehat@klinik.com"}'
+- PUT /klinik/{klinik}
+  - Parameters: nama_klinik, alamat, nomor_telepon, email
+  - Example: curl -X PUT http://localhost:8000/api/klinik/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama_klinik":"Klinik Sehat Sentosa"}'
+- DELETE /klinik/{klinik}
+  - Example: curl -X DELETE http://localhost:8000/api/klinik/1 -H "Authorization: Bearer <token>"
+
+Resepsionis
+- GET /resepsionis
+  - Example: curl http://localhost:8000/api/resepsionis -H "Authorization: Bearer <token>"
+- GET /resepsionis/{resepsioni}
+  - Example: curl http://localhost:8000/api/resepsionis/1 -H "Authorization: Bearer <token>"
+- POST /resepsionis
+  - Parameters: id_user, nama, nomor_telepon, alamat
+  - Example: curl -X POST http://localhost:8000/api/resepsionis -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_user":1,"nama":"Budi Resepsionis","nomor_telepon":"08123456789","alamat":"Jl. Resepsionis No. 1"}'
+- PUT /resepsionis/{resepsioni}
+  - Parameters: id_user, nama, nomor_telepon, alamat
+  - Example: curl -X PUT http://localhost:8000/api/resepsionis/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama":"Budi Santoso Resepsionis"}'
+- DELETE /resepsionis/{resepsioni}
+  - Example: curl -X DELETE http://localhost:8000/api/resepsionis/1 -H "Authorization: Bearer <token>"
+
+Dokter
+- GET /dokter
+  - Example: curl http://localhost:8000/api/dokter -H "Authorization: Bearer <token>"
+- GET /dokter/{dokter}
+  - Example: curl http://localhost:8000/api/dokter/1 -H "Authorization: Bearer <token>"
+- POST /dokter
+  - Parameters: id_user, nama, spesialisasi, nomor_telepon, alamat
+  - Example: curl -X POST http://localhost:8000/api/dokter -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_user":2,"nama":"Dr. Siti","spesialisasi":"Umum","nomor_telepon":"08123456789","alamat":"Jl. Dokter No. 1"}'
+- PUT /dokter/{dokter}
+  - Parameters: id_user, nama, spesialisasi, nomor_telepon, alamat
+  - Example: curl -X PUT http://localhost:8000/api/dokter/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"spesialisasi":"Gigi"}'
+- DELETE /dokter/{dokter}
+  - Example: curl -X DELETE http://localhost:8000/api/dokter/1 -H "Authorization: Bearer <token>"
+
+Kasir
+- GET /kasir
+  - Example: curl http://localhost:8000/api/kasir -H "Authorization: Bearer <token>"
+- GET /kasir/{kasir}
+  - Example: curl http://localhost:8000/api/kasir/1 -H "Authorization: Bearer <token>"
+- POST /kasir
+  - Parameters: id_user, nama, nomor_telepon, alamat
+  - Example: curl -X POST http://localhost:8000/api/kasir -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_user":3,"nama":"Ani Kasir","nomor_telepon":"08123456789","alamat":"Jl. Kasir No. 1"}'
+- PUT /kasir/{kasir}
+  - Parameters: id_user, nama, nomor_telepon, alamat
+  - Example: curl -X PUT http://localhost:8000/api/kasir/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama":"Ani Fitri Kasir"}'
+- DELETE /kasir/{kasir}
+  - Example: curl -X DELETE http://localhost:8000/api/kasir/1 -H "Authorization: Bearer <token>"
+
+Staf Lab
+- GET /staf-lab
+  - Example: curl http://localhost:8000/api/staf-lab -H "Authorization: Bearer <token>"
+- GET /staf-lab/{staf_lab}
+  - Example: curl http://localhost:8000/api/staf-lab/1 -H "Authorization: Bearer <token>"
+- POST /staf-lab
+  - Parameters: id_user, nama, nomor_telepon, alamat
+  - Example: curl -X POST http://localhost:8000/api/staf-lab -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_user":4,"nama":"Budi Lab","nomor_telepon":"08123456789","alamat":"Jl. Lab No. 1"}'
+- PUT /staf-lab/{staf_lab}
+  - Parameters: id_user, nama, nomor_telepon, alamat
+  - Example: curl -X PUT http://localhost:8000/api/staf-lab/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama":"Budi Santoso Lab"}'
+- DELETE /staf-lab/{staf_lab}
+  - Example: curl -X DELETE http://localhost:8000/api/staf-lab/1 -H "Authorization: Bearer <token>"
+
+Tarif Layanan
+- GET /tarif-layanan
+  - Example: curl http://localhost:8000/api/tarif-layanan -H "Authorization: Bearer <token>"
+- GET /tarif-layanan/{tarif_layanan}
+  - Example: curl http://localhost:8000/api/tarif-layanan/1 -H "Authorization: Bearer <token>"
+- POST /tarif-layanan
+  - Parameters: nama_layanan, harga
+  - Example: curl -X POST http://localhost:8000/api/tarif-layanan -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama_layanan":"Pemeriksaan Umum","harga":50000}'
+- PUT /tarif-layanan/{tarif_layanan}
+  - Parameters: nama_layanan, harga
+  - Example: curl -X PUT http://localhost:8000/api/tarif-layanan/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"harga":75000}'
+- DELETE /tarif-layanan/{tarif_layanan}
+  - Example: curl -X DELETE http://localhost:8000/api/tarif-layanan/1 -H "Authorization: Bearer <token>"
+
+Poli
+- GET /poli
+  - Example: curl http://localhost:8000/api/poli -H "Authorization: Bearer <token>"
+- GET /poli/{poli}
+  - Example: curl http://localhost:8000/api/poli/1 -H "Authorization: Bearer <token>"
+- POST /poli
+  - Parameters: nama_poli, deskripsi
+  - Example: curl -X POST http://localhost:8000/api/poli -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama_poli":"Poli Umum","deskripsi":"Poli untuk pemeriksaan umum"}'
+- PUT /poli/{poli}
+  - Parameters: nama_poli, deskripsi
+  - Example: curl -X PUT http://localhost:8000/api/poli/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama_poli":"Poli Gigi"}'
+- DELETE /poli/{poli}
+  - Example: curl -X DELETE http://localhost:8000/api/poli/1 -H "Authorization: Bearer <token>"
+
+Jadwal Karyawan
+- GET /jadwal-karyawan
+  - Example: curl http://localhost:8000/api/jadwal-karyawan -H "Authorization: Bearer <token>"
+- GET /jadwal-karyawan/{jadwal_karyawan}
+  - Example: curl http://localhost:8000/api/jadwal-karyawan/1 -H "Authorization: Bearer <token>"
+- POST /jadwal-karyawan
+  - Parameters: id_user, hari, jam_mulai, jam_selesai
+  - Example: curl -X POST http://localhost:8000/api/jadwal-karyawan -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_user":1,"hari":"Senin","jam_mulai":"08:00:00","jam_selesai":"16:00:00"}'
+- PUT /jadwal-karyawan/{jadwal_karyawan}
+  - Parameters: id_user, hari, jam_mulai, jam_selesai
+  - Example: curl -X PUT http://localhost:8000/api/jadwal-karyawan/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"jam_selesai":"17:00:00"}'
+- DELETE /jadwal-karyawan/{jadwal_karyawan}
+  - Example: curl -X DELETE http://localhost:8000/api/jadwal-karyawan/1 -H "Authorization: Bearer <token>"
+
+CRUD APIs (require authentication and admin, receptionist, doctor, lab role)
+
+Antrians
+- GET /antrian
+  - Example: curl http://localhost:8000/api/antrian -H "Authorization: Bearer <token>"
+- GET /antrian/{antrian}
+  - Example: curl http://localhost:8000/api/antrian/1 -H "Authorization: Bearer <token>"
+- POST /antrian
+  - Parameters: id_resepsionis, id_dokter, id_pasien, tanggal, keluhan, nomor_antrian, keterangan (Menunggu, Diproses, Selesai, Batal)
+  - Example: curl -X POST http://localhost:8000/api/antrian -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_resepsionis":1,"id_dokter":1,"id_pasien":1,"tanggal":"2025-11-06 10:00:00","keluhan":"Pusing","nomor_antrian":"A001","keterangan":"Menunggu"}'
+- PUT /antrian/{antrian}
+  - Parameters: id_resepsionis, id_dokter, id_pasien, tanggal, keluhan, nomor_antrian, keterangan (Menunggu, Diproses, Selesai, Batal)
+  - Example: curl -X PUT http://localhost:8000/api/antrian/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"keterangan":"Selesai"}'
+- DELETE /antrian/{antrian}
+  - Example: curl -X DELETE http://localhost:8000/api/antrian/1 -H "Authorization: Bearer <token>"
+
+Pasiens
+- GET /pasien
+  - Example: curl http://localhost:8000/api/pasien -H "Authorization: Bearer <token>"
+- GET /pasien/{pasien}
+  - Example: curl http://localhost:8000/api/pasien/1 -H "Authorization: Bearer <token>"
+- POST /pasien
+  - Parameters: NIK, nama, nomor_telepon, email, jenis_kelamin (Laki-laki, Perempuan), tanggal_lahir, alamat
+  - Example: curl -X POST http://localhost:8000/api/pasien -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"NIK":"1234567890123456","nama":"Budi","nomor_telepon":"08123456789","email":"budi@example.com","jenis_kelamin":"Laki-laki","tanggal_lahir":"1990-01-01","alamat":"Jl. Merdeka No. 1"}'
+- PUT /pasien/{pasien}
+  - Parameters: NIK, nama, nomor_telepon, email, jenis_kelamin (Laki-laki, Perempuan), tanggal_lahir, alamat
+  - Example: curl -X PUT http://localhost:8000/api/pasien/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama":"Budi Santoso"}'
+- DELETE /pasien/{pasien}
+  - Example: curl -X DELETE http://localhost:8000/api/pasien/1 -H "Authorization: Bearer <token>"
+
+Soaps
+- GET /soap
+  - Example: curl http://localhost:8000/api/soap -H "Authorization: Bearer <token>"
+- GET /soap/{soap}
+  - Example: curl http://localhost:8000/api/soap/1 -H "Authorization: Bearer <token>"
+- GET /soap/pasien/{nik}
+  - Example: curl http://localhost:8000/api/soap/pasien/1234567890123456 -H "Authorization: Bearer <token>"
+- POST /soap
+  - Parameters: id_rekam_medis, id_dokter, subjective, objective, assessment, plan, tanggal_pencatatan
+  - Example: curl -X POST http://localhost:8000/api/soap -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_rekam_medis":1,"id_dokter":1,"subjective":"Sakit kepala","objective":"Tekanan darah normal","assessment":"Migrain","plan":"Istirahat","tanggal_pencatatan":"2025-11-06 10:15:00"}'
+- PUT /soap/{soap}
+  - Parameters: id_rekam_medis, id_dokter, subjective, objective, assessment, plan, tanggal_pencatatan
+  - Example: curl -X PUT http://localhost:8000/api/soap/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"plan":"Minum obat"}'
+- DELETE /soap/{soap}
+  - Example: curl -X DELETE http://localhost:8000/api/soap/1 -H "Authorization: Bearer <token>"
+
+Hasil Labs
+- GET /hasil-lab
+  - Example: curl http://localhost:8000/api/hasil-lab -H "Authorization: Bearer <token>"
+- GET /hasil-lab/{hasil_lab}
+  - Example: curl http://localhost:8000/api/hasil-lab/1 -H "Authorization: Bearer <token>"
+- GET /hasil-lab/pasien/{nik}
+  - Example: curl http://localhost:8000/api/hasil-lab/pasien/1234567890123456 -H "Authorization: Bearer <token>"
+- POST /hasil-lab
+  - Parameters: id_staf_lab, id_rekam_medis, id_tarif_layanan, tanggal_pemeriksaan, keterangan, hasil_pemeriksaan
+  - Example: curl -X POST http://localhost:8000/api/hasil-lab -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_staf_lab":1,"id_rekam_medis":1,"id_tarif_layanan":1,"tanggal_pemeriksaan":"2025-11-06 11:00:00","keterangan":"Darah rutin","hasil_pemeriksaan":"Normal"}'
+- PUT /hasil-lab/{hasil_lab}
+  - Parameters: id_staf_lab, id_rekam_medis, id_tarif_layanan, tanggal_pemeriksaan, keterangan, hasil_pemeriksaan
+  - Example: curl -X PUT http://localhost:8000/api/hasil-lab/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"hasil_pemeriksaan":"Abnormal"}'
+- DELETE /hasil-lab/{hasil_lab}
+  - Example: curl -X DELETE http://localhost:8000/api/hasil-lab/1 -H "Authorization: Bearer <token>"
+
+Resep Dokters
+- GET /resep-dokter
+  - Example: curl http://localhost:8000/api/resep-dokter -H "Authorization: Bearer <token>"
+- GET /resep-dokter/{resep_dokter}
+  - Example: curl http://localhost:8000/api/resep-dokter/1 -H "Authorization: Bearer <token>"
+- GET /resep-dokter/pasien/{nik}
+  - Example: curl http://localhost:8000/api/resep-dokter/pasien/1234567890123456 -H "Authorization: Bearer <token>"
+- POST /resep-dokter
+  - Parameters: id_rekam_medis, id_dokter, nama_obat, keterangan_resep, tanggal_resep
+  - Example: curl -X POST http://localhost:8000/api/resep-dokter -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_rekam_medis":1,"id_dokter":1,"nama_obat":"Paracetamol","keterangan_resep":"3x sehari setelah makan","tanggal_resep":"2025-11-06 12:00:00"}'
+- PUT /resep-dokter/{resep_dokter}
+  - Parameters: id_rekam_medis, id_dokter, nama_obat, keterangan_resep, tanggal_resep
+  - Example: curl -X PUT http://localhost:8000/api/resep-dokter/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"nama_obat":"Ibuprofen"}'
+- DELETE /resep-dokter/{resep_dokter}
+  - Example: curl -X DELETE http://localhost:8000/api/resep-dokter/1 -H "Authorization: Bearer <token>"
+
+CRUD APIs (require authentication and admin, doctor, lab, cashier role)
+
+Transaksi Pembayaran
+- GET /transaksi-pembayaran
+  - Example: curl http://localhost:8000/api/transaksi-pembayaran -H "Authorization: Bearer <token>"
+- GET /transaksi-pembayaran/{transaksi_pembayaran}
+  - Example: curl http://localhost:8000/api/transaksi-pembayaran/1 -H "Authorization: Bearer <token>"
+- POST /transaksi-pembayaran
+  - Parameters: id_pasien, id_kasir, tanggal_pembayaran, total_pembayaran, metode_pembayaran, status_pembayaran (Pending, Lunas, Batal)
+  - Example: curl -X POST http://localhost:8000/api/transaksi-pembayaran -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"id_pasien":1,"id_kasir":1,"tanggal_pembayaran":"2025-11-06 13:00:00","total_pembayaran":100000,"metode_pembayaran":"Tunai","status_pembayaran":"Lunas"}'
+- PUT /transaksi-pembayaran/{transaksi_pembayaran}
+  - Parameters: id_pasien, id_kasir, tanggal_pembayaran, total_pembayaran, metode_pembayaran, status_pembayaran (Pending, Lunas, Batal)
+  - Example: curl -X PUT http://localhost:8000/api/transaksi-pembayaran/1 -H "Content-Type: application/json" -H "Authorization: Bearer <token>" -d '{"status_pembayaran":"Pending"}'
+- DELETE /transaksi-pembayaran/{transaksi_pembayaran}
+  - Example: curl -X DELETE http://localhost:8000/api/transaksi-pembayaran/1 -H "Authorization: Bearer <token>"

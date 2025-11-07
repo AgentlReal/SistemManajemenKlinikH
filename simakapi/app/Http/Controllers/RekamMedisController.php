@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Antrian;
-use App\Http\Requests\StoreAntrianRequest;
-use App\Http\Requests\UpdateAntrianRequest;
+use App\Models\RekamMedis;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-class AntrianController extends Controller
+class RekamMedisController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,39 +14,17 @@ class AntrianController extends Controller
     public function index(): JsonResponse
     {
         try {
-            $antrians = Antrian::all();
+            $rekamMedis = RekamMedis::all();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Antrians retrieved successfully.',
-                'data' => $antrians
+                'message' => 'RekamMedis retrieved successfully.',
+                'data' => $rekamMedis
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve antrians.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Display a listing of the complete antrian view.
-     */
-    public function indexLengkap(): JsonResponse
-    {
-        try {
-            $viewAntrianLengkap = \App\Models\ViewAntrianLengkap::all();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Complete antrians retrieved successfully.',
-                'data' => $viewAntrianLengkap
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve complete antrians.',
+                'message' => 'Failed to retrieve rekamMedis.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -56,22 +33,25 @@ class AntrianController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAntrianRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         try {
-            $validatedData = $request->validated();
+            $validatedData = $request->validate([
+                'id_pasien' => 'required|integer',
+                'tanggal_pencatatan' => 'sometimes|date',
+            ]);
 
-            $antrian = Antrian::create($validatedData);
+            $rekamMedis = RekamMedis::create($validatedData);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Antrian created successfully.',
-                'data' => $antrian
+                'message' => 'RekamMedis created successfully.',
+                'data' => $rekamMedis
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create antrian.',
+                'message' => 'Failed to create rekamMedis.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -83,24 +63,24 @@ class AntrianController extends Controller
     public function show($id): JsonResponse
     {
         try {
-            $antrian = Antrian::find($id);
+            $rekamMedis = RekamMedis::find($id);
 
-            if (!$antrian) {
+            if (!$rekamMedis) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Antrian not found.'
+                    'message' => 'RekamMedis not found.'
                 ], 404);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Antrian retrieved successfully.',
-                'data' => $antrian
+                'message' => 'RekamMedis retrieved successfully.',
+                'data' => $rekamMedis
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve antrian.',
+                'message' => 'Failed to retrieve rekamMedis.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -109,31 +89,34 @@ class AntrianController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAntrianRequest $request, $id): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
         try {
-            $antrian = Antrian::find($id);
+            $rekamMedis = RekamMedis::find($id);
 
-            if (!$antrian) {
+            if (!$rekamMedis) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Antrian not found.'
+                    'message' => 'RekamMedis not found.'
                 ], 404);
             }
 
-            $validatedData = $request->validated();
+            $validatedData = $request->validate([
+                'id_pasien' => 'sometimes|required|integer',
+                'tanggal_pencatatan' => 'sometimes|date',
+            ]);
 
-            $antrian->update($validatedData);
+            $rekamMedis->update($validatedData);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Antrian updated successfully.',
-                'data' => $antrian
+                'message' => 'RekamMedis updated successfully.',
+                'data' => $rekamMedis
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update antrian.',
+                'message' => 'Failed to update rekamMedis.',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -145,25 +128,25 @@ class AntrianController extends Controller
     public function destroy($id): JsonResponse
     {
         try {
-            $antrian = Antrian::find($id);
+            $rekamMedis = RekamMedis::find($id);
 
-            if (!$antrian) {
+            if (!$rekamMedis) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Antrian not found.'
+                    'message' => 'RekamMedis not found.'
                 ], 404);
             }
 
-            $antrian->delete();
+            $rekamMedis->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Antrian deleted successfully.'
+                'message' => 'RekamMedis deleted successfully.'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete antrian.',
+                'message' => 'Failed to delete rekamMedis.',
                 'error' => $e->getMessage()
             ], 500);
         }

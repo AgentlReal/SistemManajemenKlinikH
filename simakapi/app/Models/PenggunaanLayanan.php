@@ -5,17 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RekamMedis extends Model
+class PenggunaanLayanan extends Model
 {
     use HasFactory;
 
-    protected $table = 'rekam_medis';
-    protected $primaryKey = 'id_rekam_medis';
+    protected $table = 'penggunaan_layanan';
+    protected $primaryKey = 'id_penggunaan_layanan';
     public $incrementing = true;
     public $timestamps = false;
 
     protected $fillable = [
-        'id_pasien',
-        'tanggal_pencatatan',
+        'id_pembayaran',
+        'id_tarif_layanan',
+        'kuantitas',
+        'harga_saat_itu',
     ];
 }

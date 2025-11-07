@@ -17,6 +17,8 @@ use App\Http\Controllers\TarifLayananController;
 use App\Http\Controllers\PoliController;
 use App\Http\Controllers\JadwalKaryawanController;
 use App\Http\Controllers\ResepDokterController;
+use App\Http\Controllers\PenggunaanLayananController;
+use App\Http\Controllers\RekamMedisController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -64,6 +66,7 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::put('jadwal-karyawan/{jadwal_karyawan}', [JadwalKaryawanController::class, 'update']);
     Route::delete('jadwal-karyawan/{jadwal_karyawan}', [JadwalKaryawanController::class, 'destroy']);
     Route::get('jadwal-karyawan-lengkap', [JadwalKaryawanController::class, 'getJadwalLengkap']);
+    Route::get('karyawan-tanpa-jadwal', [JadwalKaryawanController::class, 'indexKaryawanTanpaJadwal']);
 });
 
 Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab'])->group(function () {
@@ -72,11 +75,13 @@ Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab'])->group
     Route::get('antrian/{antrian}', [AntrianController::class, 'show']);
     Route::put('antrian/{antrian}', [AntrianController::class, 'update']);
     Route::delete('antrian/{antrian}', [AntrianController::class, 'destroy']);
+    Route::get('antrian-lengkap', [AntrianController::class, 'indexLengkap']);
     Route::get('pasien', [PasienController::class, 'index']);
     Route::post('pasien', [PasienController::class, 'store']);
     Route::get('pasien/{pasien}', [PasienController::class, 'show']);
     Route::put('pasien/{pasien}', [PasienController::class, 'update']);
     Route::delete('pasien/{pasien}', [PasienController::class, 'destroy']);
+    Route::resource('rekam-medis', RekamMedisController::class);
     Route::get('soap', [SoapController::class, 'index']);
     Route::post('soap', [SoapController::class, 'store']);
     Route::get('soap/{soap}', [SoapController::class, 'show']);
@@ -103,6 +108,8 @@ Route::middleware(['auth:sanctum', 'role:admin,doctor,lab,cashier'])->group(func
     Route::get('transaksi-pembayaran/{transaksi_pembayaran}', [TransaksiPembayaranController::class, 'show']);
     Route::put('transaksi-pembayaran/{transaksi_pembayaran}', [TransaksiPembayaranController::class, 'update']);
     Route::delete('transaksi-pembayaran/{transaksi_pembayaran}', [TransaksiPembayaranController::class, 'destroy']);
+    Route::get('transaksi-pembayaran-lengkap', [TransaksiPembayaranController::class, 'indexLengkap']);
+    Route::resource('penggunaan-layanan', PenggunaanLayananController::class);
 });
 
 Route::get('/user', function (Request $request) {

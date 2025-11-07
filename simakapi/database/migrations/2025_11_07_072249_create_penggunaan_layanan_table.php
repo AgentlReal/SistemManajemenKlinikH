@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('id_pembayaran')->nullable()->index('id_pembayaran');
             $table->integer('id_tarif_layanan')->nullable()->index('id_tarif_layanan');
             $table->integer('kuantitas')->nullable();
+            $table->integer('harga_saat_itu')->nullable();
         });
     }
 

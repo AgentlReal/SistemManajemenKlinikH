@@ -32,6 +32,28 @@ class TransaksiPembayaranController extends Controller
     }
 
     /**
+     * Display a listing of the complete transaction payment view.
+     */
+    public function indexLengkap(): JsonResponse
+    {
+        try {
+            $viewTransaksiPembayaranLengkap = \App\Models\ViewTransaksiPembayaranLengkap::all();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Complete transaction payments retrieved successfully.',
+                'data' => $viewTransaksiPembayaranLengkap
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve complete transaction payments.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreTransaksiPembayaranRequest $request): JsonResponse

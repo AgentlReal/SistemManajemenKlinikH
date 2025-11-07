@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transaksi_pembayaran', function (Blueprint $table) {
+            $table->foreign(['id_antrian'], 'fk_transaksi_pembayaran_antrian')->references(['id_antrian'])->on('antrian')->onUpdate('no action')->onDelete('no action');
             $table->foreign(['id_kasir'], 'transaksi_pembayaran_ibfk_1')->references(['id_kasir'])->on('kasir')->onUpdate('no action')->onDelete('no action');
         });
     }
@@ -22,6 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('transaksi_pembayaran', function (Blueprint $table) {
+            $table->dropForeign('fk_transaksi_pembayaran_antrian');
             $table->dropForeign('transaksi_pembayaran_ibfk_1');
         });
     }

@@ -7,6 +7,8 @@ use App\Http\Requests\StoreJadwalKaryawanRequest;
 use App\Http\Requests\UpdateJadwalKaryawanRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use App\Models\ViewJadwalKaryawanLengkap;
+use App\Models\ViewKaryawanTanpaJadwal;
 
 class JadwalKaryawanController extends Controller
 {
@@ -151,7 +153,7 @@ class JadwalKaryawanController extends Controller
     public function getJadwalLengkap(): JsonResponse
     {
         try {
-            $jadwalLengkap = DB::table('view_jadwal_karyawan_lengkap')->get();
+            $jadwalLengkap = ViewJadwalKaryawanLengkap::all();
 
             return response()->json([
                 'success' => true,
@@ -162,6 +164,28 @@ class JadwalKaryawanController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve jadwal karyawan lengkap.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Display a listing of employees without a schedule.
+     */
+    public function indexKaryawanTanpaJadwal(): JsonResponse
+    {
+        try {
+            $karyawanTanpaJadwal = ViewKaryawanTanpaJadwal::all();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Employees without schedule retrieved successfully.',
+                'data' => $karyawanTanpaJadwal
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve employees without schedule.',
                 'error' => $e->getMessage()
             ], 500);
         }

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('transaksi_pembayaran', function (Blueprint $table) {
             $table->integer('id_pembayaran', true);
+            $table->integer('id_antrian')->nullable()->index('fk_transaksi_pembayaran_antrian');
             $table->char('id_kasir', 4)->nullable()->index('id_kasir');
             $table->enum('status_pembayaran', ['Lunas', 'Belum Lunas'])->nullable()->default('Belum Lunas');
-            $table->integer('jumlah_total')->nullable();
             $table->enum('metode_pembayaran', ['Tunai', 'Transfer bank'])->nullable();
             $table->dateTime('tanggal_transaksi')->nullable()->useCurrent();
         });

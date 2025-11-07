@@ -1,0 +1,37 @@
+
+# Dependencies
+/node_modules
+/simak/node_modules
+/simakapi/vendor
+
+# Log files
+/simakapi/storage/logs/*.log
+*.log
+
+# Environment files
+.env
+.env.*
+!/.env.example
+
+/simak/.env
+/simak/.env.*
+!/simak/.env.example
+
+/simakapi/.env
+/simakapi/.env.*
+!/simakapi/.env.example
+
+# Build output
+/simak/dist
+/simakapi/public/build
+
+# IDE and OS files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+.DS_Store

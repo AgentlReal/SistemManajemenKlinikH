@@ -17,7 +17,6 @@ class Pasien extends Model
         'NIK',
         'nama',
         'nomor_telepon',
-        'email',
         'jenis_kelamin',
         'tanggal_lahir',
         'alamat',

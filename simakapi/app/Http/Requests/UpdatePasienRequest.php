@@ -19,7 +19,6 @@ class UpdatePasienRequest extends FormRequest
             'NIK' => 'nullable|string|max:16|unique:pasien,NIK,' . $pasienId . ',id_pasien',
             'nama' => 'required|string|max:100',
             'nomor_telepon' => 'nullable|string|max:15',
-            'email' => 'nullable|email|max:100',
             'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
             'tanggal_lahir' => 'nullable|date',
             'alamat' => 'nullable|string',

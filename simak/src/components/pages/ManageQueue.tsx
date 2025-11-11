@@ -4,7 +4,11 @@ import {
   fetchAllQueuesAPI,
   updateQueueAPI,
 } from "@/services/queueServices";
-import type { QueueItem, QueueStatus } from "@/types";
+import type {
+  BackendQueuePayload,
+  BackendQueueResponse,
+  QueueStatus,
+} from "@/types";
 import startcase from "@stdlib/string-startcase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
@@ -24,15 +28,15 @@ interface StatusConfig {
 }
 
 const statusConfig: Record<QueueStatus, StatusConfig> = {
-  menunggu: {
+  Menunggu: {
     label: "Menunggu",
     color: "bg-yellow-100 text-yellow-700 hover:bg-yellow-200",
   },
-  berlangsung: {
+  Berlangsung: {
     label: "Berlangsung",
     color: "bg-blue-100 text-blue-700 hover:bg-blue-200",
   },
-  selesai: {
+  Selesai: {
     label: "Selesai",
     color: "bg-green-100 text-green-700 hover:bg-green-200",
   },
@@ -40,8 +44,10 @@ const statusConfig: Record<QueueStatus, StatusConfig> = {
 
 export function ManageQueue() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [deleteQueueId, setDeleteQueueId] = useState<string | null>(null);
-  const [editingQueue, setEditingQueue] = useState<QueueItem | null>(null);
+  const [deleteQueueId, setDeleteQueueId] = useState<number | null>(null);
+  const [editingQueue, setEditingQueue] = useState<BackendQueuePayload | null>(
+    null
+  );
   const queryClient = useQueryClient();
 
   const {
@@ -49,20 +55,20 @@ export function ManageQueue() {
     isLoading,
     isRefetching,
     error,
-  } = useQuery<QueueItem[]>({
+  } = useQuery<BackendQueueResponse[]>({
     queryKey: ["queues"],
     queryFn: () => fetchAllQueuesAPI(),
   });
 
   const createQueueMutation = useMutation<
-    QueueItem,
+    BackendQueueResponse,
     Error,
-    Omit<QueueItem, "id" | "status" | "queueNumber">
+    Omit<BackendQueuePayload, "id_antrian">
   >({
-    mutationFn: async (newQueue) => {
-      await createQueueAPI(newQueue);
+    mutationFn: async (newQueuePayload) => {
+      await createQueueAPI(newQueuePayload);
       toast.success("Queue entry added successfully!");
-      return {} as QueueItem;
+      return {} as BackendQueueResponse;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["queues"] });
@@ -72,12 +78,12 @@ export function ManageQueue() {
       queryClient.invalidateQueries({ queryKey: ["queues"] });
     },
   });
-  const deleteQueueMutation = useMutation<QueueItem, Error, string>({
+  const deleteQueueMutation = useMutation<void, Error, number>({
     mutationFn: async (id) => {
       await deleteQueueAPI(id);
       toast.success("Queue entry deleted successfully!");
       setDeleteQueueId(null);
-      return {} as QueueItem;
+      return;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["queues"] });
@@ -88,15 +94,14 @@ export function ManageQueue() {
     },
   });
   const updateQueueMutation = useMutation<
-    QueueItem,
+    undefined,
     Error,
-    Omit<QueueItem, "queueNumber">
+    BackendQueuePayload
   >({
-    mutationFn: async (updatedQueue) => {
-      await updateQueueAPI(updatedQueue);
+    mutationFn: async (payload) => {
+      const updated = await updateQueueAPI(payload);
       toast.success("Queue entry updated successfully!");
       setEditingQueue(null);
-      return {} as QueueItem;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["queues"] });
@@ -107,9 +112,9 @@ export function ManageQueue() {
     },
   });
 
-  const columns: ColumnDef<QueueItem>[] = [
+  const columns: ColumnDef<BackendQueueResponse>[] = [
     {
-      accessorKey: "queueNumber",
+      accessorKey: "nomor_antrian",
       header: () => (
         <p className="text-center font-semibold text-md">No Antrian</p>
       ),
@@ -118,31 +123,31 @@ export function ManageQueue() {
       ),
     },
     {
-      accessorKey: "patientName",
+      accessorKey: "nama_pasien",
       header: "Nama Pasien",
     },
     {
-      accessorKey: "department",
+      accessorKey: "poli",
       header: "Poli",
       cell: ({ getValue }) => startcase(getValue() as string),
     },
     {
-      accessorKey: "doctor",
+      accessorKey: "nama_dokter",
       header: "Nama Dokter",
     },
     {
-      accessorKey: "time",
+      accessorKey: "tanggal",
       header: "Waktu",
     },
     {
-      accessorKey: "status",
+      accessorKey: "keterangan",
       header: "Status",
       cell: ({ getValue }) => {
         const item = getValue() as QueueStatus;
 
         return (
-          <Badge className={statusConfig[item].color}>
-            {statusConfig[item].label}
+          <Badge className={statusConfig[item]?.color}>
+            {statusConfig[item]?.label}
           </Badge>
         );
       },
@@ -155,7 +160,17 @@ export function ManageQueue() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setEditingQueue(row.original)}
+            onClick={() =>
+              setEditingQueue({
+                id_antrian: row.original.id_antrian,
+                id_dokter: row.original.id_dokter,
+                id_pasien: row.original.id_pasien,
+                id_resepsionis: "R001",
+                keluhan: row.original.keluhan,
+                nomor_antrian: row.original.nomor_antrian,
+                keterangan: row.original.keterangan,
+              })
+            }
             title="Edit"
             className="hover:cursor-pointer"
           >
@@ -165,7 +180,7 @@ export function ManageQueue() {
             variant="ghost"
             size="icon"
             className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:cursor-pointer"
-            onClick={() => setDeleteQueueId(row.original.id)}
+            onClick={() => setDeleteQueueId(row.original.id_antrian)}
             title="Delete"
           >
             <Trash2 className="w-4 h-4" />
@@ -176,13 +191,13 @@ export function ManageQueue() {
   ];
 
   const waitingCount = queue
-    ? queue.filter((item) => item.status === "menunggu").length
+    ? queue.filter((item) => item.keterangan === "Menunggu").length
     : 0;
   const inProgressCount = queue
-    ? queue.filter((item) => item.status === "berlangsung").length
+    ? queue.filter((item) => item.keterangan === "Berlangsung").length
     : 0;
   const completedCount = queue
-    ? queue.filter((item) => item.status === "selesai").length
+    ? queue.filter((item) => item.keterangan === "Selesai").length
     : 0;
 
   return (
@@ -255,7 +270,9 @@ export function ManageQueue() {
             data={queue}
             title="antrian"
             onAdd={() => setIsAddModalOpen(true)}
-            onRefresh={() => queryClient.invalidateQueries({ queryKey: ["queues"] })}
+            onRefresh={() =>
+              queryClient.invalidateQueries({ queryKey: ["queues"] })
+            }
           />
         </CardContent>
       </Card>

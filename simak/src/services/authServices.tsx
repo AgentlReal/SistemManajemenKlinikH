@@ -38,7 +38,7 @@ const postLoginAPI = async (
 
 const getUserDataAPI = async (): Promise<UserData> => {
   const response = await apiFetch("/user");
-  return response;
+  return response.data.user;
 };
 
 const logoutAPI = async () => {

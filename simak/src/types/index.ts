@@ -89,10 +89,10 @@ export const queueItemSchema = z.object({
   department: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
   doctor: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
   status: z.enum<QueueStatus[]>(
-    ["menunggu", "berlangsung", "selesai"],
+    ["Menunggu", "Berlangsung", "Selesai"],
     "Status harus diisi"
   ),
-  time: z.string(),
+  tanggal: z.string(),
 });
 
 export const receptionistSchema = z.object({
@@ -261,12 +261,7 @@ export type Patient = {
   id: string;
 } & z.infer<typeof patientSchema>;
 
-export type QueueStatus = "menunggu" | "berlangsung" | "selesai";
-
-export type QueueItem = {
-  id: string;
-  queueNumber: string;
-} & z.infer<typeof queueItemSchema>;
+export type QueueStatus = "Menunggu" | "Berlangsung" | "Selesai";
 
 export type TransactionStatus = "paid" | "unpaid";
 
@@ -312,11 +307,46 @@ export type Schedule = {
 export type ClinicInfo = z.infer<typeof clinicInfoSchema>;
 
 export interface SOAPNote {
-  id: string;
-  date: string;
+  id_soap: number;
+  id_rekam_medis: number;
+  id_dokter: string;
   subjective: string;
   objective: string;
   assessment: string;
   plan: string;
-  doctor: string;
+  tanggal_pencatatan: string;
+}
+export interface ViewSOAPNote {
+  id_soap: number;
+  id_rekam_medis: number;
+  id_dokter: string;
+  nama_dokter: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  tanggal_pencatatan: string;
+}
+
+export interface BackendQueuePayload {
+  id_antrian: number;
+  id_resepsionis: string;
+  id_dokter: string;
+  id_pasien: number;
+  keluhan: string;
+  nomor_antrian: string;
+  keterangan: QueueStatus;
+}
+
+export interface BackendQueueResponse {
+  id_antrian: number;
+  id_pasien: number;
+  id_dokter: string;
+  nomor_antrian: string;
+  nama_pasien: string;
+  poli: string;
+  nama_dokter: string;
+  keluhan: string;
+  tanggal: string;
+  keterangan: QueueStatus;
 }

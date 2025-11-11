@@ -6,6 +6,8 @@ use App\Models\Soap;
 use App\Http\Requests\StoreSoapRequest;
 use App\Http\Requests\UpdateSoapRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+
 
 class SoapController extends Controller
 {
@@ -30,6 +32,29 @@ class SoapController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Display a listing of the complete antrian view.
+     */
+    public function indexLengkap(): JsonResponse
+    {
+        try {
+            $viewSoapLengkap = \App\Models\ViewSoapLengkap::all();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Complete soaps retrieved successfully.',
+                'data' => $viewSoapLengkap
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve complete soaps.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -112,10 +137,7 @@ class SoapController extends Controller
     public function showByPasienNik($nik): JsonResponse
     {
         try {
-            $soaps = Soap::whereHas('rekamMedis.pasien', function ($query) use ($nik) {
-                $query->where('NIK', $nik);
-            })->get();
-
+            $soaps = DB::select('CALL GetSOAPByNIK(?)', [$nik]);
             return response()->json([
                 'success' => true,
                 'message' => 'Soaps retrieved successfully for NIK: ' . $nik,

@@ -18,4 +18,9 @@ class RekamMedis extends Model
         'id_pasien',
         'tanggal_pencatatan',
     ];
+
+    public function pasien()
+    {
+        return $this->belongsTo(Pasien::class, 'id_pasien');
+    }
 }

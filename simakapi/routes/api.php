@@ -79,6 +79,7 @@ Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab'])->group
     Route::get('pasien', [PasienController::class, 'index']);
     Route::post('pasien', [PasienController::class, 'store']);
     Route::get('pasien/{pasien}', [PasienController::class, 'show']);
+    Route::get('pasien/nik/{pasien}', [PasienController::class, 'showByNik']);
     Route::put('pasien/{pasien}', [PasienController::class, 'update']);
     Route::delete('pasien/{pasien}', [PasienController::class, 'destroy']);
     Route::resource('rekam-medis', RekamMedisController::class);
@@ -87,7 +88,7 @@ Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab'])->group
     Route::get('soap/{soap}', [SoapController::class, 'show']);
     Route::put('soap/{soap}', [SoapController::class, 'update']);
     Route::delete('soap/{soap}', [SoapController::class, 'destroy']);
-    Route::get('/soap/pasien/{nik}', [SoapController::class, 'showByPasienNik']);
+    Route::get('/soap-lengkap/pasien/{nik}', [SoapController::class, 'showByPasienNik']);
     Route::get('hasil-lab', [HasilLabController::class, 'index']);
     Route::post('hasil-lab', [HasilLabController::class, 'store']);
     Route::get('hasil-lab/{hasil_lab}', [HasilLabController::class, 'show']);
@@ -113,9 +114,6 @@ Route::middleware(['auth:sanctum', 'role:admin,doctor,lab,cashier'])->group(func
 });
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware(['auth:sanctum']);
-Route::get('/users', function (Request $request) {
     return response()->json(
         [
             'success' => true,

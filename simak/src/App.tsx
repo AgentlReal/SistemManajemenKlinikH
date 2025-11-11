@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -13,8 +12,6 @@ import { Reports } from "./components/pages/Reports";
 import { Transactions } from "./components/pages/Transactions";
 import { Toaster } from "./components/ui/sonner";
 import { useAuth } from "./hooks/use-auth";
-
-const queryClient = new QueryClient();
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("dashboard");
@@ -79,26 +76,22 @@ export default function App() {
   if (!auth.user) {
     return (
       <>
-        <QueryClientProvider client={queryClient}>
-          <LoginPage onLogin={handleLogin} />
-          <Toaster position="top-right" />
-        </QueryClientProvider>
+        <LoginPage onLogin={handleLogin} />
+        <Toaster position="top-right" />
       </>
     );
   }
 
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        <DashboardLayout
-          currentPage={currentPage}
-          onNavigate={handleNavigate}
-          onLogout={handleLogout}
-        >
-          {renderPage()}
-        </DashboardLayout>
-        <Toaster position="top-right" />
-      </QueryClientProvider>
+      <DashboardLayout
+        currentPage={currentPage}
+        onNavigate={handleNavigate}
+        onLogout={handleLogout}
+      >
+        {renderPage()}
+      </DashboardLayout>
+      <Toaster position="top-right" />
     </>
   );
 }

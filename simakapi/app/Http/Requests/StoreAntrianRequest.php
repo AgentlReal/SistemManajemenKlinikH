@@ -17,10 +17,8 @@ class StoreAntrianRequest extends FormRequest
             'id_resepsionis' => 'nullable|string|max:4',
             'id_dokter' => 'nullable|string|max:4',
             'id_pasien' => 'nullable|integer',
-            'tanggal' => 'nullable|date',
             'keluhan' => 'nullable|string',
             'nomor_antrian' => 'nullable|string|max:10',
-            'keterangan' => 'nullable|in:Menunggu,Diproses,Selesai,Batal',
         ];
     }
 }

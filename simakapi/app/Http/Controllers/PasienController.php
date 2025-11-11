@@ -83,6 +83,34 @@ class PasienController extends Controller
             ], 500);
         }
     }
+    /**
+     * Display the specified resource.
+     */
+    public function showByNik($nik): JsonResponse
+    {
+        try {
+            $pasien = Pasien::where('NIK', $nik)->first();
+
+            if (!$pasien) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pasien not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pasien retrieved successfully.',
+                'data' => $pasien
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve pasien.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
     /**
      * Update the specified resource in storage.

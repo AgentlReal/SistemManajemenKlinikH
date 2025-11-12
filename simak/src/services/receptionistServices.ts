@@ -1,81 +1,50 @@
+import apiFetch from "@/lib/api";
 import type { Receptionist } from "@/types";
 
-const mockReceptionists = [
-  {
-    id: "1",
-    name: "Alice Johnson",
-    address: "123 Main St, Jakarta",
-    gender: "male",
-    birthDate: "1995-10-12",
-    wage: 3000000,
-    phone: "081234567890",
-  },
-  {
-    id: "2",
-    name: "Bob Williams",
-    address: "123 Main St, Jakarta",
-    gender: "male",
-    birthDate: "1990-07-09",
-    wage: 3000000,
-    phone: "081234567891",
-  },
-];
+const transformReceptionistToAPI = (
+  receptionist: Omit<Receptionist, "id_resepsionis">
+) => ({
+  ...receptionist,
+  tanggal_lahir: receptionist.tanggal_lahir.toISOString().split("T")[0],
+});
 
-let currentMockReceptionists = [...mockReceptionists];
-
-const DELAY_DURATION = 1000;
-
-// throw new Error('Test ERROR');
-
-function delay(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+const transformReceptionistFromAPI = (
+  receptionist: Receptionist
+): Receptionist => ({
+  ...receptionist,
+  tanggal_lahir: new Date(receptionist.tanggal_lahir),
+});
 
 export const fetchAllReceptionistsAPI = async () => {
-  await delay(DELAY_DURATION);
-  return [
-    ...currentMockReceptionists.map((obj) => ({
-      ...obj,
-      birthDate: new Date(obj.birthDate),
-    })),
-  ] as Receptionist[];
+  const response = await apiFetch("/resepsionis");
+  return response.data.map(transformReceptionistFromAPI);
 };
 
 export const createReceptionistAPI = async (
-  newReceptionist: Omit<Receptionist, "id">
+  newReceptionist: Omit<Receptionist, "id_resepsionis">
 ) => {
-  await delay(DELAY_DURATION);
-  const receptionist = {
-    ...newReceptionist,
-    birthDate: newReceptionist.birthDate.toISOString(),
-  };
-  currentMockReceptionists = [
-    ...currentMockReceptionists,
-    {
-      ...receptionist,
-      id: Date.now().toString(),
-    },
-  ];
+  console.log(JSON.stringify(transformReceptionistToAPI(newReceptionist)));
+
+  await apiFetch("/resepsionis", {
+    method: "POST",
+    body: JSON.stringify(transformReceptionistToAPI(newReceptionist)),
+  });
+  return;
 };
 
 export const updateReceptionistAPI = async (
   updatedReceptionist: Receptionist
 ) => {
-  await delay(DELAY_DURATION);
-  const receptionist = {
-    ...updatedReceptionist,
-    birthDate: updatedReceptionist.birthDate.toISOString(),
-  };
-  currentMockReceptionists = currentMockReceptionists.map((item) =>
-    item.id === receptionist.id ? receptionist : item
-  );
+  await apiFetch(`/resepsionis/${updatedReceptionist.id_resepsionis}`, {
+    method: "PUT",
+    body: JSON.stringify(transformReceptionistToAPI(updatedReceptionist)),
+  });
+  return;
 };
 
 export const deleteReceptionistAPI = async (id: string) => {
-  await delay(DELAY_DURATION);
-  currentMockReceptionists = currentMockReceptionists.filter(
-    (item) => item.id !== id
-  );
+  await apiFetch(`/resepsionis/${id}`, {
+    method: "DELETE",
+  });
+  return;
 };

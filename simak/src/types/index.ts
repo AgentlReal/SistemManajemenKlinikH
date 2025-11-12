@@ -96,26 +96,26 @@ export const queueItemSchema = z.object({
 });
 
 export const receptionistSchema = z.object({
-  name: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
+  nama: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
 
-  birthDate: z
+  tanggal_lahir: z
     .date({
       error: warnings.birthDate.min,
     })
     .max(new Date(), { error: warnings.birthDate.max }),
-  gender: z.enum(["Laki-laki", "Perempuan"], warnings.gender),
+  gaji: z.coerce.number().int(warnings.wage.int).min(0, warnings.wage.min),
 
-  address: z
-    .string()
-    .min(1, warnings.address.min)
-    .max(500, warnings.address.max),
-
-  phone: z
+  nomor_telepon: z
     .string()
     .min(1, warnings.phone.min)
     .regex(/^(\+62|62|0)[0-9]{8,15}$/, warnings.phone.regex),
 
-  wage: z.coerce.number().int(warnings.wage.int).min(0, warnings.wage.min),
+  jenis_kelamin: z.enum(["Laki-laki", "Perempuan"], warnings.gender),
+
+  alamat: z
+    .string()
+    .min(1, warnings.address.min)
+    .max(500, warnings.address.max),
 });
 
 export const doctorSchema = z.object({
@@ -277,7 +277,7 @@ export interface Transaction {
 }
 
 export type Receptionist = {
-  id: string;
+  id_resepsionis: string;
 } & z.infer<typeof receptionistSchema>;
 
 export type Doctor = {

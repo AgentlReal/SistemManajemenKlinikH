@@ -163,7 +163,7 @@ export function MasterData() {
   const createReceptionistMutation = useMutation<
     Receptionist,
     Error,
-    Omit<Receptionist, "id" | "status">
+    Omit<Receptionist, "id_resepsionis">
   >({
     mutationFn: async (newReceptionist) => {
       await createReceptionistAPI(newReceptionist);
@@ -490,23 +490,23 @@ export function MasterData() {
 
   const receptionistColumns: ColumnDef<Receptionist>[] = [
     {
-      accessorKey: "id",
+      accessorKey: "id_resepsionis",
       header: "ID",
     },
     {
-      accessorKey: "name",
+      accessorKey: "nama",
       header: "Nama",
     },
     {
-      accessorKey: "gender",
+      accessorKey: "jenis_kelamin",
       header: "Jenis Kelamin",
     },
     {
-      accessorKey: "phone",
+      accessorKey: "nomor_telepon",
       header: "No Telp",
     },
     {
-      accessorKey: "wage",
+      accessorKey: "gaji",
       header: "Gaji",
       cell: ({ getValue }) => formatCurrency(getValue() as number),
     },
@@ -526,7 +526,7 @@ export function MasterData() {
             variant="ghost"
             size="icon"
             className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteReceptionistId(row.original.id)}
+            onClick={() => setDeleteReceptionistId(row.original.id_resepsionis)}
           >
             <Trash2 className="w-4 h-4" />
           </Button>

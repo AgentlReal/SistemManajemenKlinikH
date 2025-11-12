@@ -28,7 +28,7 @@ import {
 interface AddReceptionistModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (receptionist: Omit<Receptionist, "id">) => void;
+  onAdd: (receptionist: Omit<Receptionist, "id_resepsionis">) => void;
   onUpdate: (receptionist: Receptionist) => void;
   editingReceptionist: Receptionist | null;
 }
@@ -53,12 +53,13 @@ export function AddReceptionistModal({
 
   useEffect(() => {
     if (editingReceptionist) {
-      setValue("name", editingReceptionist.name);
-      setValue("wage", editingReceptionist.wage);
-      setValue("gender", editingReceptionist.gender);
-      setValue("address", editingReceptionist.address);
-      setValue("phone", editingReceptionist.phone);
-      setValue("birthDate", editingReceptionist.birthDate);
+      setValue("nama", editingReceptionist.nama);
+      setValue("gaji", editingReceptionist.gaji);
+      setValue("jenis_kelamin", editingReceptionist.jenis_kelamin);
+      setValue("alamat", editingReceptionist.alamat);
+      setValue("nomor_telepon", editingReceptionist.nomor_telepon);
+      setValue("tanggal_lahir", editingReceptionist.tanggal_lahir);
+      console.log(watch("tanggal_lahir"));
     } else {
       reset();
     }
@@ -68,7 +69,7 @@ export function AddReceptionistModal({
     if (editingReceptionist) {
       onUpdate({
         ...data,
-        id: editingReceptionist.id,
+        id_resepsionis: editingReceptionist.id_resepsionis,
       });
     } else {
       onAdd(data);
@@ -93,70 +94,72 @@ export function AddReceptionistModal({
         <form onSubmit={handleSubmit(onValid)}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nama Lengkap</Label>
-              <Input {...register("name")} id="name" placeholder="John Doe" />
-              {errors.name && (
+              <Label htmlFor="nama">Nama Lengkap</Label>
+              <Input {...register("nama")} id="nama" placeholder="John Doe" />
+              {errors.nama && (
                 <p className="text-sm text-destructive">
-                  {errors.name.message}
+                  {errors.nama.message}
                 </p>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Controller
-                name="birthDate"
+                name="tanggal_lahir"
                 control={control}
-                render={({ field: { value, onChange } }) => (
-                  <div className="flex flex-col gap-3">
-                    <Label htmlFor="date" className="px-1">
-                      Tanggal Lahir
-                    </Label>
-                    <Popover open={open} onOpenChange={setOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          id="date"
-                          className="w-48 justify-between font-normal"
+                render={({ field: { value, onChange } }) => {
+                  return (
+                    <div className="flex flex-col gap-3">
+                      <Label htmlFor="date" className="px-1">
+                        Tanggal Lahir
+                      </Label>
+                      <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            id="date"
+                            className="w-48 justify-between font-normal"
+                          >
+                            {value instanceof Date
+                              ? value.toLocaleDateString("id-ID")
+                              : "Select date"}
+                            <ChevronDownIcon />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-auto overflow-hidden p-0"
+                          align="start"
+                          side="bottom"
+                          avoidCollisions={false}
                         >
-                          {value instanceof Date
-                            ? value.toLocaleDateString("id-ID")
-                            : "Select date"}
-                          <ChevronDownIcon />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="w-auto overflow-hidden p-0"
-                        align="start"
-                        side="bottom"
-                        avoidCollisions={false}
-                      >
-                        <Calendar
-                          defaultMonth={value}
-                          mode="single"
-                          selected={value}
-                          captionLayout="dropdown"
-                          onSelect={(date) => {
-                            onChange(date);
-                            setOpen(false);
-                          }}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    {errors.birthDate && (
-                      <p className="text-sm text-destructive">
-                        {errors.birthDate.message}
-                      </p>
-                    )}
-                  </div>
-                )}
+                          <Calendar
+                            defaultMonth={value}
+                            mode="single"
+                            selected={value}
+                            captionLayout="dropdown"
+                            onSelect={(date) => {
+                              onChange(date);
+                              setOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {errors.tanggal_lahir && (
+                        <p className="text-sm text-destructive">
+                          {errors.tanggal_lahir.message}
+                        </p>
+                      )}
+                    </div>
+                  );
+                }}
               />
               <div className="space-y-2">
                 <Label htmlFor="age">Umur</Label>
                 <Input
                   id="age"
                   value={
-                    watch("birthDate")
-                      ? new AgeFromDate(watch("birthDate")).age
+                    watch("tanggal_lahir")
+                      ? new AgeFromDate(watch("tanggal_lahir")).age
                       : ""
                   }
                   readOnly
@@ -164,23 +167,23 @@ export function AddReceptionistModal({
               </div>
             </div>
             <Controller
-              name="gender"
+              name="jenis_kelamin"
               control={control}
               render={({ field: { onChange, value } }) => (
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Jenis Kelamin</Label>
+                  <Label htmlFor="jenis_kelamin">Jenis Kelamin</Label>
                   <Select onValueChange={onChange} defaultValue={value}>
-                    <SelectTrigger id="gender">
-                      <SelectValue placeholder="Select gender" />
+                    <SelectTrigger id="jenis_kelamin">
+                      <SelectValue placeholder="Select jenis_kelamin" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Laki-laki</SelectItem>
-                      <SelectItem value="female">Perempuan</SelectItem>
+                      <SelectItem value="Laki-laki">Laki-laki</SelectItem>
+                      <SelectItem value="Perempuan">Perempuan</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.gender && (
+                  {errors.jenis_kelamin && (
                     <p className="text-sm text-destructive">
-                      {errors.gender.message}
+                      {errors.jenis_kelamin.message}
                     </p>
                   )}
                 </div>
@@ -188,38 +191,38 @@ export function AddReceptionistModal({
             />
 
             <div className="space-y-2">
-              <Label htmlFor="phone">No Telp</Label>
+              <Label htmlFor="nomor_telepon">No Telp</Label>
               <Input
-                {...register("phone")}
-                id="phone"
+                {...register("nomor_telepon")}
+                id="nomor_telepon"
                 placeholder="081234567890"
               />
-              {errors.phone && (
+              {errors.nomor_telepon && (
                 <p className="text-sm text-destructive">
-                  {errors.phone.message}
+                  {errors.nomor_telepon.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">Alamat</Label>
+              <Label htmlFor="alamat">Alamat</Label>
               <Input
-                {...register("address")}
-                id="address"
+                {...register("alamat")}
+                id="alamat"
                 placeholder="123 Main St, City"
               />
-              {errors.address && (
+              {errors.alamat && (
                 <p className="text-sm text-destructive">
-                  {errors.address.message}
+                  {errors.alamat.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="wage">Gaji</Label>
-              <Input {...register("wage")} id="wage" placeholder="0" />
-              {errors.wage && (
+              <Label htmlFor="gaji">Gaji</Label>
+              <Input {...register("gaji")} id="gaji" placeholder="0" />
+              {errors.gaji && (
                 <p className="text-sm text-destructive">
-                  {errors.wage.message}
+                  {errors.gaji.message}
                 </p>
               )}
             </div>

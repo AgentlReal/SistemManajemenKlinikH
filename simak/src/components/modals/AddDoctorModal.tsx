@@ -234,9 +234,7 @@ export function AddDoctorModal({
                   <Select
                     onValueChange={onChange}
                     defaultValue={
-                      value instanceof Number
-                        ? (value as number).toString()
-                        : undefined
+                      value ? (value as number).toString() : undefined
                     }
                   >
                     <SelectTrigger id="id_poli">

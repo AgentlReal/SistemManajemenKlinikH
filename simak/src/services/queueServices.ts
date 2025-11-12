@@ -30,8 +30,6 @@ export const createQueueAPI = async (
 export const updateQueueAPI = async (
   updatedQueuePayload: BackendQueuePayload
 ) => {
-  console.log(updatedQueuePayload);
-
   const response = await apiFetch(
     `/antrian/${updatedQueuePayload.id_antrian}`,
     {

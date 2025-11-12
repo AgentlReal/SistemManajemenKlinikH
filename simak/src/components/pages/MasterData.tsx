@@ -43,6 +43,7 @@ import type {
   Receptionist,
   Schedule,
   ServiceFee,
+  ViewDoctor,
 } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -118,7 +119,9 @@ export function MasterData() {
   const [isAddDoctorModalOpen, setIsAddDoctorModalOpen] = useState(false);
   useState<Doctor | null>(null);
   const [deleteDoctorId, setDeleteDoctorId] = useState<string | null>(null);
-  const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
+  const [editingDoctor, setEditingDoctor] = useState<
+    (Omit<ViewDoctor, "tanggal_lahir"> & { tanggal_lahir: Date }) | null
+  >(null);
 
   const [isAddCashierModalOpen, setIsAddCashierModalOpen] = useState(false);
   useState<Cashier | null>(null);
@@ -214,7 +217,9 @@ export function MasterData() {
   });
 
   //Doctor Query and Mutations
-  const doctorQuery = useQuery<Doctor[]>({
+  const doctorQuery = useQuery<
+    (Omit<ViewDoctor, "tanggal_lahir"> & { tanggal_lahir: Date })[]
+  >({
     queryKey: ["doctors"],
     queryFn: () => fetchAllDoctorsAPI(),
   });
@@ -222,7 +227,7 @@ export function MasterData() {
   const createDoctorMutation = useMutation<
     Doctor,
     Error,
-    Omit<Doctor, "id" | "status">
+    Omit<Doctor, "id_dokter">
   >({
     mutationFn: async (newDoctor) => {
       await createDoctorAPI(newDoctor);
@@ -535,25 +540,31 @@ export function MasterData() {
     },
   ];
 
-  const doctorColumns: ColumnDef<Doctor>[] = [
+  const doctorColumns: ColumnDef<
+    Omit<ViewDoctor, "tanggal_lahir"> & { tanggal_lahir: Date }
+  >[] = [
     {
-      accessorKey: "id",
+      accessorKey: "id_dokter",
       header: "ID",
     },
     {
-      accessorKey: "name",
+      accessorKey: "nama_dokter",
       header: "Nama",
     },
     {
-      accessorKey: "gender",
+      accessorKey: "jenis_kelamin",
       header: "Jenis Kelamin",
     },
     {
-      accessorKey: "phone",
+      accessorKey: "nomor_telepon",
       header: "No Telp",
     },
     {
-      accessorKey: "wage",
+      accessorKey: "nama_poli",
+      header: "Poli",
+    },
+    {
+      accessorKey: "gaji",
       header: "Gaji",
       cell: ({ getValue }) => formatCurrency(getValue() as number),
     },
@@ -565,7 +576,21 @@ export function MasterData() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setEditingDoctor(row.original)}
+            onClick={() =>
+              setEditingDoctor({
+                id_dokter: row.original.id_dokter,
+                id_poli: row.original.id_poli,
+                alamat: row.original.alamat,
+                gaji: row.original.gaji,
+                jenis_kelamin: row.original.jenis_kelamin,
+                nama_dokter: row.original.nama_dokter,
+                nama_poli: "apalah",
+                nomor_lisensi: row.original.nomor_lisensi,
+                nomor_telepon: row.original.nomor_telepon,
+                spesialis: row.original.spesialis,
+                tanggal_lahir: row.original.tanggal_lahir,
+              })
+            }
           >
             <Edit className="w-4 h-4" />
           </Button>
@@ -573,7 +598,7 @@ export function MasterData() {
             variant="ghost"
             size="icon"
             className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteDoctorId(row.original.id)}
+            onClick={() => setDeleteDoctorId(row.original.id_dokter)}
           >
             <Trash2 className="w-4 h-4" />
           </Button>

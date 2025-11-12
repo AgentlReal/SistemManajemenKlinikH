@@ -119,40 +119,41 @@ export const receptionistSchema = z.object({
 });
 
 export const doctorSchema = z.object({
-  name: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
+  nama: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
 
-  birthDate: z
+  id_poli: z.coerce.number("Poli harus diisi"),
+
+  tanggal_lahir: z
     .date({
       error: warnings.birthDate.min,
     })
     .max(new Date(), { error: warnings.birthDate.max }),
 
-  gender: z.enum(["Laki-laki", "Perempuan"], warnings.gender),
+  jenis_kelamin: z.enum(["Laki-laki", "Perempuan"], warnings.gender),
 
-  department: z.string("Poli harus diisi"),
-
-  address: z
+  alamat: z
     .string()
     .min(1, warnings.address.min)
     .max(500, warnings.address.max),
 
-  specialty: z
+  spesialis: z
     .string()
     .min(1, warnings.specialty.min)
     .max(500, warnings.specialty.max),
 
-  license: z
+  nomor_lisensi: z
     .string()
     .min(1, warnings.license.min)
     .max(500, warnings.license.max),
 
-  phone: z
+  nomor_telepon: z
     .string()
     .min(1, warnings.phone.min)
     .regex(/^(\+62|62|0)[0-9]{8,15}$/, warnings.phone.regex),
 
-  wage: z.coerce.number().int(warnings.wage.int).min(0, warnings.wage.min),
+  gaji: z.coerce.number().int(warnings.wage.int).min(0, warnings.wage.min),
 });
+
 export const cashierSchema = z.object({
   nama: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
 
@@ -281,9 +282,22 @@ export type Receptionist = {
 } & z.infer<typeof receptionistSchema>;
 
 export type Doctor = {
-  id: string;
+  id_dokter: string;
 } & z.infer<typeof doctorSchema>;
 
+export type ViewDoctor = {
+  id_dokter: string;
+  id_poli: number;
+  nama_poli: string;
+  nama_dokter: string;
+  tanggal_lahir: string;
+  gaji: number;
+  nomor_telepon: string;
+  spesialis: string;
+  nomor_lisensi: string;
+  jenis_kelamin: "Laki-laki" | "Perempuan";
+  alamat: string;
+};
 export type Cashier = {
   id_kasir: string;
 } & z.infer<typeof cashierSchema>;

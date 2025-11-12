@@ -40,6 +40,7 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::get('dokter/{dokter}', [DokterController::class, 'show']);
     Route::put('dokter/{dokter}', [DokterController::class, 'update']);
     Route::delete('dokter/{dokter}', [DokterController::class, 'destroy']);
+    Route::get('dokter-lengkap', [DokterController::class, 'indexLengkap']);
     Route::get('kasir', [KasirController::class, 'index']);
     Route::post('kasir', [KasirController::class, 'store']);
     Route::get('kasir/{kasir}', [KasirController::class, 'show']);

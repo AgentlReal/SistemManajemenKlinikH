@@ -1,5 +1,12 @@
-import { doctorSchema as schema, type Doctor } from "@/types";
+import { fetchAllDepartmentsAPI } from "@/services/departmentServices";
+import {
+  doctorSchema as schema,
+  type Department,
+  type Doctor,
+  type ViewDoctor,
+} from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { AgeFromDate } from "age-calculator";
 import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -28,9 +35,11 @@ import {
 interface AddDoctorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (doctor: Omit<Doctor, "id">) => void;
+  onAdd: (doctor: Omit<Doctor, "id_dokter">) => void;
   onUpdate: (doctor: Doctor) => void;
-  editingDoctor: Doctor | null;
+  editingDoctor:
+    | (Omit<ViewDoctor, "tanggal_lahir"> & { tanggal_lahir: Date })
+    | null;
 }
 
 export function AddDoctorModal({
@@ -51,17 +60,22 @@ export function AddDoctorModal({
     watch,
   } = useForm({ resolver: zodResolver(schema) });
 
+  const { data: departments } = useQuery<Department[]>({
+    queryKey: ["departments"],
+    queryFn: () => fetchAllDepartmentsAPI(),
+  });
+
   useEffect(() => {
     if (editingDoctor) {
-      setValue("name", editingDoctor.name);
-      setValue("wage", editingDoctor.wage);
-      setValue("gender", editingDoctor.gender);
-      setValue("address", editingDoctor.address);
-      setValue("phone", editingDoctor.phone);
-      setValue("license", editingDoctor.license);
-      setValue("specialty", editingDoctor.specialty);
-      setValue("birthDate", editingDoctor.birthDate);
-      setValue("department", editingDoctor.department);
+      setValue("nama", editingDoctor.nama_dokter);
+      setValue("gaji", editingDoctor.gaji);
+      setValue("jenis_kelamin", editingDoctor.jenis_kelamin);
+      setValue("alamat", editingDoctor.alamat);
+      setValue("nomor_telepon", editingDoctor.nomor_telepon);
+      setValue("nomor_lisensi", editingDoctor.nomor_lisensi);
+      setValue("spesialis", editingDoctor.spesialis);
+      setValue("tanggal_lahir", editingDoctor.tanggal_lahir);
+      setValue("id_poli", editingDoctor.id_poli);
     } else {
       reset();
     }
@@ -71,7 +85,7 @@ export function AddDoctorModal({
     if (editingDoctor) {
       onUpdate({
         ...data,
-        id: editingDoctor.id,
+        id_dokter: editingDoctor.id_dokter,
       });
     } else {
       onAdd(data);
@@ -94,18 +108,18 @@ export function AddDoctorModal({
         <form onSubmit={handleSubmit(onValid)}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nama Lengkap</Label>
-              <Input {...register("name")} id="name" placeholder="John Doe" />
-              {errors.name && (
+              <Label htmlFor="nama">Nama Lengkap</Label>
+              <Input {...register("nama")} id="nama" placeholder="John Doe" />
+              {errors.nama && (
                 <p className="text-sm text-destructive">
-                  {errors.name.message}
+                  {errors.nama.message}
                 </p>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Controller
-                name="birthDate"
+                name="tanggal_lahir"
                 control={control}
                 render={({ field: { value, onChange } }) => (
                   <div className="flex flex-col gap-3">
@@ -121,7 +135,7 @@ export function AddDoctorModal({
                         >
                           {value instanceof Date
                             ? value.toLocaleDateString("id-ID")
-                            : "Select date"}
+                            : "Pilih tanggal lahir"}
                           <ChevronDownIcon />
                         </Button>
                       </PopoverTrigger>
@@ -151,32 +165,33 @@ export function AddDoctorModal({
                 <Input
                   id="age"
                   value={
-                    watch("birthDate")
-                      ? new AgeFromDate(watch("birthDate")).age
+                    watch("tanggal_lahir")
+                      ? new AgeFromDate(watch("tanggal_lahir")).age
                       : ""
                   }
                   readOnly
+                  disabled
                 />
               </div>
             </div>
             <Controller
-              name="gender"
+              name="jenis_kelamin"
               control={control}
               render={({ field: { onChange, value } }) => (
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Jenis Kelamin</Label>
+                  <Label htmlFor="jenis_kelamin">Jenis Kelamin</Label>
                   <Select onValueChange={onChange} defaultValue={value}>
-                    <SelectTrigger id="gender">
-                      <SelectValue placeholder="Select gender" />
+                    <SelectTrigger id="jenis_kelamin">
+                      <SelectValue placeholder="Pilih jenis kelamin" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Laki-laki</SelectItem>
-                      <SelectItem value="female">Perempuan</SelectItem>
+                      <SelectItem value="Laki-laki">Laki-laki</SelectItem>
+                      <SelectItem value="Perempuan">Perempuan</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.gender && (
+                  {errors.jenis_kelamin && (
                     <p className="text-sm text-destructive">
-                      {errors.gender.message}
+                      {errors.jenis_kelamin.message}
                     </p>
                   )}
                 </div>
@@ -184,87 +199,102 @@ export function AddDoctorModal({
             />
 
             <div className="space-y-2">
-              <Label htmlFor="phone">No Telp</Label>
+              <Label htmlFor="nomor_telepon">No Telp</Label>
               <Input
-                {...register("phone")}
-                id="phone"
+                {...register("nomor_telepon")}
+                id="nomor_telepon"
                 placeholder="081234567890"
               />
-              {errors.phone && (
+              {errors.nomor_telepon && (
                 <p className="text-sm text-destructive">
-                  {errors.phone.message}
+                  {errors.nomor_telepon.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address">Alamat</Label>
+              <Label htmlFor="alamat">Alamat</Label>
               <Input
-                {...register("address")}
-                id="address"
+                {...register("alamat")}
+                id="alamat"
                 placeholder="123 Main St, City"
               />
-              {errors.address && (
+              {errors.alamat && (
                 <p className="text-sm text-destructive">
-                  {errors.address.message}
+                  {errors.alamat.message}
                 </p>
               )}
             </div>
 
             <Controller
-              name="department"
+              name="id_poli"
               control={control}
               render={({ field: { onChange, value } }) => (
                 <div className="space-y-2">
-                  <Label htmlFor="department">Poli</Label>
-                  <Select onValueChange={onChange} defaultValue={value}>
-                    <SelectTrigger id="department">
-                      <SelectValue placeholder="Select department" />
+                  <Label htmlFor="id_poli">Poli</Label>
+                  <Select
+                    onValueChange={onChange}
+                    defaultValue={
+                      value instanceof Number
+                        ? (value as number).toString()
+                        : undefined
+                    }
+                  >
+                    <SelectTrigger id="id_poli">
+                      <SelectValue placeholder="Pilih Poli" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="umum">Umum</SelectItem>
-                      <SelectItem value="gigi">Gigi</SelectItem>
+                      {departments
+                        ? departments.map((d) => (
+                            <SelectItem
+                              key={d.id_poli}
+                              value={d.id_poli.toString()}
+                            >
+                              {d.nama_poli}
+                            </SelectItem>
+                          ))
+                        : "Tidak Ada Poli"}
                     </SelectContent>
                   </Select>
-                  {errors.department && (
+                  {errors.id_poli && (
                     <p className="text-sm text-destructive">
-                      {errors.department.message}
+                      {errors.id_poli.message}
                     </p>
                   )}
                 </div>
               )}
             />
             <div className="space-y-2">
-              <Label htmlFor="specialty">Spesialis</Label>
+              <Label htmlFor="spesialis">Spesialis</Label>
               <Input
-                {...register("specialty")}
-                id="specialty"
+                {...register("spesialis")}
+                id="spesialis"
                 placeholder="Spesialis"
               />
-              {errors.specialty && (
+              {errors.spesialis && (
                 <p className="text-sm text-destructive">
-                  {errors.specialty.message}
+                  {errors.spesialis.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="license">No Lisensi</Label>
+              <Label htmlFor="nomor_lisensi">No Lisensi</Label>
               <Input
-                {...register("license")}
-                id="license"
+                {...register("nomor_lisensi")}
+                id="nomor_lisensi"
                 placeholder="Nomor Lisensi"
               />
-              {errors.license && (
+              {errors.nomor_lisensi && (
                 <p className="text-sm text-destructive">
-                  {errors.license.message}
+                  {errors.nomor_lisensi.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="wage">Gaji</Label>
-              <Input {...register("wage")} id="wage" placeholder="0" />
-              {errors.wage && (
+              <Label htmlFor="gaji">Gaji</Label>
+              <Input {...register("gaji")} id="gaji" placeholder="0" />
+              {errors.gaji && (
                 <p className="text-sm text-destructive">
-                  {errors.wage.message}
+                  {errors.gaji.message}
                 </p>
               )}
             </div>

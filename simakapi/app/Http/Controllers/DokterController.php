@@ -32,6 +32,30 @@ class DokterController extends Controller
     }
 
     /**
+     * Display a listing of the complete dokter view.
+     */
+    public function indexLengkap(): JsonResponse
+    {
+        try {
+            $viewAntrianLengkap = \App\Models\ViewDokterLengkap::all();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Complete dokter retrieved successfully.',
+                'data' => $viewAntrianLengkap
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve complete dokter.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreDokterRequest $request): JsonResponse

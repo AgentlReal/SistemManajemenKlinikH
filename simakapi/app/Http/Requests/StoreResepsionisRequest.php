@@ -14,7 +14,6 @@ class StoreResepsionisRequest extends FormRequest
     public function rules(): array
     {
         return [
-
             'nama' => 'nullable|string|max:150',
             'tanggal_lahir' => 'nullable|date',
             'gaji' => 'nullable|integer',

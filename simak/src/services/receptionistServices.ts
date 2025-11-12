@@ -23,8 +23,6 @@ export const fetchAllReceptionistsAPI = async () => {
 export const createReceptionistAPI = async (
   newReceptionist: Omit<Receptionist, "id_resepsionis">
 ) => {
-  console.log(JSON.stringify(transformReceptionistToAPI(newReceptionist)));
-
   await apiFetch("/resepsionis", {
     method: "POST",
     body: JSON.stringify(transformReceptionistToAPI(newReceptionist)),

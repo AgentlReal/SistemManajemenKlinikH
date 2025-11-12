@@ -1,77 +1,42 @@
+import apiFetch from "@/lib/api";
 import type { LabStaff } from "@/types";
 
-const mockLabStaffs = [
-  {
-    id: "1",
-    name: "Eve Martinez",
-    address: "123 Main St, Jakarta",
-    gender: "male",
-    license: "SIP-12347",
-    birthDate: "1995-10-12",
-    wage: 3000000,
-    phone: "081234567890",
-  },
-  {
-    id: "2",
-    name: "Frank Garcia",
-    address: "123 Main St, Jakarta",
-    gender: "male",
-    license: "SIP-12347",
-    birthDate: "1990-07-09",
-    wage: 3000000,
-    phone: "081234567891",
-  },
-];
+const transformLabStaffToAPI = (labStaff: Omit<LabStaff, "id_staf_lab">) => ({
+  ...labStaff,
+  tanggal_lahir: labStaff.tanggal_lahir.toISOString().split("T")[0],
+});
 
-let currentMockLabStaffs = [...mockLabStaffs];
-
-const DELAY_DURATION = 1000;
-
-// throw new Error('Test ERROR');
-
-function delay(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+const transformLabStaffFromAPI = (labStaff: LabStaff): LabStaff => ({
+  ...labStaff,
+  tanggal_lahir: new Date(labStaff.tanggal_lahir),
+});
 
 export const fetchAllLabStaffsAPI = async () => {
-  await delay(DELAY_DURATION);
-  return [
-    ...currentMockLabStaffs.map((obj) => ({
-      ...obj,
-      birthDate: new Date(obj.birthDate),
-    })),
-  ] as LabStaff[];
+  const response = await apiFetch("/staf-lab");
+  return response.data.map(transformLabStaffFromAPI);
 };
 
-export const createLabStaffAPI = async (newLabStaff: Omit<LabStaff, "id">) => {
-  await delay(DELAY_DURATION);
-  const labStaff = {
-    ...newLabStaff,
-    birthDate: newLabStaff.birthDate.toISOString(),
-  };
-  currentMockLabStaffs = [
-    ...currentMockLabStaffs,
-    {
-      ...labStaff,
-      id: Date.now().toString(),
-    },
-  ];
+export const createLabStaffAPI = async (
+  newLabStaff: Omit<LabStaff, "id_staf_lab">
+) => {
+  await apiFetch("/staf-lab", {
+    method: "POST",
+    body: JSON.stringify(transformLabStaffToAPI(newLabStaff)),
+  });
+  return;
 };
 
 export const updateLabStaffAPI = async (updatedLabStaff: LabStaff) => {
-  await delay(DELAY_DURATION);
-  const labStaff = {
-    ...updatedLabStaff,
-    birthDate: updatedLabStaff.birthDate.toISOString(),
-  };
-  currentMockLabStaffs = currentMockLabStaffs.map((item) =>
-    item.id === labStaff.id ? labStaff : item
-  );
+  await apiFetch(`/staf-lab/${updatedLabStaff.id_staf_lab}`, {
+    method: "PUT",
+    body: JSON.stringify(transformLabStaffToAPI(updatedLabStaff)),
+  });
+  return;
 };
 
 export const deleteLabStaffAPI = async (id: string) => {
-  await delay(DELAY_DURATION);
-  currentMockLabStaffs = currentMockLabStaffs.filter((item) => item.id !== id);
+  await apiFetch(`/staf-lab/${id}`, {
+    method: "DELETE",
+  });
+  return;
 };

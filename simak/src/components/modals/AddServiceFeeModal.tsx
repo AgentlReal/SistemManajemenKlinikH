@@ -24,7 +24,7 @@ import {
 interface AddServiceFeeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (serviceFee: Omit<ServiceFee, "id">) => void;
+  onAdd: (serviceFee: Omit<ServiceFee, "id_tarif_layanan">) => void;
   onUpdate: (serviceFee: ServiceFee) => void;
   editingServiceFee: ServiceFee | null;
 }
@@ -47,9 +47,9 @@ export function AddServiceFeeModal({
 
   useEffect(() => {
     if (editingServiceFee) {
-      setValue("service", editingServiceFee.service);
-      setValue("category", editingServiceFee.category);
-      setValue("fee", editingServiceFee.fee);
+      setValue("nama_layanan", editingServiceFee.nama_layanan);
+      setValue("tipe_layanan", editingServiceFee.tipe_layanan);
+      setValue("Harga", editingServiceFee.Harga);
     } else {
       reset();
     }
@@ -59,7 +59,7 @@ export function AddServiceFeeModal({
     if (editingServiceFee) {
       onUpdate({
         ...data,
-        id: editingServiceFee.id,
+        id_tarif_layanan: editingServiceFee.id_tarif_layanan,
       });
     } else {
       onAdd(data);
@@ -83,37 +83,37 @@ export function AddServiceFeeModal({
         <form onSubmit={handleSubmit(onValid)}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="service">Nama Layanan</Label>
+              <Label htmlFor="nama_layanan">Nama Layanan</Label>
               <Input
-                {...register("service")}
-                id="service"
-                placeholder="John Doe"
+                {...register("nama_layanan")}
+                id="nama_layanan"
+                placeholder="Konsultasi Umum"
               />
-              {errors.service && (
+              {errors.nama_layanan && (
                 <p className="text-sm text-destructive">
-                  {errors.service.message}
+                  {errors.nama_layanan.message}
                 </p>
               )}
             </div>
 
             <Controller
-              name="category"
+              name="tipe_layanan"
               control={control}
               render={({ field: { onChange, value } }) => (
                 <div className="space-y-2">
-                  <Label htmlFor="category">Kategori</Label>
+                  <Label htmlFor="tipe_layanan">Kategori</Label>
                   <Select onValueChange={onChange} defaultValue={value}>
-                    <SelectTrigger id="category">
-                      <SelectValue placeholder="Select category" />
+                    <SelectTrigger id="tipe_layanan">
+                      <SelectValue placeholder="Pilih Kategori" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="dokter">Dokter</SelectItem>
-                      <SelectItem value="lab">Lab</SelectItem>
+                      <SelectItem value="Dokter">Dokter</SelectItem>
+                      <SelectItem value="Laboratorium">Laboratorium</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.category && (
+                  {errors.tipe_layanan && (
                     <p className="text-sm text-destructive">
-                      {errors.category.message}
+                      {errors.tipe_layanan.message}
                     </p>
                   )}
                 </div>
@@ -121,10 +121,12 @@ export function AddServiceFeeModal({
             />
 
             <div className="space-y-2">
-              <Label htmlFor="fee">Tarif</Label>
-              <Input {...register("fee")} id="fee" placeholder="20000" />
-              {errors.fee && (
-                <p className="text-sm text-destructive">{errors.fee.message}</p>
+              <Label htmlFor="Harga">Tarif</Label>
+              <Input {...register("Harga")} id="Harga" placeholder="20000" />
+              {errors.Harga && (
+                <p className="text-sm text-destructive">
+                  {errors.Harga.message}
+                </p>
               )}
             </div>
           </div>

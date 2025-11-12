@@ -14,7 +14,6 @@ class StoreDokterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_dokter' => 'required|string|max:4',
             'id_poli' => 'nullable|integer',
             'nama' => 'nullable|string|max:150',
             'tanggal_lahir' => 'nullable|date',

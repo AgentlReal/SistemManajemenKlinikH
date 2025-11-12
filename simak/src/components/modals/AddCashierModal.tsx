@@ -28,7 +28,7 @@ import {
 interface AddCashierModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (cashier: Omit<Cashier, "id">) => void;
+  onAdd: (cashier: Omit<Cashier, "id_kasir">) => void;
   onUpdate: (cashier: Cashier) => void;
   editingCashier: Cashier | null;
 }
@@ -53,12 +53,12 @@ export function AddCashierModal({
 
   useEffect(() => {
     if (editingCashier) {
-      setValue("name", editingCashier.name);
-      setValue("wage", editingCashier.wage);
-      setValue("gender", editingCashier.gender);
-      setValue("address", editingCashier.address);
-      setValue("phone", editingCashier.phone);
-      setValue("birthDate", editingCashier.birthDate);
+      setValue("nama", editingCashier.nama);
+      setValue("gaji", editingCashier.gaji);
+      setValue("jenis_kelamin", editingCashier.jenis_kelamin);
+      setValue("alamat", editingCashier.alamat);
+      setValue("nomor_telepon", editingCashier.nomor_telepon);
+      setValue("tanggal_lahir", editingCashier.tanggal_lahir);
     } else {
       reset();
     }
@@ -68,7 +68,7 @@ export function AddCashierModal({
     if (editingCashier) {
       onUpdate({
         ...data,
-        id: editingCashier.id,
+        id_kasir: editingCashier.id_kasir,
       });
     } else {
       onAdd(data);
@@ -91,18 +91,18 @@ export function AddCashierModal({
         <form onSubmit={handleSubmit(onValid)}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nama Lengkap</Label>
-              <Input {...register("name")} id="name" placeholder="John Doe" />
-              {errors.name && (
+              <Label htmlFor="nama">Nama Lengkap</Label>
+              <Input {...register("nama")} id="nama" placeholder="John Doe" />
+              {errors.nama && (
                 <p className="text-sm text-destructive">
-                  {errors.name.message}
+                  {errors.nama.message}
                 </p>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Controller
-                name="birthDate"
+                name="tanggal_lahir"
                 control={control}
                 render={({ field: { value, onChange } }) => (
                   <div className="flex flex-col gap-3">
@@ -148,32 +148,33 @@ export function AddCashierModal({
                 <Input
                   id="age"
                   value={
-                    watch("birthDate")
-                      ? new AgeFromDate(watch("birthDate")).age
+                    watch("tanggal_lahir")
+                      ? new AgeFromDate(watch("tanggal_lahir")).age
                       : ""
                   }
                   readOnly
+                  disabled
                 />
               </div>
             </div>
             <Controller
-              name="gender"
+              name="jenis_kelamin"
               control={control}
               render={({ field: { onChange, value } }) => (
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Jenis Kelamin</Label>
+                  <Label htmlFor="jenis_kelamin">Jenis Kelamin</Label>
                   <Select onValueChange={onChange} defaultValue={value}>
-                    <SelectTrigger id="gender">
-                      <SelectValue placeholder="Select gender" />
+                    <SelectTrigger id="jenis_kelamin">
+                      <SelectValue placeholder="Pilih jenis kelamin" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Laki-laki</SelectItem>
-                      <SelectItem value="female">Perempuan</SelectItem>
+                      <SelectItem value="Laki-laki">Laki-laki</SelectItem>
+                      <SelectItem value="Perempuan">Perempuan</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.gender && (
+                  {errors.jenis_kelamin && (
                     <p className="text-sm text-destructive">
-                      {errors.gender.message}
+                      {errors.jenis_kelamin.message}
                     </p>
                   )}
                 </div>
@@ -181,38 +182,38 @@ export function AddCashierModal({
             />
 
             <div className="space-y-2">
-              <Label htmlFor="phone">No Telp</Label>
+              <Label htmlFor="nomor_telepon">No Telp</Label>
               <Input
-                {...register("phone")}
-                id="phone"
+                {...register("nomor_telepon")}
+                id="nomor_telepon"
                 placeholder="081234567890"
               />
-              {errors.phone && (
+              {errors.nomor_telepon && (
                 <p className="text-sm text-destructive">
-                  {errors.phone.message}
+                  {errors.nomor_telepon.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">Alamat</Label>
+              <Label htmlFor="alamat">Alamat</Label>
               <Input
-                {...register("address")}
-                id="address"
+                {...register("alamat")}
+                id="alamat"
                 placeholder="123 Main St, City"
               />
-              {errors.address && (
+              {errors.alamat && (
                 <p className="text-sm text-destructive">
-                  {errors.address.message}
+                  {errors.alamat.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="wage">Gaji</Label>
-              <Input {...register("wage")} id="wage" placeholder="0" />
-              {errors.wage && (
+              <Label htmlFor="gaji">Gaji</Label>
+              <Input {...register("gaji")} id="gaji" placeholder="0" />
+              {errors.gaji && (
                 <p className="text-sm text-destructive">
-                  {errors.wage.message}
+                  {errors.gaji.message}
                 </p>
               )}
             </div>

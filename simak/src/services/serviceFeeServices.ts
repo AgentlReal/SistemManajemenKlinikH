@@ -1,74 +1,32 @@
+import apiFetch from "@/lib/api";
 import type { ServiceFee } from "@/types";
 
-const mockServiceFees = [
-  {
-    id: "1",
-    service: "General Consultation",
-    fee: 150000,
-    category: "dokter",
-  },
-  {
-    id: "2",
-    service: "Specialist Consultation",
-    fee: 300000,
-    category: "dokter",
-  },
-  {
-    id: "3",
-    service: "Complete Blood Count",
-    fee: 200000,
-    category: "lab",
-  },
-  { id: "4", service: "X-Ray", fee: 250000, category: "lab" },
-  { id: "5", service: "Ultrasound", fee: 350000, category: "lab" },
-];
-
-let currentMockServiceFees = [...mockServiceFees];
-
-const DELAY_DURATION = 1000;
-
-// throw new Error('Test ERROR');
-
-function delay(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
 export const fetchAllServiceFeesAPI = async () => {
-  await delay(DELAY_DURATION);
-  return [...currentMockServiceFees] as ServiceFee[];
+  const response = await apiFetch("/tarif-layanan");
+  return response.data;
 };
 
 export const createServiceFeeAPI = async (
-  newServiceFee: Omit<ServiceFee, "id">
+  newServiceFee: Omit<ServiceFee, "id_tarif_layanan">
 ) => {
-  await delay(DELAY_DURATION);
-  const receptionist = {
-    ...newServiceFee,
-  };
-  currentMockServiceFees = [
-    ...currentMockServiceFees,
-    {
-      ...receptionist,
-      id: Date.now().toString(),
-    },
-  ];
+  await apiFetch("/tarif-layanan", {
+    method: "POST",
+    body: JSON.stringify(newServiceFee),
+  });
+  return;
 };
 
 export const updateServiceFeeAPI = async (updatedServiceFee: ServiceFee) => {
-  await delay(DELAY_DURATION);
-  const receptionist = {
-    ...updatedServiceFee,
-  };
-  currentMockServiceFees = currentMockServiceFees.map((item) =>
-    item.id === receptionist.id ? receptionist : item
-  );
+  await apiFetch(`/tarif-layanan/${updatedServiceFee.id_tarif_layanan}`, {
+    method: "PUT",
+    body: JSON.stringify(updatedServiceFee),
+  });
+  return;
 };
 
-export const deleteServiceFeeAPI = async (id: string) => {
-  await delay(DELAY_DURATION);
-  currentMockServiceFees = currentMockServiceFees.filter(
-    (item) => item.id !== id
-  );
+export const deleteServiceFeeAPI = async (id: number) => {
+  await apiFetch(`/tarif-layanan/${id}`, {
+    method: "DELETE",
+  });
+  return;
 };

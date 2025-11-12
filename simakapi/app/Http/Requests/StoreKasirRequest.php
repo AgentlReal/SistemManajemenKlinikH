@@ -14,7 +14,6 @@ class StoreKasirRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_kasir' => 'required|string|max:4',
             'nama' => 'nullable|string|max:150',
             'tanggal_lahir' => 'nullable|date',
             'nomor_telepon' => 'nullable|string|max:20',

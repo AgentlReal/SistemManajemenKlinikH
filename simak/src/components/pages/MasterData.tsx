@@ -133,7 +133,7 @@ export function MasterData() {
   const [isAddServiceFeeModalOpen, setIsAddServiceFeeModalOpen] =
     useState(false);
   useState<ServiceFee | null>(null);
-  const [deleteServiceFeeId, setDeleteServiceFeeId] = useState<string | null>(
+  const [deleteServiceFeeId, setDeleteServiceFeeId] = useState<number | null>(
     null
   );
   const [editingServiceFee, setEditingServiceFee] = useState<ServiceFee | null>(
@@ -143,7 +143,7 @@ export function MasterData() {
   const [isAddDepartmentModalOpen, setIsAddDepartmentModalOpen] =
     useState(false);
   useState<Department | null>(null);
-  const [deleteDepartmentId, setDeleteDepartmentId] = useState<string | null>(
+  const [deleteDepartmentId, setDeleteDepartmentId] = useState<number | null>(
     null
   );
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(
@@ -167,21 +167,21 @@ export function MasterData() {
   >({
     mutationFn: async (newReceptionist) => {
       await createReceptionistAPI(newReceptionist);
-      toast.success("Queue entry added successfully!");
+      toast.success("Resepsionis berhasil ditambahkan!");
       return {} as Receptionist;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["receptionists"] });
     },
     onError: () => {
-      toast.error("Query entry failed to create!");
+      toast.error("Resepsionis gagal ditambahkan!");
       queryClient.invalidateQueries({ queryKey: ["receptionists"] });
     },
   });
   const deleteReceptionistMutation = useMutation<Receptionist, Error, string>({
     mutationFn: async (id) => {
       await deleteReceptionistAPI(id);
-      toast.success("Queue entry deleted successfully!");
+      toast.success("Resepsionis berhasil dihapus!");
       setDeleteReceptionistId(null);
       return {} as Receptionist;
     },
@@ -189,7 +189,7 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["receptionists"] });
     },
     onError: () => {
-      toast.error("Query entry failed to delete!");
+      toast.error("Resepsionis gagal dihapus!");
       queryClient.invalidateQueries({ queryKey: ["receptionists"] });
     },
   });
@@ -200,7 +200,7 @@ export function MasterData() {
   >({
     mutationFn: async (updatedQueue) => {
       await updateReceptionistAPI(updatedQueue);
-      toast.success("Queue entry updated successfully!");
+      toast.success("Resepsionis berhasil diperbarui!");
       setEditingReceptionist(null);
       return {} as Receptionist;
     },
@@ -208,7 +208,7 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["receptionists"] });
     },
     onError: () => {
-      toast.error("Query entry failed to update!");
+      toast.error("Resepsionis gagal diperbarui!");
       queryClient.invalidateQueries({ queryKey: ["receptionists"] });
     },
   });
@@ -226,21 +226,21 @@ export function MasterData() {
   >({
     mutationFn: async (newDoctor) => {
       await createDoctorAPI(newDoctor);
-      toast.success("Queue entry added successfully!");
+      toast.success("Dokter berhasil ditambahkan!");
       return {} as Doctor;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
     onError: () => {
-      toast.error("Query entry failed to create!");
+      toast.error("Dokter gagal ditambahkan!");
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
   });
   const deleteDoctorMutation = useMutation<Doctor, Error, string>({
     mutationFn: async (id) => {
       await deleteDoctorAPI(id);
-      toast.success("Queue entry deleted successfully!");
+      toast.success("Dokter berhasil dihapus!");
       setDeleteDoctorId(null);
       return {} as Doctor;
     },
@@ -248,14 +248,14 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
     onError: () => {
-      toast.error("Query entry failed to delete!");
+      toast.error("Dokter gagal dihapus!");
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
   });
   const updateDoctorMutation = useMutation<Doctor, Error, Doctor>({
     mutationFn: async (updatedQueue) => {
       await updateDoctorAPI(updatedQueue);
-      toast.success("Queue entry updated successfully!");
+      toast.success("Dokter berhasil diperbarui!");
       setEditingDoctor(null);
       return {} as Doctor;
     },
@@ -263,7 +263,7 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
     onError: () => {
-      toast.error("Query entry failed to update!");
+      toast.error("Dokter gagal diperbarui!");
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
   });
@@ -277,25 +277,25 @@ export function MasterData() {
   const createCashierMutation = useMutation<
     Cashier,
     Error,
-    Omit<Cashier, "id" | "status">
+    Omit<Cashier, "id_kasir">
   >({
     mutationFn: async (newCashier) => {
       await createCashierAPI(newCashier);
-      toast.success("Queue entry added successfully!");
+      toast.success("Kasir berhasil ditambahkan!");
       return {} as Cashier;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cashiers"] });
     },
     onError: () => {
-      toast.error("Query entry failed to create!");
+      toast.error("Kasir gagal ditambahkan!");
       queryClient.invalidateQueries({ queryKey: ["cashiers"] });
     },
   });
   const deleteCashierMutation = useMutation<Cashier, Error, string>({
     mutationFn: async (id) => {
       await deleteCashierAPI(id);
-      toast.success("Queue entry deleted successfully!");
+      toast.success("Kasir berhasil dihapus!");
       setDeleteCashierId(null);
       return {} as Cashier;
     },
@@ -303,14 +303,14 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["cashiers"] });
     },
     onError: () => {
-      toast.error("Query entry failed to delete!");
+      toast.error("Kasir gagal dihapus!");
       queryClient.invalidateQueries({ queryKey: ["cashiers"] });
     },
   });
   const updateCashierMutation = useMutation<Cashier, Error, Cashier>({
     mutationFn: async (updatedQueue) => {
       await updateCashierAPI(updatedQueue);
-      toast.success("Queue entry updated successfully!");
+      toast.success("Kasir berhasil diperbarui!");
       setEditingCashier(null);
       return {} as Cashier;
     },
@@ -318,7 +318,7 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["cashiers"] });
     },
     onError: () => {
-      toast.error("Query entry failed to update!");
+      toast.error("Kasir gagal diperbarui!");
       queryClient.invalidateQueries({ queryKey: ["cashiers"] });
     },
   });
@@ -332,25 +332,25 @@ export function MasterData() {
   const createLabStaffMutation = useMutation<
     LabStaff,
     Error,
-    Omit<LabStaff, "id" | "status">
+    Omit<LabStaff, "id_staf_lab">
   >({
     mutationFn: async (newLabStaff) => {
       await createLabStaffAPI(newLabStaff);
-      toast.success("Queue entry added successfully!");
+      toast.success("Staf Lab berhasil ditambahkan!");
       return {} as LabStaff;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["labStaffs"] });
     },
     onError: () => {
-      toast.error("Query entry failed to create!");
+      toast.error("Staf Lab gagal ditambahkan!");
       queryClient.invalidateQueries({ queryKey: ["labStaffs"] });
     },
   });
   const deleteLabStaffMutation = useMutation<LabStaff, Error, string>({
     mutationFn: async (id) => {
       await deleteLabStaffAPI(id);
-      toast.success("Queue entry deleted successfully!");
+      toast.success("Staf Lab berhasil dihapus!");
       setDeleteLabStaffId(null);
       return {} as LabStaff;
     },
@@ -358,14 +358,14 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["labStaffs"] });
     },
     onError: () => {
-      toast.error("Query entry failed to delete!");
+      toast.error("Staf Lab gagal dihapus!");
       queryClient.invalidateQueries({ queryKey: ["labStaffs"] });
     },
   });
   const updateLabStaffMutation = useMutation<LabStaff, Error, LabStaff>({
     mutationFn: async (updatedQueue) => {
       await updateLabStaffAPI(updatedQueue);
-      toast.success("Queue entry updated successfully!");
+      toast.success("Staf Lab berhasil diperbarui!");
       setEditingLabStaff(null);
       return {} as LabStaff;
     },
@@ -373,7 +373,7 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["labStaffs"] });
     },
     onError: () => {
-      toast.error("Query entry failed to update!");
+      toast.error("Staf Lab gagal diperbarui!");
       queryClient.invalidateQueries({ queryKey: ["labStaffs"] });
     },
   });
@@ -387,25 +387,25 @@ export function MasterData() {
   const createServiceFeeMutation = useMutation<
     ServiceFee,
     Error,
-    Omit<ServiceFee, "id" | "status">
+    Omit<ServiceFee, "id_tarif_layanan">
   >({
     mutationFn: async (newServiceFee) => {
       await createServiceFeeAPI(newServiceFee);
-      toast.success("Queue entry added successfully!");
+      toast.success("Tarif Layanan berhasil ditambahkan!");
       return {} as ServiceFee;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["serviceFees"] });
     },
     onError: () => {
-      toast.error("Query entry failed to create!");
+      toast.error("Tarif Layanan gagal ditambahkan!");
       queryClient.invalidateQueries({ queryKey: ["serviceFees"] });
     },
   });
-  const deleteServiceFeeMutation = useMutation<ServiceFee, Error, string>({
+  const deleteServiceFeeMutation = useMutation<ServiceFee, Error, number>({
     mutationFn: async (id) => {
       await deleteServiceFeeAPI(id);
-      toast.success("Queue entry deleted successfully!");
+      toast.success("Tarif Layanan berhasil dihapus!");
       setDeleteServiceFeeId(null);
       return {} as ServiceFee;
     },
@@ -413,14 +413,14 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["serviceFees"] });
     },
     onError: () => {
-      toast.error("Query entry failed to delete!");
+      toast.error("Tarif Layanan gagal dihapus!");
       queryClient.invalidateQueries({ queryKey: ["serviceFees"] });
     },
   });
   const updateServiceFeeMutation = useMutation<ServiceFee, Error, ServiceFee>({
     mutationFn: async (updatedQueue) => {
       await updateServiceFeeAPI(updatedQueue);
-      toast.success("Queue entry updated successfully!");
+      toast.success("Tarif Layanan berhasil diperbarui!");
       setEditingServiceFee(null);
       return {} as ServiceFee;
     },
@@ -428,7 +428,7 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["serviceFees"] });
     },
     onError: () => {
-      toast.error("Query entry failed to update!");
+      toast.error("Tarif Layanan gagal diperbarui!");
       queryClient.invalidateQueries({ queryKey: ["serviceFees"] });
     },
   });
@@ -442,25 +442,25 @@ export function MasterData() {
   const createDepartmentMutation = useMutation<
     Department,
     Error,
-    Omit<Department, "id" | "status">
+    Omit<Department, "id_poli">
   >({
     mutationFn: async (newDepartment) => {
       await createDepartmentAPI(newDepartment);
-      toast.success("Queue entry added successfully!");
+      toast.success("Poli berhasil ditambahkan!");
       return {} as Department;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
     },
     onError: () => {
-      toast.error("Query entry failed to create!");
+      toast.error("Poli gagal ditambahkan!");
       queryClient.invalidateQueries({ queryKey: ["departments"] });
     },
   });
-  const deleteDepartmentMutation = useMutation<Department, Error, string>({
+  const deleteDepartmentMutation = useMutation<Department, Error, number>({
     mutationFn: async (id) => {
       await deleteDepartmentAPI(id);
-      toast.success("Queue entry deleted successfully!");
+      toast.success("Poli berhasil dihapus!");
       setDeleteDepartmentId(null);
       return {} as Department;
     },
@@ -468,14 +468,14 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
     },
     onError: () => {
-      toast.error("Query entry failed to delete!");
+      toast.error("Poli gagal dihapus!");
       queryClient.invalidateQueries({ queryKey: ["departments"] });
     },
   });
   const updateDepartmentMutation = useMutation<Department, Error, Department>({
     mutationFn: async (updatedQueue) => {
       await updateDepartmentAPI(updatedQueue);
-      toast.success("Queue entry updated successfully!");
+      toast.success("Poli berhasil diperbarui!");
       setEditingDepartment(null);
       return {} as Department;
     },
@@ -483,7 +483,7 @@ export function MasterData() {
       queryClient.invalidateQueries({ queryKey: ["departments"] });
     },
     onError: () => {
-      toast.error("Query entry failed to update!");
+      toast.error("Poli gagal diperbarui!");
       queryClient.invalidateQueries({ queryKey: ["departments"] });
     },
   });
@@ -584,23 +584,23 @@ export function MasterData() {
 
   const cashierColumns: ColumnDef<Cashier>[] = [
     {
-      accessorKey: "id",
+      accessorKey: "id_kasir",
       header: "ID",
     },
     {
-      accessorKey: "name",
+      accessorKey: "nama",
       header: "Nama",
     },
     {
-      accessorKey: "gender",
+      accessorKey: "jenis_kelamin",
       header: "Jenis Kelamin",
     },
     {
-      accessorKey: "phone",
+      accessorKey: "nomor_telepon",
       header: "No Telp",
     },
     {
-      accessorKey: "wage",
+      accessorKey: "gaji",
       header: "Gaji",
       cell: ({ getValue }) => formatCurrency(getValue() as number),
     },
@@ -620,7 +620,7 @@ export function MasterData() {
             variant="ghost"
             size="icon"
             className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteCashierId(row.original.id)}
+            onClick={() => setDeleteCashierId(row.original.id_kasir)}
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -631,23 +631,23 @@ export function MasterData() {
 
   const labStaffColumns: ColumnDef<LabStaff>[] = [
     {
-      accessorKey: "id",
+      accessorKey: "id_staf_lab",
       header: "ID",
     },
     {
-      accessorKey: "name",
+      accessorKey: "nama",
       header: "Nama",
     },
     {
-      accessorKey: "gender",
+      accessorKey: "jenis_kelamin",
       header: "Jenis Kelamin",
     },
     {
-      accessorKey: "phone",
+      accessorKey: "nomor_telepon",
       header: "No Telp",
     },
     {
-      accessorKey: "wage",
+      accessorKey: "gaji",
       header: "Gaji",
       cell: ({ getValue }) => formatCurrency(getValue() as number),
     },
@@ -667,7 +667,7 @@ export function MasterData() {
             variant="ghost"
             size="icon"
             className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteLabStaffId(row.original.id)}
+            onClick={() => setDeleteLabStaffId(row.original.id_staf_lab)}
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -677,15 +677,19 @@ export function MasterData() {
   ];
   const serviceFeeColumns: ColumnDef<ServiceFee>[] = [
     {
-      accessorKey: "service",
+      accessorKey: "id_tarif_layanan",
+      header: "ID",
+    },
+    {
+      accessorKey: "nama_layanan",
       header: "Nama Layanan",
     },
     {
-      accessorKey: "category",
+      accessorKey: "tipe_layanan",
       header: "Kategori",
     },
     {
-      accessorKey: "fee",
+      accessorKey: "Harga",
       header: "Tarif",
       cell: ({ getValue }) => formatCurrency(getValue() as number),
     },
@@ -705,7 +709,7 @@ export function MasterData() {
             variant="ghost"
             size="icon"
             className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteServiceFeeId(row.original.id)}
+            onClick={() => setDeleteServiceFeeId(row.original.id_tarif_layanan)}
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -715,11 +719,11 @@ export function MasterData() {
   ];
   const departmentColumns: ColumnDef<Department>[] = [
     {
-      accessorKey: "id",
+      accessorKey: "id_poli",
       header: "ID",
     },
     {
-      accessorKey: "name",
+      accessorKey: "nama_poli",
       header: "Nama Poli",
     },
     {
@@ -738,7 +742,7 @@ export function MasterData() {
             variant="ghost"
             size="icon"
             className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteDepartmentId(row.original.id)}
+            onClick={() => setDeleteDepartmentId(row.original.id_poli)}
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -1053,8 +1057,8 @@ export function MasterData() {
           deleteReceptionistId &&
           deleteReceptionistMutation.mutate(deleteReceptionistId)
         }
-        title="Delete Receptionist"
-        description="Are you sure you want to delete this receptionist? This action cannot be undone."
+        title="Hapus Resepsionis"
+        description="Apa Anda yakin ingin menghapus resepsionis ini?"
       />
 
       <AddDoctorModal
@@ -1073,8 +1077,8 @@ export function MasterData() {
         onConfirm={() =>
           deleteDoctorId && deleteDoctorMutation.mutate(deleteDoctorId)
         }
-        title="Delete Doctor"
-        description="Are you sure you want to delete this doctor? This action cannot be undone."
+        title="Hapus Dokter"
+        description="Apa Anda yakin ingin menghapus dokter ini?"
       />
 
       <AddCashierModal
@@ -1093,8 +1097,8 @@ export function MasterData() {
         onConfirm={() =>
           deleteCashierId && deleteCashierMutation.mutate(deleteCashierId)
         }
-        title="Delete Cashier"
-        description="Are you sure you want to delete this cashier? This action cannot be undone."
+        title="Hapus Kasir"
+        description="Apa Anda yakin ingin menghapus kasir ini?"
       />
 
       <AddLabStaffModal
@@ -1113,8 +1117,8 @@ export function MasterData() {
         onConfirm={() =>
           deleteLabStaffId && deleteLabStaffMutation.mutate(deleteLabStaffId)
         }
-        title="Delete Lab Staff"
-        description="Are you sure you want to delete this labStaff? This action cannot be undone."
+        title="Hapus Staf Lab"
+        description="Apa Anda yakin ingin menghapus staf lab ini?"
       />
 
       <AddServiceFeeModal
@@ -1134,8 +1138,8 @@ export function MasterData() {
           deleteServiceFeeId &&
           deleteServiceFeeMutation.mutate(deleteServiceFeeId)
         }
-        title="Delete Service Fee"
-        description="Are you sure you want to delete this serviceFee? This action cannot be undone."
+        title="Hapus Tarif Layanan"
+        description="Apa Anda yakin ingin menghapus tarif layanan ini?"
       />
 
       <AddDepartmentModal
@@ -1155,8 +1159,8 @@ export function MasterData() {
           deleteDepartmentId &&
           deleteDepartmentMutation.mutate(deleteDepartmentId)
         }
-        title="Delete Service Fee"
-        description="Are you sure you want to delete this department? This action cannot be undone."
+        title="Hapus Poli"
+        description="Apa Anda yakin ingin menghapus poli ini?"
       />
     </div>
   );

@@ -28,7 +28,7 @@ import {
 interface AddLabStaffModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (labStaff: Omit<LabStaff, "id">) => void;
+  onAdd: (labStaff: Omit<LabStaff, "id_staf_lab">) => void;
   onUpdate: (labStaff: LabStaff) => void;
   editingLabStaff: LabStaff | null;
 }
@@ -53,13 +53,14 @@ export function AddLabStaffModal({
 
   useEffect(() => {
     if (editingLabStaff) {
-      setValue("name", editingLabStaff.name);
-      setValue("wage", editingLabStaff.wage);
-      setValue("gender", editingLabStaff.gender);
-      setValue("address", editingLabStaff.address);
-      setValue("phone", editingLabStaff.phone);
-      setValue("birthDate", editingLabStaff.birthDate);
-      setValue("license", editingLabStaff.license);
+      setValue("nama", editingLabStaff.nama);
+      setValue("gaji", editingLabStaff.gaji);
+      setValue("jenis_kelamin", editingLabStaff.jenis_kelamin);
+      setValue("alamat", editingLabStaff.alamat);
+      setValue("nomor_telepon", editingLabStaff.nomor_telepon);
+      setValue("jenis_kelamin", editingLabStaff.jenis_kelamin);
+      setValue("nomor_lisensi", editingLabStaff.nomor_lisensi);
+      setValue("tanggal_lahir", editingLabStaff.tanggal_lahir);
     } else {
       reset();
     }
@@ -69,7 +70,7 @@ export function AddLabStaffModal({
     if (editingLabStaff) {
       onUpdate({
         ...data,
-        id: editingLabStaff.id,
+        id_staf_lab: editingLabStaff.id_staf_lab,
       });
     } else {
       onAdd(data);
@@ -94,18 +95,18 @@ export function AddLabStaffModal({
         <form onSubmit={handleSubmit(onValid)}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nama Lengkap</Label>
-              <Input {...register("name")} id="name" placeholder="John Doe" />
-              {errors.name && (
+              <Label htmlFor="nama">Nama Lengkap</Label>
+              <Input {...register("nama")} id="nama" placeholder="John Doe" />
+              {errors.nama && (
                 <p className="text-sm text-destructive">
-                  {errors.name.message}
+                  {errors.nama.message}
                 </p>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <Controller
-                name="birthDate"
+                name="tanggal_lahir"
                 control={control}
                 render={({ field: { value, onChange } }) => (
                   <div className="flex flex-col gap-3">
@@ -121,7 +122,7 @@ export function AddLabStaffModal({
                         >
                           {value instanceof Date
                             ? value.toLocaleDateString("id-ID")
-                            : "Select date"}
+                            : "Pilih tanggal lahir"}
                           <ChevronDownIcon />
                         </Button>
                       </PopoverTrigger>
@@ -143,6 +144,11 @@ export function AddLabStaffModal({
                         />
                       </PopoverContent>
                     </Popover>
+                    {errors.tanggal_lahir && (
+                      <p className="text-sm text-destructive">
+                        {errors.tanggal_lahir.message}
+                      </p>
+                    )}
                   </div>
                 )}
               />
@@ -151,32 +157,33 @@ export function AddLabStaffModal({
                 <Input
                   id="age"
                   value={
-                    watch("birthDate")
-                      ? new AgeFromDate(watch("birthDate")).age
+                    watch("tanggal_lahir")
+                      ? new AgeFromDate(watch("tanggal_lahir")).age
                       : ""
                   }
                   readOnly
+                  disabled
                 />
               </div>
             </div>
             <Controller
-              name="gender"
+              name="jenis_kelamin"
               control={control}
               render={({ field: { onChange, value } }) => (
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Jenis Kelamin</Label>
+                  <Label htmlFor="jenis_kelamin">Jenis Kelamin</Label>
                   <Select onValueChange={onChange} defaultValue={value}>
-                    <SelectTrigger id="gender">
-                      <SelectValue placeholder="Select gender" />
+                    <SelectTrigger id="jenis_kelamin">
+                      <SelectValue placeholder="Pilih jenis kelamin" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Laki-laki</SelectItem>
-                      <SelectItem value="female">Perempuan</SelectItem>
+                      <SelectItem value="Laki-laki">Laki-laki</SelectItem>
+                      <SelectItem value="Perempuan">Perempuan</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.gender && (
+                  {errors.jenis_kelamin && (
                     <p className="text-sm text-destructive">
-                      {errors.gender.message}
+                      {errors.jenis_kelamin.message}
                     </p>
                   )}
                 </div>
@@ -184,51 +191,51 @@ export function AddLabStaffModal({
             />
 
             <div className="space-y-2">
-              <Label htmlFor="phone">No Telp</Label>
+              <Label htmlFor="nomor_telepon">No Telp</Label>
               <Input
-                {...register("phone")}
-                id="phone"
+                {...register("nomor_telepon")}
+                id="nomor_telepon"
                 placeholder="081234567890"
               />
-              {errors.phone && (
+              {errors.nomor_telepon && (
                 <p className="text-sm text-destructive">
-                  {errors.phone.message}
+                  {errors.nomor_telepon.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">Alamat</Label>
+              <Label htmlFor="alamat">Alamat</Label>
               <Input
-                {...register("address")}
-                id="address"
+                {...register("alamat")}
+                id="alamat"
                 placeholder="123 Main St, City"
               />
-              {errors.address && (
+              {errors.alamat && (
                 <p className="text-sm text-destructive">
-                  {errors.address.message}
+                  {errors.alamat.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="license">No Lisensi</Label>
+              <Label htmlFor="nomor_lisensi">No Lisensi</Label>
               <Input
-                {...register("license")}
-                id="license"
+                {...register("nomor_lisensi")}
+                id="nomor_lisensi"
                 placeholder="SIP-12346"
               />
-              {errors.license && (
+              {errors.nomor_lisensi && (
                 <p className="text-sm text-destructive">
-                  {errors.license.message}
+                  {errors.nomor_lisensi.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="wage">Gaji</Label>
-              <Input {...register("wage")} id="wage" placeholder="0" />
-              {errors.wage && (
+              <Label htmlFor="gaji">Gaji</Label>
+              <Input {...register("gaji")} id="gaji" placeholder="0" />
+              {errors.gaji && (
                 <p className="text-sm text-destructive">
-                  {errors.wage.message}
+                  {errors.gaji.message}
                 </p>
               )}
             </div>

@@ -122,7 +122,7 @@ export function AddReceptionistModal({
                           >
                             {value instanceof Date
                               ? value.toLocaleDateString("id-ID")
-                              : "Select date"}
+                              : "Pilih tanggal lahir"}
                             <ChevronDownIcon />
                           </Button>
                         </PopoverTrigger>
@@ -174,7 +174,7 @@ export function AddReceptionistModal({
                   <Label htmlFor="jenis_kelamin">Jenis Kelamin</Label>
                   <Select onValueChange={onChange} defaultValue={value}>
                     <SelectTrigger id="jenis_kelamin">
-                      <SelectValue placeholder="Select jenis_kelamin" />
+                      <SelectValue placeholder="Pilih jenis kelamin" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Laki-laki">Laki-laki</SelectItem>

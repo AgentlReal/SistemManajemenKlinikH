@@ -17,7 +17,7 @@ import { Label } from "../ui/label";
 interface AddDepartmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (department: Omit<Department, "id">) => void;
+  onAdd: (department: Omit<Department, "id_poli">) => void;
   onUpdate: (department: Department) => void;
   editingDepartment: Department | null;
 }
@@ -39,7 +39,7 @@ export function AddDepartmentModal({
 
   useEffect(() => {
     if (editingDepartment) {
-      setValue("name", editingDepartment.name);
+      setValue("nama_poli", editingDepartment.nama_poli);
     } else {
       reset();
     }
@@ -49,7 +49,7 @@ export function AddDepartmentModal({
     if (editingDepartment) {
       onUpdate({
         ...data,
-        id: editingDepartment.id,
+        id_poli: editingDepartment.id_poli,
       });
     } else {
       onAdd(data);
@@ -73,11 +73,15 @@ export function AddDepartmentModal({
         <form onSubmit={handleSubmit(onValid)}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nama Poli</Label>
-              <Input {...register("name")} id="name" placeholder="John Doe" />
-              {errors.name && (
+              <Label htmlFor="nama_poli">Nama Poli</Label>
+              <Input
+                {...register("nama_poli")}
+                id="nama_poli"
+                placeholder="Umum"
+              />
+              {errors.nama_poli && (
                 <p className="text-sm text-destructive">
-                  {errors.name.message}
+                  {errors.nama_poli.message}
                 </p>
               )}
             </div>

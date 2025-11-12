@@ -154,67 +154,67 @@ export const doctorSchema = z.object({
   wage: z.coerce.number().int(warnings.wage.int).min(0, warnings.wage.min),
 });
 export const cashierSchema = z.object({
-  name: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
+  nama: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
 
-  birthDate: z
+  tanggal_lahir: z
     .date({
       error: warnings.birthDate.min,
     })
     .max(new Date(), { error: warnings.birthDate.max }),
 
-  gender: z.enum(["Laki-laki", "Perempuan"], warnings.gender),
+  jenis_kelamin: z.enum(["Laki-laki", "Perempuan"], warnings.gender),
 
-  address: z
+  alamat: z
     .string()
     .min(1, warnings.address.min)
     .max(500, warnings.address.max),
 
-  phone: z
+  nomor_telepon: z
     .string()
     .min(1, warnings.phone.min)
     .regex(/^(\+62|62|0)[0-9]{8,15}$/, warnings.phone.regex),
 
-  wage: z.coerce.number().int(warnings.wage.int).min(0, warnings.wage.min),
+  gaji: z.coerce.number().int(warnings.wage.int).min(0, warnings.wage.min),
 });
 
 export const labStaffSchema = z.object({
-  name: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
+  nama: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
 
-  birthDate: z
+  tanggal_lahir: z
     .date({
       error: warnings.birthDate.min,
     })
     .max(new Date(), { error: warnings.birthDate.max }),
 
-  gender: z.enum(["Laki-laki", "Perempuan"], warnings.gender),
+  jenis_kelamin: z.enum(["Laki-laki", "Perempuan"], warnings.gender),
 
-  address: z
+  alamat: z
     .string()
     .min(1, warnings.address.min)
     .max(500, warnings.address.max),
 
-  phone: z
+  nomor_telepon: z
     .string()
     .min(1, warnings.phone.min)
     .regex(/^(\+62|62|0)[0-9]{8,15}$/, warnings.phone.regex),
 
-  wage: z.coerce.number().int(warnings.wage.int).min(0, warnings.wage.min),
+  gaji: z.coerce.number().int(warnings.wage.int).min(0, warnings.wage.min),
 
-  license: z
+  nomor_lisensi: z
     .string()
     .min(1, warnings.license.min)
     .max(500, warnings.license.max),
 });
 
 export const serviceFeeSchema = z.object({
-  category: z.enum(["dokter", "lab"], warnings.category),
+  tipe_layanan: z.enum(["Dokter", "Laboratorium"], warnings.category),
 
-  service: z
+  nama_layanan: z
     .string()
     .min(1, warnings.service.min)
     .max(500, warnings.service.max),
 
-  fee: z.coerce.number().int(warnings.fee.int).min(0, warnings.fee.min),
+  Harga: z.coerce.number().int(warnings.fee.int).min(0, warnings.fee.min),
 });
 
 export const clinicInfoSchema = z.object({
@@ -244,7 +244,7 @@ export const clinicInfoSchema = z.object({
 });
 
 export const departmentSchema = z.object({
-  name: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
+  nama_poli: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
 });
 
 export const scheduleSchema = z.object({
@@ -285,19 +285,19 @@ export type Doctor = {
 } & z.infer<typeof doctorSchema>;
 
 export type Cashier = {
-  id: string;
+  id_kasir: string;
 } & z.infer<typeof cashierSchema>;
 
 export type LabStaff = {
-  id: string;
+  id_staf_lab: string;
 } & z.infer<typeof labStaffSchema>;
 
 export type ServiceFee = {
-  id: string;
+  id_tarif_layanan: number;
 } & z.infer<typeof serviceFeeSchema>;
 
 export type Department = {
-  id: string;
+  id_poli: number;
 } & z.infer<typeof departmentSchema>;
 
 export type Schedule = {

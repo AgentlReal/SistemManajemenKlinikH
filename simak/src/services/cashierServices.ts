@@ -1,75 +1,42 @@
+import apiFetch from "@/lib/api";
 import type { Cashier } from "@/types";
 
-const mockCashiers = [
-  {
-    id: "1",
-    name: "Charlie Brown",
-    address: "123 Main St, Jakarta",
-    gender: "male",
-    wage: 3000000,
-    phone: "081234567890",
-    birthDate: "1995-10-12",
-  },
-  {
-    id: "2",
-    name: "David Alvero",
-    address: "123 Main St, Jakarta",
-    gender: "male",
-    wage: 3000000,
-    phone: "081234567891",
-    birthDate: "1990-07-09",
-  },
-];
+const transformCashierToAPI = (receptionist: Omit<Cashier, "id_kasir">) => ({
+  ...receptionist,
+  tanggal_lahir: receptionist.tanggal_lahir.toISOString().split("T")[0],
+});
 
-let currentMockCashiers = [...mockCashiers];
-
-const DELAY_DURATION = 1000;
-
-// throw new Error('Test ERROR');
-
-function delay(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+const transformCashierFromAPI = (receptionist: Cashier): Cashier => ({
+  ...receptionist,
+  tanggal_lahir: new Date(receptionist.tanggal_lahir),
+});
 
 export const fetchAllCashiersAPI = async () => {
-  await delay(DELAY_DURATION);
-  return [
-    ...currentMockCashiers.map((obj) => ({
-      ...obj,
-      birthDate: new Date(obj.birthDate),
-    })),
-  ] as Cashier[];
+  const response = await apiFetch("/kasir");
+  return response.data.map(transformCashierFromAPI);
 };
 
-export const createCashierAPI = async (newCashier: Omit<Cashier, "id">) => {
-  await delay(DELAY_DURATION);
-  const cashier = {
-    ...newCashier,
-    birthDate: newCashier.birthDate.toISOString(),
-  };
-  currentMockCashiers = [
-    ...currentMockCashiers,
-    {
-      ...cashier,
-      id: Date.now().toString(),
-    },
-  ];
+export const createCashierAPI = async (
+  newCashier: Omit<Cashier, "id_kasir">
+) => {
+  await apiFetch("/kasir", {
+    method: "POST",
+    body: JSON.stringify(transformCashierToAPI(newCashier)),
+  });
+  return;
 };
 
 export const updateCashierAPI = async (updatedCashier: Cashier) => {
-  await delay(DELAY_DURATION);
-  const cashier = {
-    ...updatedCashier,
-    birthDate: updatedCashier.birthDate.toISOString(),
-  };
-  currentMockCashiers = currentMockCashiers.map((item) =>
-    item.id === cashier.id ? cashier : item
-  );
+  await apiFetch(`/kasir/${updatedCashier.id_kasir}`, {
+    method: "PUT",
+    body: JSON.stringify(transformCashierToAPI(updatedCashier)),
+  });
+  return;
 };
 
 export const deleteCashierAPI = async (id: string) => {
-  await delay(DELAY_DURATION);
-  currentMockCashiers = currentMockCashiers.filter((item) => item.id !== id);
+  await apiFetch(`/kasir/${id}`, {
+    method: "DELETE",
+  });
+  return;
 };

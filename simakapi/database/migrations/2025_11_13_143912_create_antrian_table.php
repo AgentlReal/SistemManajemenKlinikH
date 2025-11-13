@@ -19,7 +19,7 @@ return new class extends Migration
             $table->dateTime('tanggal')->nullable()->useCurrent();
             $table->text('keluhan')->nullable();
             $table->string('nomor_antrian', 10)->nullable();
-            $table->enum('keterangan', ['Menunggu', 'Diproses', 'Selesai', 'Batal'])->nullable()->default('Menunggu');
+            $table->enum('keterangan', ['Menunggu', 'Berlangsung', 'Selesai', 'Batal'])->nullable()->default('Menunggu');
         });
     }
 

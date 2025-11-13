@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('id_hasil_lab', true);
             $table->char('id_staf_lab', 4)->nullable()->index('id_staf_lab');
             $table->integer('id_rekam_medis')->nullable()->index('id_rekam_medis');
-            $table->integer('id_tarif_layanan')->nullable()->index('id_tarif_layanan');
+            $table->string('jenis_pemeriksaan', 100)->nullable();
             $table->dateTime('tanggal_pemeriksaan')->nullable()->useCurrent();
             $table->text('keterangan')->nullable();
             $table->string('hasil_pemeriksaan', 100)->nullable();

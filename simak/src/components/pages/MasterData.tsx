@@ -86,13 +86,13 @@ const clinicInfo: ClinicInfo = {
 const schedules: Schedule[] = [
   {
     id: "1",
-    employeeName: "Eve Martinez",
+    employeeName: "Dewi Lestari",
     startHour: "07:00 AM",
     endHour: "11:59 AM",
   },
   {
     id: "2",
-    employeeName: "Charlie Brown",
+    employeeName: "Hendra Gunawan",
     startHour: "01:00 PM",
     endHour: "06:00 PM",
   },

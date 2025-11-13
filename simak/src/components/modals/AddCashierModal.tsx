@@ -118,7 +118,7 @@ export function AddCashierModal({
                         >
                           {value instanceof Date
                             ? value.toLocaleDateString("id-ID")
-                            : "Select date"}
+                            : "Pilih tanggal lahir"}
                           <ChevronDownIcon />
                         </Button>
                       </PopoverTrigger>

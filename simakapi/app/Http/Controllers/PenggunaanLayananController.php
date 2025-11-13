@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PenggunaanLayanan;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class PenggunaanLayananController extends Controller
 {
@@ -83,6 +84,28 @@ class PenggunaanLayananController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve penggunaanLayanan.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Display a listing of the resource by id_pembayaran.
+     */
+    public function showByIdPembayaran($idPem): JsonResponse
+    {
+        try {
+            $penggunaan = DB::select('CALL GetPenggunaanLayananByIdPembayaran(?)', [$idPem]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Penggunaan Layanan retrieved successfully for id_pembayaran: ' . $idPem,
+                'data' => $penggunaan
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve Penggunaan Layanan.',
                 'error' => $e->getMessage()
             ], 500);
         }

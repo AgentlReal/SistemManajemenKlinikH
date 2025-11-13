@@ -1,5 +1,10 @@
+import { fetchAllDoctorsAPI } from "@/services/doctorServices";
 import { fetchAllPatientsAPI } from "@/services/patientServices";
-import { type BackendQueuePayload, type QueueStatus } from "@/types";
+import {
+  type BackendQueuePayload,
+  type QueueStatus,
+  type ViewDoctor,
+} from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronsUpDown } from "lucide-react";
@@ -72,13 +77,22 @@ export function AddQueueModal({
   });
 
   const [patientPopoverOpen, setPatientPopoverOpen] = useState(false);
+  const [doctorPopoverOpen, setDoctorPopoverOpen] = useState(false);
 
   const { data: patients = [] } = useQuery({
     queryKey: ["patients"],
     queryFn: fetchAllPatientsAPI,
   });
 
+  const { data: doctors = [] } = useQuery<
+    (Omit<ViewDoctor, "tanggal_lahir"> & { tanggal_lahir: Date })[]
+  >({
+    queryKey: ["doctors"],
+    queryFn: () => fetchAllDoctorsAPI(),
+  });
+
   const [searchPatient, setSearchPatient] = useState("");
+  const [searchDoctor, setSearchDoctor] = useState("");
 
   useEffect(() => {
     if (editingQueue) {
@@ -113,6 +127,11 @@ export function AddQueueModal({
     (patient) =>
       patient.name.toLowerCase().includes(searchPatient.toLowerCase()) ||
       patient.nik.toLowerCase().includes(searchPatient.toLowerCase())
+  );
+  const filteredDoctors = doctors.filter(
+    (doctor) =>
+      doctor.nama_dokter.toLowerCase().includes(searchDoctor.toLowerCase()) ||
+      doctor.id_dokter.toLowerCase().includes(searchDoctor.toLowerCase())
   );
 
   return (
@@ -169,7 +188,7 @@ export function AddQueueModal({
                                 value={patient.id}
                                 onSelect={(currentValue) => {
                                   onChange(parseInt(currentValue));
-                                  setSearchPatient(""); // Clear search after selection
+                                  setSearchPatient("");
                                   setPatientPopoverOpen(false);
                                 }}
                               >
@@ -181,24 +200,75 @@ export function AddQueueModal({
                       </Command>
                     </PopoverContent>
                   </Popover>
+                  {errors.id_pasien && (
+                    <p className="text-sm text-destructive">
+                      {errors.id_pasien.message}
+                    </p>
+                  )}
                 </div>
               )}
             />
 
-            <div className="space-y-2">
-              <Label htmlFor="id_dokter">ID Dokter</Label>
-              <Input
-                id="id_dokter"
-                {...register("id_dokter")}
-                required
-                disabled={!!editingQueue}
-              />
-              {errors.id_dokter && (
-                <p className="text-sm text-destructive">
-                  {errors.id_dokter.message}
-                </p>
+            <Controller
+              name="id_dokter"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <div className="space-y-2">
+                  <Label htmlFor="id_dokter">Nama Dokter</Label>
+                  <Popover
+                    open={doctorPopoverOpen}
+                    onOpenChange={setDoctorPopoverOpen}
+                  >
+                    <PopoverTrigger asChild disabled={!!editingQueue}>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {value
+                          ? doctors.find((doctor) => doctor.id_dokter === value)
+                              ?.nama_dokter
+                          : "Pilih dokter..."}
+                        <ChevronsUpDown className="opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command shouldFilter={false}>
+                        <CommandInput
+                          placeholder="Cari dokter berdasarkan ID atau Nama..."
+                          className="h-9"
+                          value={searchDoctor}
+                          onValueChange={setSearchDoctor}
+                        />
+                        <CommandList>
+                          <CommandEmpty>Tidak ada dokter.</CommandEmpty>
+                          <CommandGroup>
+                            {filteredDoctors.map((doctor) => (
+                              <CommandItem
+                                key={doctor.id_dokter}
+                                value={doctor.id_dokter}
+                                onSelect={(currentValue) => {
+                                  onChange(currentValue);
+                                  setSearchDoctor("");
+                                  setDoctorPopoverOpen(false);
+                                }}
+                              >
+                                {doctor.id_dokter} - {doctor.nama_dokter}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {errors.id_dokter && (
+                    <p className="text-sm text-destructive">
+                      {errors.id_dokter.message}
+                    </p>
+                  )}
+                </div>
               )}
-            </div>
+            />
 
             <div className="space-y-2">
               <Label htmlFor="keluhan">Keluhan</Label>

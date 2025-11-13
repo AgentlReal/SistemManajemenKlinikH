@@ -16,7 +16,7 @@ class HasilLab extends Model
     protected $fillable = [
         'id_staf_lab',
         'id_rekam_medis',
-        'id_tarif_layanan',
+        'jenis_pemeriksaan',
         'tanggal_pemeriksaan',
         'keterangan',
         'hasil_pemeriksaan',

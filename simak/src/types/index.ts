@@ -264,7 +264,7 @@ export type Patient = {
 
 export type QueueStatus = "Menunggu" | "Berlangsung" | "Selesai";
 
-export type TransactionStatus = "paid" | "unpaid";
+export type TransactionStatus = "Lunas" | "Belum Lunas";
 
 export interface Transaction {
   id: string;
@@ -275,6 +275,41 @@ export interface Transaction {
   total: number;
   status: TransactionStatus;
   paymentMethod?: string;
+}
+
+export interface ViewTransactionAPI {
+  id_pembayaran: number;
+  nama_pasien: string;
+  tanggal_transaksi: string;
+  jumlah_total: string;
+  status_pembayaran: TransactionStatus;
+  metode_pembayaran: string;
+}
+export interface ViewTransactionClient {
+  id_pembayaran: number;
+  nama_pasien: string;
+  tanggal_transaksi: Date;
+  jumlah_total: number;
+  status_pembayaran: TransactionStatus;
+  metode_pembayaran: string;
+}
+
+export interface ViewService {
+  id_penggunaan_layanan: number;
+  id_pembayaran: number;
+  id_tarif_layanan: number;
+  nama_layanan: string;
+  tipe_layanan: string;
+  kuantitas: number;
+  harga_saat_itu: number;
+}
+
+export interface Service {
+  id_penggunaan_layanan: number;
+  id_pembayaran: number;
+  id_tarif_layanan: number;
+  kuantitas: number;
+  harga_saat_itu: number;
 }
 
 export type Receptionist = {
@@ -340,6 +375,28 @@ export interface ViewSOAPNote {
   assessment: string;
   plan: string;
   tanggal_pencatatan: string;
+}
+
+export interface ViewLabResult {
+  id_hasil_lab: number;
+  id_staf_lab: string;
+  id_rekam_medis: number;
+  nama_staf_lab: string;
+  jenis_pemeriksaan: string;
+  tanggal_pemeriksaan: string;
+  keterangan: string;
+  hasil_pemeriksaan: string;
+}
+
+export interface ViewDoctorRecipe {
+  id_resep_dokter: number;
+  id_dokter: string;
+  id_rekam_medis: number;
+  id_pembayaran: number;
+  nama_dokter: string;
+  nama_obat: string;
+  keterangan_resep: string;
+  tanggal_resep: string;
 }
 
 export interface BackendQueuePayload {

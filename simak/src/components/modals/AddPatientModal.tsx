@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { patientSchema as schema, type Patient } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AgeFromDate } from "age-calculator";
@@ -143,7 +144,7 @@ export function AddPatientModal({
                         >
                           {value instanceof Date
                             ? value.toLocaleDateString("id-ID")
-                            : "Select date"}
+                            : "Pilih tanggal lahir"}
                           <ChevronDownIcon />
                         </Button>
                       </PopoverTrigger>
@@ -195,9 +196,9 @@ export function AddPatientModal({
                   >
                     <SelectTrigger
                       id="gender"
-                      className={onlyRead ? "pointer-events-none" : ""}
+                      className={cn(onlyRead ? "pointer-events-none" : "")}
                     >
-                      <SelectValue placeholder="Select gender" />
+                      <SelectValue placeholder="Pilih jenis kelamin" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Laki-laki">Laki-laki</SelectItem>

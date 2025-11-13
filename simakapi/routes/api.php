@@ -111,7 +111,10 @@ Route::middleware(['auth:sanctum', 'role:admin,doctor,lab,cashier'])->group(func
     Route::put('transaksi-pembayaran/{transaksi_pembayaran}', [TransaksiPembayaranController::class, 'update']);
     Route::delete('transaksi-pembayaran/{transaksi_pembayaran}', [TransaksiPembayaranController::class, 'destroy']);
     Route::get('transaksi-pembayaran-lengkap', [TransaksiPembayaranController::class, 'indexLengkap']);
-    Route::resource('penggunaan-layanan', PenggunaanLayananController::class);
+    Route::get('penggunaan-layanan-lengkap/{id_pembayaran}', [PenggunaanLayananController::class, 'showByIdPembayaran']);
+    Route::post('penggunaan-layanan/{id_pembayaran}', [PenggunaanLayananController::class, 'store']);
+    Route::put('penggunaan-layanan/{id_pembayaran}', [PenggunaanLayananController::class, 'update']);
+    Route::delete('penggunaan-layanan/{id_pembayaran}', [PenggunaanLayananController::class, 'destroy']);
 });
 
 Route::get('/user', function (Request $request) {

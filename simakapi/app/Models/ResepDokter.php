@@ -16,6 +16,7 @@ class ResepDokter extends Model
     protected $fillable = [
         'id_rekam_medis',
         'id_dokter',
+        'id_pembayaran',
         'nama_obat',
         'keterangan_resep',
         'tanggal_resep',

@@ -6,6 +6,7 @@ use App\Models\HasilLab;
 use App\Http\Requests\StoreHasilLabRequest;
 use App\Http\Requests\UpdateHasilLabRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class HasilLabController extends Controller
 {
@@ -112,9 +113,7 @@ class HasilLabController extends Controller
     public function showByPasienNik($nik): JsonResponse
     {
         try {
-            $hasilLabs = HasilLab::whereHas('rekamMedis.pasien', function ($query) use ($nik) {
-                $query->where('NIK', $nik);
-            })->get();
+            $hasilLabs = DB::select('CALL GetHasilLabByNIK(?)', [$nik]);
 
             return response()->json([
                 'success' => true,

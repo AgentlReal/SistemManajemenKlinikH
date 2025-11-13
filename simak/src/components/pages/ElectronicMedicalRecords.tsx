@@ -1,11 +1,19 @@
 import apiFetch from "@/lib/api";
+import { fetchAllPatientDoctorRecipesAPI } from "@/services/doctorRecipeServices";
+import { fetchAllPatientLabResultsAPI } from "@/services/labResultServices";
 import { fetchAllPatientSOAPsAPI } from "@/services/soapNoteServices";
-import type { SOAPNote, ViewSOAPNote } from "@/types";
+import type {
+  SOAPNote,
+  ViewDoctorRecipe,
+  ViewLabResult,
+  ViewSOAPNote,
+} from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { AgeFromDate } from "age-calculator";
-import { Activity, FileText, Search } from "lucide-react";
+import { Activity, ClipboardEdit, FileText, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { AddDoctorRecipeModal } from "../modals/AddDoctorRecipeModal";
 import { AddLabResultModal } from "../modals/AddLabResultModal";
 import { AddSoapNoteModal } from "../modals/AddSoapNoteModal";
 import { Button } from "../ui/button";
@@ -13,46 +21,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-
-interface LabResult {
-  id: string;
-  date: string;
-  testType: string;
-  result: string;
-  status: "normal" | "abnormal" | "pending";
-  notes: string;
-  staffLab: string;
-}
-
-const mockLabResults: LabResult[] = [
-  {
-    id: "1",
-    date: "2025-10-12",
-    testType: "Complete Blood Count (CBC)",
-    result: "WBC: 7,500/μL, RBC: 5.2 M/μL, Hemoglobin: 14.5 g/dL",
-    status: "normal",
-    notes: "All values within normal range",
-    staffLab: "Andhika Wiratama",
-  },
-  {
-    id: "2",
-    date: "2025-10-10",
-    testType: "Blood Glucose",
-    result: "Fasting: 95 mg/dL",
-    status: "normal",
-    notes: "Normal glucose levels",
-    staffLab: "Andhika Wiratama",
-  },
-  {
-    id: "3",
-    date: "2025-10-08",
-    testType: "Lipid Panel",
-    result: "Total Cholesterol: 210 mg/dL, LDL: 135 mg/dL, HDL: 45 mg/dL",
-    status: "abnormal",
-    notes: "LDL slightly elevated. Recommend dietary changes.",
-    staffLab: "Andhika Wiratama",
-  },
-];
 
 interface Patient {
   id_pasien: number;
@@ -64,13 +32,24 @@ interface Patient {
   alamat: string;
 }
 
+interface ResepDokter {
+  id_resep_dokter: string;
+  nama_dokter: string;
+  nama_obat: string;
+  keterangan_resep: string;
+  tanggal_resep: string;
+}
+
 export function ElectronicMedicalRecords() {
   const [searchNIK, setSearchNIK] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [soapNotes, setSoapNotes] = useState<ViewSOAPNote[]>([]);
-  const [labResults] = useState<LabResult[]>(mockLabResults);
+  const [labResults, setLabResults] = useState<ViewLabResult[]>([]);
+  const [doctorRecipes, setDoctorRecipes] = useState<ViewDoctorRecipe[]>([]);
   const [isAddSoapNoteModalOpen, setIsAddSoapNoteModalOpen] = useState(false);
   const [isAddLabResultModalOpen, setIsAddLabResultModalOpen] = useState(false);
+  const [isAddDoctorRecipeModalOpen, setIsAddDoctorRecipeModalOpen] =
+    useState(false);
 
   const soapMutation = useMutation<ViewSOAPNote[], Error, string>({
     mutationFn: async (nik) => {
@@ -78,24 +57,54 @@ export function ElectronicMedicalRecords() {
       return viewSoapNotes;
     },
     onSuccess: (data) => {
-      toast.success("Berhasil Mengambil SOAP");
       setSoapNotes(data);
     },
     onError: () => {
       toast.error("Gagal mengambil SOAP!");
+      setSoapNotes([]);
     },
   });
+
+  const labResultMutation = useMutation<ViewLabResult[], Error, string>({
+    mutationFn: async (nik) => {
+      const viewSoapNotes = await fetchAllPatientLabResultsAPI(nik);
+      return viewSoapNotes;
+    },
+    onSuccess: (data) => {
+      setLabResults(data);
+    },
+    onError: () => {
+      toast.error("Gagal mengambil Hasil Lab!");
+      setLabResults([]);
+    },
+  });
+
+  const doctorRecipeMutation = useMutation<ViewDoctorRecipe[], Error, string>({
+    mutationFn: async (nik) => {
+      const viewSoapNotes = await fetchAllPatientDoctorRecipesAPI(nik);
+      return viewSoapNotes;
+    },
+    onSuccess: (data) => {
+      setDoctorRecipes(data);
+    },
+    onError: () => {
+      toast.error("Gagal mengambil resep dokter!");
+      setDoctorRecipes([]);
+    },
+  });
+
   const patientMutation = useMutation<Patient, Error, string>({
     mutationFn: async (nik) => {
       const response = await apiFetch(`/pasien/nik/${nik}`);
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success("Berhasil Mengambil Pasien");
+      toast.success("Berhasil Mengambil Rekam Medis Pasien");
       setSelectedPatient(data);
     },
     onError: () => {
-      toast.error("Gagal mengambil Pasien!");
+      toast.error("Gagal mengambil Rekam Medis Pasien!");
+      setSelectedPatient(null);
     },
   });
 
@@ -103,6 +112,8 @@ export function ElectronicMedicalRecords() {
     if (searchNIK) {
       patientMutation.mutate(searchNIK);
       soapMutation.mutate(searchNIK);
+      labResultMutation.mutate(searchNIK);
+      doctorRecipeMutation.mutate(searchNIK);
     }
   };
 
@@ -116,6 +127,11 @@ export function ElectronicMedicalRecords() {
   const handleAddLabResult = (data: any) => {
     console.log("New Lab Result:", data);
     toast.success("Lab result added successfully!");
+  };
+
+  const handleAddDoctorRecipe = (data: any) => {
+    // setDoctorRecipes([newRecipe, ...doctorRecipes]);
+    toast.success("Resep dokter berhasil ditambahkan!");
   };
 
   return (
@@ -200,26 +216,30 @@ export function ElectronicMedicalRecords() {
 
           {/* Medical Records Tabs */}
           <Tabs defaultValue="soap" className="space-y-4">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid w-full max-w-md grid-cols-3">
               <TabsTrigger value="soap">
                 <FileText className="w-4 h-4 mr-2" />
-                SOAP Notes
+                SOAP
               </TabsTrigger>
               <TabsTrigger value="lab">
                 <Activity className="w-4 h-4 mr-2" />
-                Lab Results
+                Hasil Lab
+              </TabsTrigger>
+              <TabsTrigger value="recipe">
+                <ClipboardEdit className="w-4 h-4 mr-2" />
+                Resep Dokter
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="soap" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3>SOAP Notes History</h3>
+                <h3>Riwayat SOAP</h3>
                 <Button
                   onClick={() => setIsAddSoapNoteModalOpen(true)}
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <FileText className="w-4 h-4 mr-2" />
-                  Add New Note
+                  Tambah SOAP
                 </Button>
               </div>
 
@@ -276,13 +296,13 @@ export function ElectronicMedicalRecords() {
 
             <TabsContent value="lab" className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3>Laboratory Results</h3>
+                <h3>Riwayat Pemeriksaan Lab</h3>
                 <Button
                   onClick={() => setIsAddLabResultModalOpen(true)}
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Activity className="w-4 h-4 mr-2" />
-                  Add Lab Result
+                  Tambah Hasil Lab
                 </Button>
               </div>
 
@@ -295,55 +315,101 @@ export function ElectronicMedicalRecords() {
                   </Card>
                 ) : (
                   labResults.map((result) => (
-                    <Card key={result.id}>
+                    <Card key={result.id_hasil_lab}>
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-base">
                             Visit Date:{" "}
-                            {new Date(result.date).toLocaleDateString()}
+                            {new Date(
+                              result.tanggal_pemeriksaan
+                            ).toLocaleDateString()}
                           </CardTitle>
                           <span className="text-sm text-muted-foreground">
-                            {result.staffLab}
+                            {result.nama_staf_lab}
                           </span>
                         </div>
                       </CardHeader>
                       <CardContent className="">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <h4>{result.testType}</h4>
+                            <h4>{result.jenis_pemeriksaan}</h4>
                             <p className="text-sm text-muted-foreground mt-1">
-                              {new Date(result.date).toLocaleDateString()}
+                              {new Date(
+                                result.tanggal_pemeriksaan
+                              ).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
                         <div className="space-y-2">
                           <div>
                             <Label>Results</Label>
-                            <p className="text-sm mt-1">{result.result}</p>
+                            <p className="text-sm mt-1">
+                              {result.hasil_pemeriksaan}
+                            </p>
                           </div>
                           <div>
                             <Label>Notes</Label>
                             <p className="text-sm mt-1 text-muted-foreground">
-                              {result.notes}
+                              {result.keterangan}
                             </p>
                           </div>
                         </div>
-                        <div className="flex flex-col gap-2 mt-2">
-                          <Label>Status</Label>
-                          <div>
-                            <span
-                              className={`px-3 py-1 rounded-full text-sm ${
-                                result.status === "normal"
-                                  ? "bg-green-100 text-green-700"
-                                  : result.status === "abnormal"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                              }`}
-                            >
-                              {result.status.charAt(0).toUpperCase() +
-                                result.status.slice(1)}
-                            </span>
-                          </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="recipe" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3>Riwayat Resep Dokter</h3>
+                <Button
+                  onClick={() => setIsAddDoctorRecipeModalOpen(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <ClipboardEdit className="w-4 h-4 mr-2" />
+                  Tambah Resep
+                </Button>
+              </div>
+
+              <div className="grid gap-4">
+                {!doctorRecipes.length ? (
+                  <Card>
+                    <CardContent className="pt-6">
+                      <p>Pasien ini belum memiliki resep dokter.</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  doctorRecipes.map((recipe) => (
+                    <Card key={recipe.id_resep_dokter}>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-base">
+                            Tanggal Resep:{" "}
+                            {new Date(
+                              recipe.tanggal_resep
+                            ).toLocaleDateString()}
+                          </CardTitle>
+                          <span className="text-sm text-muted-foreground">
+                            {recipe.nama_dokter}
+                          </span>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-green-700">Nama Obat</Label>
+                          <p className="text-sm mt-1 text-gray-700">
+                            {recipe.nama_obat}
+                          </p>
+                        </div>
+                        <div>
+                          <Label className="text-green-700">
+                            Keterangan Resep
+                          </Label>
+                          <p className="text-sm mt-1 text-gray-700">
+                            {recipe.keterangan_resep}
+                          </p>
                         </div>
                       </CardContent>
                     </Card>
@@ -377,6 +443,12 @@ export function ElectronicMedicalRecords() {
         isOpen={isAddLabResultModalOpen}
         onClose={() => setIsAddLabResultModalOpen(false)}
         onAdd={handleAddLabResult}
+      />
+
+      <AddDoctorRecipeModal
+        isOpen={isAddDoctorRecipeModalOpen}
+        onClose={() => setIsAddDoctorRecipeModalOpen(false)}
+        onAdd={handleAddDoctorRecipe}
       />
     </div>
   );

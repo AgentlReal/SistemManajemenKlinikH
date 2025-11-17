@@ -20,7 +20,6 @@ class StoreSoapRequest extends FormRequest
             'objective' => 'nullable|string',
             'assessment' => 'nullable|string',
             'plan' => 'nullable|string',
-            'tanggal_pencatatan' => 'nullable|date',
         ];
     }
 }

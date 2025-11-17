@@ -83,7 +83,9 @@ Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab'])->group
     Route::get('pasien/nik/{pasien}', [PasienController::class, 'showByNik']);
     Route::put('pasien/{pasien}', [PasienController::class, 'update']);
     Route::delete('pasien/{pasien}', [PasienController::class, 'destroy']);
-    Route::resource('rekam-medis', RekamMedisController::class);
+    // Route::resource('rekam-medis', RekamMedisController::class);
+    Route::get('rekam-medis/pasien/{nik}', [RekamMedisController::class, 'showByPasienNik']);
+
     Route::get('soap', [SoapController::class, 'index']);
     Route::post('soap', [SoapController::class, 'store']);
     Route::get('soap/{soap}', [SoapController::class, 'show']);

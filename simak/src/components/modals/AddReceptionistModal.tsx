@@ -163,6 +163,7 @@ export function AddReceptionistModal({
                       : ""
                   }
                   readOnly
+                  disabled
                 />
               </div>
             </div>

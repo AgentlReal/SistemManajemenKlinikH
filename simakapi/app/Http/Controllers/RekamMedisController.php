@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RekamMedis;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class RekamMedisController extends Controller
 {
@@ -81,6 +82,28 @@ class RekamMedisController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve rekamMedis.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Display a listing of the resource by pasien NIK.
+     */
+    public function showByPasienNik($nik): JsonResponse
+    {
+        try {
+            $medicalrecords = DB::select('CALL GetRekamMedisByNIK(?)', [$nik])[0];
+            return response()->json([
+                'success' => true,
+                'message' => 'Soaps retrieved successfully for NIK: ' . $nik,
+                'data' => $medicalrecords
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve medicalrecords.',
                 'error' => $e->getMessage()
             ], 500);
         }

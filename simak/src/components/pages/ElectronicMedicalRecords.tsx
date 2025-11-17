@@ -1,7 +1,10 @@
 import apiFetch from "@/lib/api";
 import { fetchAllPatientDoctorRecipesAPI } from "@/services/doctorRecipeServices";
 import { fetchAllPatientLabResultsAPI } from "@/services/labResultServices";
-import { fetchAllPatientSOAPsAPI } from "@/services/soapNoteServices";
+import {
+  createPatientSOAPAPI,
+  fetchAllPatientSOAPsAPI,
+} from "@/services/soapNoteServices";
 import type {
   SOAPNote,
   ViewDoctorRecipe,
@@ -32,17 +35,17 @@ interface Patient {
   alamat: string;
 }
 
-interface ResepDokter {
-  id_resep_dokter: string;
-  nama_dokter: string;
-  nama_obat: string;
-  keterangan_resep: string;
-  tanggal_resep: string;
+interface ElectronicMedicalRecord {
+  id_rekam_medis: number;
+  id_pasien: number;
+  tanggal_pencatatan: string;
 }
 
 export function ElectronicMedicalRecords() {
   const [searchNIK, setSearchNIK] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedElectronicMedicalRecord, setSelectedElectronicMedicalRecord] =
+    useState<ElectronicMedicalRecord | null>(null);
   const [soapNotes, setSoapNotes] = useState<ViewSOAPNote[]>([]);
   const [labResults, setLabResults] = useState<ViewLabResult[]>([]);
   const [doctorRecipes, setDoctorRecipes] = useState<ViewDoctorRecipe[]>([]);
@@ -62,6 +65,23 @@ export function ElectronicMedicalRecords() {
     onError: () => {
       toast.error("Gagal mengambil SOAP!");
       setSoapNotes([]);
+    },
+  });
+  const createSoapMutation = useMutation<
+    SOAPNote,
+    Error,
+    Omit<SOAPNote, "id_soap">
+  >({
+    mutationFn: async (newSOAP) => {
+      const viewSoapNotes = await createPatientSOAPAPI(newSOAP);
+      return {} as SOAPNote;
+    },
+    onSuccess: () => {
+      toast.success("Berhasil menambahkan SOAP!");
+      soapMutation.mutate(searchNIK);
+    },
+    onError: () => {
+      toast.error("Gagal menambahkan SOAP!");
     },
   });
 
@@ -108,9 +128,27 @@ export function ElectronicMedicalRecords() {
     },
   });
 
+  const electronicMedicalRecordMutation = useMutation<
+    ElectronicMedicalRecord,
+    Error,
+    string
+  >({
+    mutationFn: async (nik) => {
+      const response = await apiFetch(`/rekam-medis/pasien/${nik}`);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      setSelectedElectronicMedicalRecord(() => data);
+    },
+    onError: () => {
+      setSelectedElectronicMedicalRecord(null);
+    },
+  });
+
   const handleSearch = async () => {
     if (searchNIK) {
       patientMutation.mutate(searchNIK);
+      electronicMedicalRecordMutation.mutate(searchNIK);
       soapMutation.mutate(searchNIK);
       labResultMutation.mutate(searchNIK);
       doctorRecipeMutation.mutate(searchNIK);
@@ -253,7 +291,7 @@ export function ElectronicMedicalRecords() {
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-base">
-                          Visit Date:{" "}
+                          Tanggal Pencatatan:{" "}
                           {new Date(
                             note.tanggal_pencatatan
                           ).toLocaleDateString()}
@@ -319,7 +357,7 @@ export function ElectronicMedicalRecords() {
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-base">
-                            Visit Date:{" "}
+                            Tanggal Pencatatan:{" "}
                             {new Date(
                               result.tanggal_pemeriksaan
                             ).toLocaleDateString()}
@@ -376,7 +414,7 @@ export function ElectronicMedicalRecords() {
               <div className="grid gap-4">
                 {!doctorRecipes.length ? (
                   <Card>
-                    <CardContent className="pt-6">
+                    <CardContent>
                       <p>Pasien ini belum memiliki resep dokter.</p>
                     </CardContent>
                   </Card>
@@ -425,9 +463,12 @@ export function ElectronicMedicalRecords() {
         <Card className="py-12">
           <CardContent className="text-center">
             <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-muted-foreground">No patient selected</h3>
+            <h3 className="text-muted-foreground">
+              Tidak ada pasien yang dipilih.
+            </h3>
             <p className="text-muted-foreground mt-2">
-              Search for a patient by NIK to view their medical records
+              Cari rekam medis pasien menggunakan NIK untuk menampilkan rekam
+              medisnya.
             </p>
           </CardContent>
         </Card>
@@ -435,8 +476,13 @@ export function ElectronicMedicalRecords() {
 
       <AddSoapNoteModal
         isOpen={isAddSoapNoteModalOpen}
-        onClose={() => setIsAddSoapNoteModalOpen(false)}
-        onAdd={handleAddSoapNote}
+        onClose={() => {
+          setIsAddSoapNoteModalOpen(false);
+        }}
+        onAdd={createSoapMutation.mutate}
+        editingSOAP={null}
+        onUpdate={() => {}}
+        id_rekam_medis={selectedElectronicMedicalRecord?.id_rekam_medis}
       />
 
       <AddLabResultModal

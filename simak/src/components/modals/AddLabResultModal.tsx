@@ -1,5 +1,7 @@
+import type { LabResult } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import {
@@ -11,48 +13,65 @@ import {
 } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
 const labResultSchema = z.object({
-  testType: z.string().min(1, "Test type is required"),
-  result: z.string().min(1, "Result is required"),
-  status: z.enum(["normal", "abnormal", "pending"]),
-  notes: z.string().optional(),
+  id_staf_lab: z.string().min(1, "ID staf lab harus diisi"),
+  id_rekam_medis: z.coerce.number().min(1, "ID rekam medis harus diisi"),
+  jenis_pemeriksaan: z.string().min(1, "Jenis pemeriksaan harus diisi"),
+  keterangan: z.string().min(1, "Keterangan harus diisi"),
+  hasil_pemeriksaan: z.string().min(1, "Hasil pemeriksaan harus diisi"),
 });
-
-type LabResultFormValues = z.infer<typeof labResultSchema>;
 
 interface AddLabResultModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (data: Omit<LabResultFormValues, "id" | "date" | "doctor">) => void;
+  onAdd: (data: Omit<LabResult, "id_hasil_lab">) => void;
+  onUpdate: (data: LabResult) => void;
+  editingLabResult: LabResult | null;
+  id_rekam_medis?: number;
 }
 
 export function AddLabResultModal({
   isOpen,
   onClose,
   onAdd,
+  editingLabResult: editingLabResult,
+  onUpdate,
+  id_rekam_medis,
 }: AddLabResultModalProps) {
   const {
-    register,
     handleSubmit,
     formState: { errors },
+    setValue,
     reset,
-    control,
-  } = useForm<LabResultFormValues>({
-    resolver: zodResolver(labResultSchema),
-  });
+    register,
+  } = useForm({ resolver: zodResolver(labResultSchema) });
 
-  const onValid: SubmitHandler<LabResultFormValues> = (data) => {
-    onAdd(data);
-    reset();
+  useEffect(() => {
+    if (editingLabResult) {
+      setValue("id_staf_lab", editingLabResult.id_staf_lab);
+      setValue("id_rekam_medis", editingLabResult.id_rekam_medis);
+      setValue("jenis_pemeriksaan", editingLabResult.jenis_pemeriksaan);
+      setValue("keterangan", editingLabResult.keterangan);
+      setValue("hasil_pemeriksaan", editingLabResult.hasil_pemeriksaan);
+    } else {
+      reset();
+      setValue("id_staf_lab", "L001");
+      setValue("id_rekam_medis", id_rekam_medis);
+    }
+  }, [editingLabResult, isOpen]);
+
+  const onValid: SubmitHandler<z.infer<typeof labResultSchema>> = (data) => {
+    if (editingLabResult) {
+      onUpdate({
+        ...data,
+        id_hasil_lab: editingLabResult.id_hasil_lab,
+      });
+    } else {
+      onAdd(data);
+    }
+
     onClose();
   };
 
@@ -70,66 +89,38 @@ export function AddLabResultModal({
         <form onSubmit={handleSubmit(onValid)}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="testType">Test Type</Label>
+              <Label htmlFor="jenis_pemeriksaan">Jenis Pemeriksaan</Label>
               <Input
-                {...register("testType")}
-                id="testType"
+                {...register("jenis_pemeriksaan")}
+                id="jenis_pemeriksaan"
                 placeholder="e.g., Complete Blood Count (CBC)"
               />
-              {errors.testType && (
+              {errors.jenis_pemeriksaan && (
                 <p className="text-sm text-destructive">
-                  {errors.testType.message}
+                  {errors.jenis_pemeriksaan.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="result">Result</Label>
+              <Label htmlFor="hasil_pemeriksaan">Hasil Pemeriksaan</Label>
               <Textarea
-                {...register("result")}
-                id="result"
+                {...register("hasil_pemeriksaan")}
+                id="hasil_pemeriksaan"
                 placeholder="e.g., WBC: 7,500/μL, RBC: 5.2 M/μL"
               />
-              {errors.result && (
+              {errors.hasil_pemeriksaan && (
                 <p className="text-sm text-destructive">
-                  {errors.result.message}
+                  {errors.hasil_pemeriksaan.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Controller
-                name="status"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger id="status">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="abnormal">Abnormal</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.status && (
-                <p className="text-sm text-destructive">
-                  {errors.status.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="keterangan">Keterangan</Label>
               <Textarea
-                {...register("notes")}
-                id="notes"
+                {...register("keterangan")}
+                id="keterangan"
                 placeholder="e.g., All values within normal range"
               />
             </div>

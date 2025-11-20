@@ -27,7 +27,6 @@ class StoreResepDokterRequest extends FormRequest
             'id_pembayaran' => 'required|integer',
             'nama_obat' => 'required|string|max:255',
             'keterangan_resep' => 'required|string',
-            'tanggal_resep' => 'required|date',
         ];
     }
 }

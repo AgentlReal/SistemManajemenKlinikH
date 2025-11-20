@@ -1,11 +1,15 @@
 import apiFetch from "@/lib/api";
 import { fetchAllPatientDoctorRecipesAPI } from "@/services/doctorRecipeServices";
-import { fetchAllPatientLabResultsAPI } from "@/services/labResultServices";
+import {
+  createPatientLabResultAPI,
+  fetchAllPatientLabResultsAPI,
+} from "@/services/labResultServices";
 import {
   createPatientSOAPAPI,
   fetchAllPatientSOAPsAPI,
 } from "@/services/soapNoteServices";
 import type {
+  LabResult,
   SOAPNote,
   ViewDoctorRecipe,
   ViewLabResult,
@@ -67,6 +71,7 @@ export function ElectronicMedicalRecords() {
       setSoapNotes([]);
     },
   });
+
   const createSoapMutation = useMutation<
     SOAPNote,
     Error,
@@ -96,6 +101,23 @@ export function ElectronicMedicalRecords() {
     onError: () => {
       toast.error("Gagal mengambil Hasil Lab!");
       setLabResults([]);
+    },
+  });
+  const createLabResultMutation = useMutation<
+    LabResult,
+    Error,
+    Omit<LabResult, "id_hasil_lab">
+  >({
+    mutationFn: async (newLabResult) => {
+      await createPatientLabResultAPI(newLabResult);
+      return {} as LabResult;
+    },
+    onSuccess: () => {
+      toast.success("Berhasil menambahkan Hasil Lab!");
+      soapMutation.mutate(searchNIK);
+    },
+    onError: () => {
+      toast.error("Gagal menambahkan Hasil Lab!");
     },
   });
 
@@ -488,7 +510,10 @@ export function ElectronicMedicalRecords() {
       <AddLabResultModal
         isOpen={isAddLabResultModalOpen}
         onClose={() => setIsAddLabResultModalOpen(false)}
-        onAdd={handleAddLabResult}
+        onAdd={createLabResultMutation.mutate}
+        editingLabResult={null}
+        onUpdate={() => {}}
+        id_rekam_medis={selectedElectronicMedicalRecord?.id_rekam_medis}
       />
 
       <AddDoctorRecipeModal

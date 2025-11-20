@@ -248,14 +248,37 @@ export const departmentSchema = z.object({
   nama_poli: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
 });
 
-export const scheduleSchema = z.object({
-  employeeName: z
-    .string()
-    .min(1, warnings.name.min)
-    .max(100, warnings.name.max),
-  startHour: z.string(),
-  endHour: z.string(),
-});
+export const scheduleSchema = z
+  .object({
+    id_resepsionis: z
+      .string()
+      .max(4, "Maksimal 4 karakter")
+      .optional()
+      .nullable(),
+    id_dokter: z.string().max(4, "Maksimal 4 karakter").optional().nullable(),
+    id_staf_lab: z.string().max(4, "Maksimal 4 karakter").optional().nullable(),
+    id_kasir: z.string().max(4, "Maksimal 4 karakter").optional().nullable(),
+    jam_mulai: z.string().min(1, "Jam Mulai Harus Diisi"),
+    jam_selesai: z.string().min(1, "Jam Selesai Harus Diisi"),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      !data.id_resepsionis &&
+      !data.id_dokter &&
+      !data.id_staf_lab &&
+      !data.id_kasir
+    ) {
+      ["id_resepsionis", "id_dokter", "id_staf_lab", "id_kasir"].forEach(
+        (field) => {
+          ctx.addIssue({
+            code: "custom",
+            message: "Karyawan harus diisi",
+            path: [field],
+          });
+        }
+      );
+    }
+  });
 
 //Types
 export type Patient = {
@@ -350,8 +373,21 @@ export type Department = {
 } & z.infer<typeof departmentSchema>;
 
 export type Schedule = {
-  id: string;
+  id_jadwal: number;
 } & z.infer<typeof scheduleSchema>;
+
+export type ViewSchedule = {
+  id_jadwal: number;
+  jenis_karyawan: string;
+  id_karyawan: string;
+  nama_karyawan: string;
+  spesialis: string;
+  nomor_lisensi: string;
+  jam_mulai: string;
+  jam_selesai: string;
+  jenis_kelamin: string;
+  nomor_telepon: string;
+};
 
 export type ClinicInfo = z.infer<typeof clinicInfoSchema>;
 
@@ -375,6 +411,15 @@ export interface ViewSOAPNote {
   assessment: string;
   plan: string;
   tanggal_pencatatan: string;
+}
+
+export interface LabResult {
+  id_hasil_lab: number;
+  id_staf_lab: string;
+  id_rekam_medis: number;
+  jenis_pemeriksaan: string;
+  keterangan: string;
+  hasil_pemeriksaan: string;
 }
 
 export interface ViewLabResult {

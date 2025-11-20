@@ -29,6 +29,12 @@ import {
   updateReceptionistAPI,
 } from "@/services/receptionistServices";
 import {
+  createScheduleAPI,
+  deleteScheduleAPI,
+  fetchAllSchedulesAPI,
+  updateScheduleAPI,
+} from "@/services/scheduleServices";
+import {
   createServiceFeeAPI,
   deleteServiceFeeAPI,
   fetchAllServiceFeesAPI,
@@ -44,6 +50,7 @@ import type {
   Schedule,
   ServiceFee,
   ViewDoctor,
+  ViewSchedule,
 } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -66,6 +73,7 @@ import { AddDepartmentModal } from "../modals/AddDepartmentModal";
 import { AddDoctorModal } from "../modals/AddDoctorModal";
 import { AddLabStaffModal } from "../modals/AddLabStaffModal";
 import { AddReceptionistModal } from "../modals/AddReceptionistModal";
+import { AddScheduleModal } from "../modals/AddScheduleModal";
 import { AddServiceFeeModal } from "../modals/AddServiceFeeModal";
 import { DeleteConfirmModal } from "../modals/DeleteConfirmModal";
 import { Button } from "../ui/button";
@@ -82,21 +90,6 @@ const clinicInfo: ClinicInfo = {
   license: "CLINIC-LICENSE-2025-001",
   operatingHours: "24 Jam",
 };
-
-const schedules: Schedule[] = [
-  {
-    id: "1",
-    employeeName: "Dewi Lestari",
-    startHour: "07:00 AM",
-    endHour: "11:59 AM",
-  },
-  {
-    id: "2",
-    employeeName: "Hendra Gunawan",
-    startHour: "01:00 PM",
-    endHour: "06:00 PM",
-  },
-];
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -152,6 +145,10 @@ export function MasterData() {
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(
     null
   );
+  const [isAddScheduleModalOpen, setIsAddScheduleModalOpen] = useState(false);
+  useState<Department | null>(null);
+  const [deleteScheduleId, setDeleteScheduleId] = useState<number | null>(null);
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
 
   const [activeTab, setActiveTab] = useState("clinic");
 
@@ -493,6 +490,61 @@ export function MasterData() {
     },
   });
 
+  //Schedules Query and Mutations
+  const scheduleQuery = useQuery<ViewSchedule[]>({
+    queryKey: ["schedules"],
+    queryFn: () => fetchAllSchedulesAPI(),
+  });
+
+  const createScheduleMutation = useMutation<
+    Schedule,
+    Error,
+    Omit<Schedule, "id_jadwal">
+  >({
+    mutationFn: async (newSchedule) => {
+      await createScheduleAPI(newSchedule);
+      toast.success("Jadwal berhasil ditambahkan!");
+      return {} as Schedule;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
+    onError: () => {
+      toast.error("Jadwal gagal ditambahkan!");
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
+  });
+  const deleteScheduleMutation = useMutation<Schedule, Error, number>({
+    mutationFn: async (id) => {
+      await deleteScheduleAPI(id);
+      toast.success("Jadwal berhasil dihapus!");
+      setDeleteScheduleId(null);
+      return {} as Schedule;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
+    onError: () => {
+      toast.error("Jadwal gagal dihapus!");
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
+  });
+  const updateScheduleMutation = useMutation<Schedule, Error, Schedule>({
+    mutationFn: async (updatedQueue) => {
+      await updateScheduleAPI(updatedQueue);
+      toast.success("Jadwal berhasil diperbarui!");
+      setEditingSchedule(null);
+      return {} as Schedule;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
+    onError: () => {
+      toast.error("Jadwal gagal diperbarui!");
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
+  });
+
   const receptionistColumns: ColumnDef<Receptionist>[] = [
     {
       accessorKey: "id_resepsionis",
@@ -775,21 +827,25 @@ export function MasterData() {
       ),
     },
   ];
-  const scheduleColumns: ColumnDef<Schedule>[] = [
+  const scheduleColumns: ColumnDef<ViewSchedule>[] = [
     {
-      accessorKey: "id",
+      accessorKey: "id_jadwal",
       header: "ID",
     },
     {
-      accessorKey: "employeeName",
+      accessorKey: "id_karyawan",
+      header: "ID Karyawan",
+    },
+    {
+      accessorKey: "nama_karyawan",
       header: "Nama Karyawan",
     },
     {
-      accessorKey: "startHour",
+      accessorKey: "jam_mulai",
       header: "Jam Mulai",
     },
     {
-      accessorKey: "endHour",
+      accessorKey: "jam_selesai",
       header: "Jam Selesai",
     },
     {
@@ -797,7 +853,33 @@ export function MasterData() {
       header: "Aksi",
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-2">
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              setEditingSchedule({
+                id_jadwal: row.original.id_jadwal,
+                id_resepsionis:
+                  row.original.id_karyawan[0] === "R"
+                    ? row.original.id_karyawan
+                    : "",
+                id_dokter:
+                  row.original.id_karyawan[0] === "D"
+                    ? row.original.id_karyawan
+                    : "",
+                id_staf_lab:
+                  row.original.id_karyawan[0] === "L"
+                    ? row.original.id_karyawan
+                    : "",
+                id_kasir:
+                  row.original.id_karyawan[0] === "K"
+                    ? row.original.id_karyawan
+                    : "",
+                jam_mulai: row.original.jam_mulai,
+                jam_selesai: row.original.jam_selesai,
+              });
+            }}
+          >
             <Edit className="w-4 h-4" />
           </Button>
           <Button
@@ -1055,10 +1137,12 @@ export function MasterData() {
           <Card>
             <CardContent>
               <DataTable
-                data={schedules}
+                data={scheduleQuery.data}
                 columns={scheduleColumns}
                 title="jadwal karyawan"
-                onAdd={() => {}}
+                onAdd={() => {
+                  setIsAddScheduleModalOpen(true);
+                }}
               />
             </CardContent>
           </Card>
@@ -1186,6 +1270,35 @@ export function MasterData() {
         }
         title="Hapus Poli"
         description="Apa Anda yakin ingin menghapus poli ini?"
+      />
+      <DeleteConfirmModal
+        isOpen={deleteDepartmentId !== null}
+        onClose={() => setDeleteDepartmentId(null)}
+        onConfirm={() =>
+          deleteDepartmentId &&
+          deleteDepartmentMutation.mutate(deleteDepartmentId)
+        }
+        title="Hapus Poli"
+        description="Apa Anda yakin ingin menghapus poli ini?"
+      />
+      <AddScheduleModal
+        isOpen={isAddScheduleModalOpen || editingSchedule !== null}
+        onClose={() => {
+          setIsAddScheduleModalOpen(false);
+          setEditingSchedule(null);
+        }}
+        onAdd={createScheduleMutation.mutate}
+        editingSchedule={editingSchedule}
+        onUpdate={updateScheduleMutation.mutate}
+      />
+      <DeleteConfirmModal
+        isOpen={deleteScheduleId !== null}
+        onClose={() => setDeleteScheduleId(null)}
+        onConfirm={() =>
+          deleteScheduleId && deleteScheduleMutation.mutate(deleteScheduleId)
+        }
+        title="Hapus Jadwal"
+        description="Apa Anda yakin ingin menghapus jadwal ini?"
       />
     </div>
   );

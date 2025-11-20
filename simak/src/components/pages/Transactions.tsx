@@ -1,12 +1,14 @@
+import { cn } from "@/lib/utils";
 import { fetchAllTransactionsAPI } from "@/services/transactionServices";
 import type { TransactionStatus, ViewTransactionClient } from "@/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DollarSign, Plus, Printer } from "lucide-react";
 import { useState } from "react";
+import { BsBank, BsCash } from "react-icons/bs";
 import { AddServiceToTransactionModal } from "../modals/AddServiceToTransactionModal";
 import { printReceiptPDF } from "../shared/PrintReceipt";
-import { Badge } from "../ui/badge";
+import { Badge, badgeVariants } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { DataTable } from "../ui/data-table";
@@ -87,6 +89,27 @@ export function Transactions() {
     {
       accessorKey: "metode_pembayaran",
       header: "Metode Pembayaran",
+      cell: ({ getValue }) => {
+        const item = getValue() as string;
+        return (
+          <Badge
+            className={
+              item === "Transfer bank"
+                ? `bg-blue-100 text-blue-700 hover:bg-blue-200`
+                : item === "Tunai"
+                ? "bg-green-100 text-green-700 hover:bg-green-200"
+                : "bg-red-100 text-red-700 hover:bg-red-200"
+            }
+          >
+            {item === "Transfer bank" ? (
+              <BsBank />
+            ) : (
+              item === "Tunai" && <BsCash />
+            )}
+            {item}
+          </Badge>
+        );
+      },
     },
     {
       accessorKey: "status_pembayaran",
@@ -105,6 +128,18 @@ export function Transactions() {
       header: "Aksi",
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-2">
+          {row.original.status_pembayaran === "Belum Lunas" && (
+            <div
+              className={cn(
+                badgeVariants({ variant: "default" }),
+                "bg-green-600 text-green-100 hover:bg-green-500 hover:cursor-pointer"
+              )}
+              onClick={() => {}}
+              title="Proses Transaksi"
+            >
+              Proses
+            </div>
+          )}
           {row.original.status_pembayaran === "Belum Lunas" && (
             <Button
               variant="ghost"

@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import apiFetch from "@/lib/api";
 import { fetchAllPatientDoctorRecipesAPI } from "@/services/doctorRecipeServices";
 import {
@@ -45,6 +46,9 @@ interface ElectronicMedicalRecord {
   tanggal_pencatatan: string;
 }
 
+const authorizedRolesDoctor = ["admin", "doctor"];
+const authorizedRolesLab = ["admin", "lab"];
+
 export function ElectronicMedicalRecords() {
   const [searchNIK, setSearchNIK] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -57,6 +61,8 @@ export function ElectronicMedicalRecords() {
   const [isAddLabResultModalOpen, setIsAddLabResultModalOpen] = useState(false);
   const [isAddDoctorRecipeModalOpen, setIsAddDoctorRecipeModalOpen] =
     useState(false);
+
+  const { user } = useAuth();
 
   const soapMutation = useMutation<ViewSOAPNote[], Error, string>({
     mutationFn: async (nik) => {
@@ -294,13 +300,18 @@ export function ElectronicMedicalRecords() {
             <TabsContent value="soap" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3>Riwayat SOAP</h3>
-                <Button
-                  onClick={() => setIsAddSoapNoteModalOpen(true)}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Tambah SOAP
-                </Button>
+                {user &&
+                  !!authorizedRolesDoctor.find(
+                    (role) => role === user.role
+                  ) && (
+                    <Button
+                      onClick={() => setIsAddSoapNoteModalOpen(true)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Tambah SOAP
+                    </Button>
+                  )}
               </div>
 
               {!soapNotes.length ? (
@@ -357,13 +368,16 @@ export function ElectronicMedicalRecords() {
             <TabsContent value="lab" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3>Riwayat Pemeriksaan Lab</h3>
-                <Button
-                  onClick={() => setIsAddLabResultModalOpen(true)}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <Activity className="w-4 h-4 mr-2" />
-                  Tambah Hasil Lab
-                </Button>
+                {user &&
+                  !!authorizedRolesLab.find((role) => role === user.role) && (
+                    <Button
+                      onClick={() => setIsAddLabResultModalOpen(true)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Activity className="w-4 h-4 mr-2" />
+                      Tambah Hasil Lab
+                    </Button>
+                  )}
               </div>
 
               <div className="grid gap-4">
@@ -424,13 +438,18 @@ export function ElectronicMedicalRecords() {
             <TabsContent value="recipe" className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3>Riwayat Resep Dokter</h3>
-                <Button
-                  onClick={() => setIsAddDoctorRecipeModalOpen(true)}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  <ClipboardEdit className="w-4 h-4 mr-2" />
-                  Tambah Resep
-                </Button>
+                {user &&
+                  !!authorizedRolesDoctor.find(
+                    (role) => role === user.role
+                  ) && (
+                    <Button
+                      onClick={() => setIsAddDoctorRecipeModalOpen(true)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <ClipboardEdit className="w-4 h-4 mr-2" />
+                      Tambah Resep
+                    </Button>
+                  )}
               </div>
 
               <div className="grid gap-4">

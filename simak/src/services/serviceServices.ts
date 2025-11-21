@@ -9,9 +9,10 @@ export const fetchAllServicesAPI = async (id_pembayaran: number) => {
 };
 
 export const createServiceAPI = async (
-  newService: Omit<Service, "id_tarif_layanan">
+  newService: Omit<Service, "id_penggunaan_layanan" | "harga_saat_itu">,
+  id_pembayaran: number
 ) => {
-  await apiFetch("/penggunaan-layanan", {
+  await apiFetch(`/penggunaan-layanan/${id_pembayaran}`, {
     method: "POST",
     body: JSON.stringify(newService),
   });

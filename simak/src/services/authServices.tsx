@@ -8,6 +8,10 @@ interface UserData {
   username: string;
   name: string;
   role: Role;
+  id_dokter: string | null;
+  id_kasir: string | null;
+  id_resepsionis: string | null;
+  id_staf_lab: string | null;
 }
 
 interface Auth {

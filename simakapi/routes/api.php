@@ -51,7 +51,6 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::get('staf-lab/{staf_lab}', [StafLabController::class, 'show']);
     Route::put('staf-lab/{staf_lab}', [StafLabController::class, 'update']);
     Route::delete('staf-lab/{staf_lab}', [StafLabController::class, 'destroy']);
-    Route::get('tarif-layanan', [TarifLayananController::class, 'index']);
     Route::post('tarif-layanan', [TarifLayananController::class, 'store']);
     Route::get('tarif-layanan/{tarif_layanan}', [TarifLayananController::class, 'show']);
     Route::put('tarif-layanan/{tarif_layanan}', [TarifLayananController::class, 'update']);
@@ -68,6 +67,10 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::delete('jadwal-karyawan/{jadwal_karyawan}', [JadwalKaryawanController::class, 'destroy']);
     Route::get('jadwal-karyawan-lengkap', [JadwalKaryawanController::class, 'getJadwalLengkap']);
     Route::get('karyawan-tanpa-jadwal', [JadwalKaryawanController::class, 'indexKaryawanTanpaJadwal']);
+});
+Route::middleware(['auth:sanctum', 'role:admin,manager,doctor,lab,cashier'])->group(function () {
+
+    Route::get('tarif-layanan', [TarifLayananController::class, 'index']);
 });
 
 Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab'])->group(function () {

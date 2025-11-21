@@ -30,12 +30,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAuth } from "@/hooks/use-auth";
 import { fetchAllServiceFeesAPI } from "@/services/serviceFeeServices";
-import { fetchAllServicesAPI } from "@/services/serviceServices";
-import type { ServiceFee, ViewService, ViewTransactionClient } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import {
+  createServiceAPI,
+  fetchAllServicesAPI,
+} from "@/services/serviceServices";
+import type {
+  Service,
+  ServiceFee,
+  ViewService,
+  ViewTransactionClient,
+} from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface AddServiceToTransactionModalProps {
   isOpen: boolean;
@@ -52,16 +62,45 @@ export function AddServiceToTransactionModal({
     null
   );
   const [quantity, setQuantity] = useState(1);
-  const { data: serviceFees } = useQuery<ServiceFee[]>({
+
+  const { user } = useAuth();
+
+  const queryClient = useQueryClient();
+
+  const { data: serviceFees = [] } = useQuery<ServiceFee[]>({
     queryKey: ["serviceFees"],
     queryFn: () => fetchAllServiceFeesAPI(),
   });
+
   const { data: cart = [], isLoading } = useQuery<ViewService[]>({
     queryKey: ["servicesInTransaction", transaction.id_pembayaran],
     queryFn: () => fetchAllServicesAPI(transaction.id_pembayaran),
   });
 
-  const handleAddService = () => {};
+  const createServiceMutation = useMutation<Service, Error, ServiceFee>({
+    mutationFn: async (s: ServiceFee) => {
+      await createServiceAPI(
+        {
+          id_pembayaran: transaction.id_pembayaran,
+          id_tarif_layanan: s.id_tarif_layanan,
+          kuantitas: quantity,
+        },
+        transaction.id_pembayaran
+      );
+      return {} as Service;
+    },
+    onSuccess: () => {
+      toast.success("Biaya Layanan berhasil ditambahkan");
+      queryClient.invalidateQueries({
+        queryKey: ["servicesInTransaction", transaction.id_pembayaran],
+      });
+    },
+    onError: () => {
+      toast.error("Biaya Layanan gagal ditambahkan");
+    },
+  });
+
+  const handleAddService = createServiceMutation.mutate;
 
   const handleRemoveService = (serviceId: string) => {};
 
@@ -69,6 +108,12 @@ export function AddServiceToTransactionModal({
     (acc, item) => acc + item.harga_saat_itu * item.kuantitas,
     0
   );
+
+  const filteredServiceFees = user?.id_dokter
+    ? serviceFees.filter((s) => s.tipe_layanan === "Dokter")
+    : user?.id_staf_lab
+    ? serviceFees.filter((s) => s.tipe_layanan === "Laboratorium")
+    : serviceFees;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -101,8 +146,8 @@ export function AddServiceToTransactionModal({
                       <SelectValue placeholder="Pilih layanan" />
                     </SelectTrigger>
                     <SelectContent>
-                      {serviceFees
-                        ? serviceFees.map((service) => (
+                      {filteredServiceFees
+                        ? filteredServiceFees.map((service) => (
                             <SelectItem
                               key={service.id_tarif_layanan}
                               value={service.id_tarif_layanan.toString()}
@@ -138,7 +183,12 @@ export function AddServiceToTransactionModal({
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button onClick={handleAddService} disabled={!selectedService}>
+              <Button
+                onClick={() =>
+                  selectedService && handleAddService(selectedService)
+                }
+                disabled={!selectedService}
+              >
                 Tambah
               </Button>
             </CardFooter>
@@ -215,7 +265,7 @@ export function AddServiceToTransactionModal({
             Batal
           </Button>
           <Button
-            type="submit"
+            onClick={onClose}
             className="bg-green-600 hover:bg-green-700"
             disabled={cart.length === 0}
           >

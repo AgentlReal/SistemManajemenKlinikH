@@ -41,7 +41,6 @@ class PenggunaanLayananController extends Controller
                 'id_pembayaran' => 'required|integer',
                 'id_tarif_layanan' => 'required|integer',
                 'kuantitas' => 'required|integer',
-                'harga_saat_itu' => 'required|integer',
             ]);
 
             $penggunaanLayanan = PenggunaanLayanan::create($validatedData);

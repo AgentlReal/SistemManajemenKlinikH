@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useAuth } from "@/hooks/use-auth";
 import type { SOAPNote } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
@@ -48,6 +49,7 @@ export function AddSoapNoteModal({
     reset,
     control,
   } = useForm({ resolver: zodResolver(soapNoteSchema) });
+  const { user } = useAuth();
 
   useEffect(() => {
     if (editingSOAP) {
@@ -59,7 +61,7 @@ export function AddSoapNoteModal({
       setValue("plan", editingSOAP.plan);
     } else {
       reset();
-      setValue("id_dokter", "D001");
+      setValue("id_dokter", user?.id_dokter || "D001");
       setValue("tanggal_pencatatan", "D001");
       setValue("id_rekam_medis", id_rekam_medis);
     }

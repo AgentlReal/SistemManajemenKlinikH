@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import { fetchAllDoctorsAPI } from "@/services/doctorServices";
 import { fetchAllPatientsAPI } from "@/services/patientServices";
 import {
@@ -76,6 +77,8 @@ export function AddQueueModal({
     resolver: zodResolver(addQueueFormSchema),
   });
 
+  const { user } = useAuth();
+
   const [patientPopoverOpen, setPatientPopoverOpen] = useState(false);
   const [doctorPopoverOpen, setDoctorPopoverOpen] = useState(false);
 
@@ -104,7 +107,7 @@ export function AddQueueModal({
       setValue("keterangan", editingQueue.keterangan);
     } else {
       reset();
-      setValue("id_resepsionis", "R001");
+      setValue("id_resepsionis", user?.id_resepsionis || "R001");
       setValue("keterangan", "Menunggu");
     }
   }, [editingQueue, isOpen, reset, setValue]);

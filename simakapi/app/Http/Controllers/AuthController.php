@@ -12,6 +12,28 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): JsonResponse
+    {
+        try {
+            $users = User::all();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Users retrieved successfully.',
+                'data' => $users
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve users.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Register a new user.
      */

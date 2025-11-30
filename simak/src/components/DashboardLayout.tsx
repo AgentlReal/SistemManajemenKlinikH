@@ -108,6 +108,15 @@ const navItems: NavItem[] = [
   },
 ];
 
+const mappedRole = {
+  admin: "admin",
+  receptionist: "resepsionis",
+  doctor: "dokter",
+  cashier: "kasir",
+  lab: "staf lab",
+  manager: "manajer",
+};
+
 export function DashboardLayout({
   children,
   currentPage,
@@ -204,7 +213,7 @@ export function DashboardLayout({
                       {user ? user.name : "Unknown User"}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {user ? startcase(user.role) : "Unknown Role"}
+                      {user ? startcase(mappedRole[user.role]) : "Unknown Role"}
                     </div>
                   </div>
                 </button>

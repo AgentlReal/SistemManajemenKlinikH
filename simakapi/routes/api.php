@@ -25,6 +25,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:sanctum']);
 
 Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
+    Route::get('users', [AuthController::class, 'index']);
     Route::get('klinik', [KlinikController::class, 'index']);
     Route::post('klinik', [KlinikController::class, 'store']);
     Route::get('klinik/{klinik}', [KlinikController::class, 'show']);
@@ -40,7 +41,6 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::get('dokter/{dokter}', [DokterController::class, 'show']);
     Route::put('dokter/{dokter}', [DokterController::class, 'update']);
     Route::delete('dokter/{dokter}', [DokterController::class, 'destroy']);
-    Route::get('dokter-lengkap', [DokterController::class, 'indexLengkap']);
     Route::get('kasir', [KasirController::class, 'index']);
     Route::post('kasir', [KasirController::class, 'store']);
     Route::get('kasir/{kasir}', [KasirController::class, 'show']);
@@ -67,6 +67,10 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::delete('jadwal-karyawan/{jadwal_karyawan}', [JadwalKaryawanController::class, 'destroy']);
     Route::get('jadwal-karyawan-lengkap', [JadwalKaryawanController::class, 'getJadwalLengkap']);
     Route::get('karyawan-tanpa-jadwal', [JadwalKaryawanController::class, 'indexKaryawanTanpaJadwal']);
+});
+
+Route::middleware(['auth:sanctum', 'role:admin,manager,receptionist'])->group(function () {
+    Route::get('dokter-lengkap', [DokterController::class, 'indexLengkap']);
 });
 Route::middleware(['auth:sanctum', 'role:admin,manager,doctor,lab,cashier'])->group(function () {
 

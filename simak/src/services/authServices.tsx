@@ -4,7 +4,8 @@ import { AuthError } from "@/lib/errors";
 import type { Role } from "@/types";
 import { useEffect, useState, type ReactNode } from "react";
 
-interface UserData {
+export interface UserData {
+  id: number;
   username: string;
   name: string;
   role: Role;
@@ -25,6 +26,11 @@ export interface AuthContextI {
   logout: () => Promise<void>;
   loading: boolean;
 }
+
+export const fetchAllUsersAPI = async (): Promise<UserData[]> => {
+  const response = await apiFetch(`/users`);
+  return response.data;
+};
 
 const postLoginAPI = async (
   username: string,

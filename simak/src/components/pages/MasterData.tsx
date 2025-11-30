@@ -1,3 +1,4 @@
+import { fetchAllUsersAPI, type UserData } from "@/services/authServices";
 import {
   createCashierAPI,
   deleteCashierAPI,
@@ -63,6 +64,7 @@ import {
   Heart,
   Stethoscope,
   Trash2,
+  UserRoundPen,
   UserRoundPlus,
   Users,
   Wallet,
@@ -92,7 +94,7 @@ const clinicInfo: ClinicInfo = {
   operatingHours: "24 Jam",
 };
 
-const formatCurrency = (amount: number) => {
+export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
@@ -154,6 +156,12 @@ export function MasterData() {
   const [activeTab, setActiveTab] = useState("clinic");
 
   const queryClient = useQueryClient();
+
+  //Users Query and Mutations
+  const { data: users = [] } = useQuery<UserData[]>({
+    queryKey: ["users"],
+    queryFn: () => fetchAllUsersAPI(),
+  });
 
   //Receptionists Query and Mutations
   const receptionistQuery = useQuery<Receptionist[]>({
@@ -546,6 +554,11 @@ export function MasterData() {
     },
   });
 
+  const receptionistUsers = users.filter((u) => u.role === "receptionist");
+  const doctorUsers = users.filter((u) => u.role === "doctor");
+  const labStaffUsers = users.filter((u) => u.role === "lab");
+  const cashierUsers = users.filter((u) => u.role === "cashier");
+
   const receptionistColumns: ColumnDef<Receptionist>[] = [
     {
       accessorKey: "id_resepsionis",
@@ -573,14 +586,27 @@ export function MasterData() {
       header: "Aksi",
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {}}
-            title="Tambah Akun"
-          >
-            <UserRoundPlus className="w-4 h-4" />
-          </Button>
+          {!!receptionistUsers.find(
+            (r) => r.id_resepsionis === row.original.id_resepsionis
+          ) ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {}}
+              title="Edit Akun"
+            >
+              <UserRoundPen className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {}}
+              title="Tambah Akun"
+            >
+              <UserRoundPlus className="w-4 h-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -634,6 +660,25 @@ export function MasterData() {
       header: "Aksi",
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-2">
+          {!!doctorUsers.find((r) => r.id_dokter === row.original.id_dokter) ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {}}
+              title="Edit Akun"
+            >
+              <UserRoundPen className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {}}
+              title="Tambah Akun"
+            >
+              <UserRoundPlus className="w-4 h-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -695,6 +740,25 @@ export function MasterData() {
       header: "Aksi",
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-2">
+          {!!cashierUsers.find((r) => r.id_kasir === row.original.id_kasir) ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {}}
+              title="Edit Akun"
+            >
+              <UserRoundPen className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {}}
+              title="Tambah Akun"
+            >
+              <UserRoundPlus className="w-4 h-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -742,6 +806,27 @@ export function MasterData() {
       header: "Aksi",
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-2">
+          {!!labStaffUsers.find(
+            (r) => r.id_staf_lab === row.original.id_staf_lab
+          ) ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {}}
+              title="Edit Akun"
+            >
+              <UserRoundPen className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {}}
+              title="Tambah Akun"
+            >
+              <UserRoundPlus className="w-4 h-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

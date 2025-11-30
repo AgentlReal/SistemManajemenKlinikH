@@ -1,12 +1,22 @@
+import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
-import { fetchAllTransactionsAPI } from "@/services/transactionServices";
-import type { TransactionStatus, ViewTransactionClient } from "@/types";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  fetchAllTransactionsAPI,
+  updateTransactionAPI,
+} from "@/services/transactionServices";
+import type {
+  Transaction,
+  TransactionStatus,
+  ViewTransactionClient,
+} from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DollarSign, Plus, Printer } from "lucide-react";
 import { useState } from "react";
 import { BsBank, BsCash } from "react-icons/bs";
+import { toast } from "sonner";
 import { AddServiceToTransactionModal } from "../modals/AddServiceToTransactionModal";
+import { ProcessTransactionModal } from "../modals/ProcessTransactionModal";
 import { printReceiptPDF } from "../shared/PrintReceipt";
 import { Badge, badgeVariants } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -30,8 +40,11 @@ const statusConfig: Record<
 export function Transactions() {
   const queryClient = useQueryClient();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
     useState<ViewTransactionClient | null>(null);
+
+  const { user } = useAuth();
 
   const {
     data: transactions = [],
@@ -43,9 +56,32 @@ export function Transactions() {
     queryFn: fetchAllTransactionsAPI,
   });
 
+  const updateTransactionMutation = useMutation<
+    ViewTransactionClient,
+    Error,
+    Transaction
+  >({
+    mutationFn: async (updatedTransaction) => {
+      await updateTransactionAPI(updatedTransaction);
+      toast.success("Transaksi Berhasil Diproses!");
+      return {} as ViewTransactionClient;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+    onError: () => {
+      toast.error("Transaksi Gagal Diproses!");
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+  });
+
   const totalRevenue = transactions
     ? transactions
-        .filter((t) => t.status_pembayaran === "Lunas")
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.toDateString() === new Date().toDateString()
+        )
         .reduce((sum, t) => sum + t.jumlah_total, 0)
     : 0;
   const pendingPayments = transactions
@@ -79,7 +115,7 @@ export function Transactions() {
     {
       accessorKey: "tanggal_transaksi",
       header: "Tanggal",
-      cell: ({ getValue }) => (getValue() as Date).toLocaleDateString(),
+      cell: ({ getValue }) => (getValue() as Date).toLocaleDateString("id-ID"),
     },
     {
       accessorKey: "jumlah_total",
@@ -128,42 +164,48 @@ export function Transactions() {
       header: "Aksi",
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-2">
-          {row.original.status_pembayaran === "Belum Lunas" && (
-            <div
-              className={cn(
-                badgeVariants({ variant: "default" }),
-                "bg-green-600 text-green-100 hover:bg-green-500 hover:cursor-pointer"
-              )}
-              onClick={() => {}}
-              title="Proses Transaksi"
-            >
-              Proses
-            </div>
-          )}
-          {row.original.status_pembayaran === "Belum Lunas" && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                setSelectedTransaction(() => row.original);
-                setIsAddModalOpen(() => true);
-              }}
-              title="Tambah Biaya"
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
-          )}
+          {row.original.status_pembayaran === "Belum Lunas" &&
+            user?.role === "cashier" && (
+              <div
+                className={cn(
+                  badgeVariants({ variant: "default" }),
+                  "bg-green-600 text-green-100 hover:bg-green-500 hover:cursor-pointer"
+                )}
+                onClick={() => {
+                  setSelectedTransaction(() => row.original);
+                  setIsProcessModalOpen(() => true);
+                }}
+                title="Proses Transaksi"
+              >
+                Proses
+              </div>
+            )}
+          {row.original.status_pembayaran === "Belum Lunas" &&
+            ["doctor", "lab"].includes(user?.role || "") && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSelectedTransaction(() => row.original);
+                  setIsAddModalOpen(() => true);
+                }}
+                title="Tambah Biaya"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            )}
 
-          {row.original.status_pembayaran === "Lunas" && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => printReceiptPDF()}
-              title="Print Transaksi"
-            >
-              <Printer className="w-4 h-4" />
-            </Button>
-          )}
+          {row.original.status_pembayaran === "Lunas" &&
+            user?.role === "cashier" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => printReceiptPDF(row.original)}
+                title="Print Transaksi"
+              >
+                <Printer className="w-4 h-4" />
+              </Button>
+            )}
         </div>
       ),
     },
@@ -191,7 +233,7 @@ export function Transactions() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">
-                  Total Pendapatan
+                  Total Pendapatan Hari Ini
                 </p>
                 <h2 className="mt-2">{formatCurrency(totalRevenue)}</h2>
                 <p className="text-xs text-green-600 mt-2">
@@ -245,6 +287,19 @@ export function Transactions() {
           onClose={() => {
             setIsAddModalOpen(() => false);
             setSelectedTransaction(() => null);
+            queryClient.invalidateQueries({ queryKey: ["transactions"] });
+          }}
+        />
+      )}
+      {selectedTransaction && (
+        <ProcessTransactionModal
+          onProcess={updateTransactionMutation.mutate}
+          isOpen={!!selectedTransaction && isProcessModalOpen}
+          transaction={selectedTransaction}
+          onClose={() => {
+            setIsProcessModalOpen(() => false);
+            setSelectedTransaction(() => null);
+            queryClient.invalidateQueries({ queryKey: ["transactions"] });
           }}
         />
       )}

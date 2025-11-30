@@ -290,18 +290,18 @@ export type QueueStatus = "Menunggu" | "Berlangsung" | "Selesai";
 export type TransactionStatus = "Lunas" | "Belum Lunas";
 
 export interface Transaction {
-  id: string;
-  transactionId: string;
-  patientName: string;
-  date: string;
-  items: string[];
-  total: number;
-  status: TransactionStatus;
-  paymentMethod?: string;
+  id_pembayaran: number;
+  id_antrian: number;
+  id_kasir: string;
+  status_pembayaran: string;
+  metode_pembayaran: string;
+  tanggal_transaksi: string;
 }
 
 export interface ViewTransactionAPI {
   id_pembayaran: number;
+  id_antrian: number;
+  id_kasir: string;
   nama_pasien: string;
   tanggal_transaksi: string;
   jumlah_total: string;
@@ -310,6 +310,8 @@ export interface ViewTransactionAPI {
 }
 export interface ViewTransactionClient {
   id_pembayaran: number;
+  id_antrian: number;
+  id_kasir: string;
   nama_pasien: string;
   tanggal_transaksi: Date;
   jumlah_total: number;

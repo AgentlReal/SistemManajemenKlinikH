@@ -1,5 +1,9 @@
 import apiFetch from "@/lib/api";
-import type { ViewTransactionAPI, ViewTransactionClient } from "@/types";
+import type {
+  Transaction,
+  ViewTransactionAPI,
+  ViewTransactionClient,
+} from "@/types";
 
 const transformTransactionToAPI = (
   transaction: Omit<ViewTransactionClient, "id_staf_lab">
@@ -23,4 +27,12 @@ export const fetchAllTransactionsAPI = async (): Promise<
   return response.data.map(
     transformTransactionFromAPI
   ) as ViewTransactionClient[];
+};
+
+export const updateTransactionAPI = async (updatedSchedule: Transaction) => {
+  await apiFetch(`/transaksi-pembayaran/${updatedSchedule.id_pembayaran}`, {
+    method: "PUT",
+    body: JSON.stringify(updatedSchedule),
+  });
+  return;
 };

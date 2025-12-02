@@ -20,6 +20,13 @@ class StoreJadwalKaryawanRequest extends FormRequest
             'id_kasir' => 'nullable|string|max:4',
             'jam_mulai' => 'nullable|date_format:H:i:s',
             'jam_selesai' => 'nullable|date_format:H:i:s',
+            "senin" => 'integer',
+            "selasa" => 'integer',
+            "rabu" => 'integer',
+            "kamis" => 'integer',
+            "jumat" => 'integer',
+            "sabtu" => 'integer',
+            "minggu" => 'integer',
         ];
     }
 }

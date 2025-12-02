@@ -8,12 +8,14 @@ import {
   type ViewSchedule,
 } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import startcase from "@stdlib/string-startcase";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import z from "zod";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
 import {
   Command,
   CommandEmpty,
@@ -77,6 +79,7 @@ export function AddScheduleModal({
   });
 
   const {
+    watch,
     register,
     handleSubmit,
     formState: { errors },
@@ -100,12 +103,28 @@ export function AddScheduleModal({
       else if (editingSchedule.id_staf_lab)
         setSelectedEmployeeType(() => "Staf Lab");
       else if (editingSchedule.id_kasir) setSelectedEmployeeType(() => "Kasir");
+      setValue("senin", editingSchedule.senin);
+      setValue("selasa", editingSchedule.selasa);
+      setValue("rabu", editingSchedule.rabu);
+      setValue("kamis", editingSchedule.kamis);
+      setValue("jumat", editingSchedule.jumat);
+      setValue("sabtu", editingSchedule.sabtu);
+      setValue("minggu", editingSchedule.minggu);
     } else {
       reset();
+      setValue("senin", 0);
+      setValue("selasa", 0);
+      setValue("rabu", 0);
+      setValue("kamis", 0);
+      setValue("jumat", 0);
+      setValue("sabtu", 0);
+      setValue("minggu", 0);
     }
   }, [editingSchedule, isOpen]);
 
   const onValid: SubmitHandler<z.infer<typeof schema>> = (data) => {
+    console.log(data);
+
     if (editingSchedule) {
       console.log({
         ...data,
@@ -531,6 +550,40 @@ export function AddScheduleModal({
                 )}
               />
             )}
+
+            <div className="space-y-2">
+              <Label>Hari Kerja</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  "senin",
+                  "selasa",
+                  "rabu",
+                  "kamis",
+                  "jumat",
+                  "sabtu",
+                  "minggu",
+                ].map((day) => (
+                  <Controller
+                    key={day}
+                    name={day as "senin"}
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`day-${day}`}
+                          className="h-4 w-4"
+                          checked={!!value}
+                          onCheckedChange={(checked: boolean) => {
+                            onChange(checked ? 1 : 0);
+                          }}
+                        />
+                        <Label htmlFor={`day-${day}`}>{startcase(day)}</Label>
+                      </div>
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="jam_mulai">Jam Mulai</Label>

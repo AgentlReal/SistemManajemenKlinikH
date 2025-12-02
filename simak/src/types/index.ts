@@ -260,6 +260,13 @@ export const scheduleSchema = z
     id_kasir: z.string().max(4, "Maksimal 4 karakter").optional().nullable(),
     jam_mulai: z.string().min(1, "Jam Mulai Harus Diisi"),
     jam_selesai: z.string().min(1, "Jam Selesai Harus Diisi"),
+    senin: z.coerce.number().default(0),
+    selasa: z.coerce.number().default(0),
+    rabu: z.coerce.number().default(0),
+    kamis: z.coerce.number().default(0),
+    jumat: z.coerce.number().default(0),
+    sabtu: z.coerce.number().default(0),
+    minggu: z.coerce.number().default(0),
   })
   .superRefine((data, ctx) => {
     if (
@@ -389,6 +396,13 @@ export type ViewSchedule = {
   jam_selesai: string;
   jenis_kelamin: string;
   nomor_telepon: string;
+  senin: number;
+  selasa: number;
+  rabu: number;
+  kamis: number;
+  jumat: number;
+  sabtu: number;
+  minggu: number;
 };
 
 export type ClinicInfo = z.infer<typeof clinicInfoSchema>;

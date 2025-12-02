@@ -935,6 +935,44 @@ export function MasterData() {
       header: "Nama Karyawan",
     },
     {
+      accessorKey: "hari_kerja",
+      header: "Hari Kerja",
+      cell: ({ row }) => {
+        const dayColors: { [key: string]: string } = {
+          Senin: "bg-blue-50 text-blue-700 ring-blue-600/20",
+          Selasa: "bg-green-50 text-green-700 ring-green-600/20",
+          Rabu: "bg-yellow-50 text-yellow-700 ring-yellow-600/20",
+          Kamis: "bg-purple-50 text-purple-700 ring-purple-600/20",
+          Jumat: "bg-pink-50 text-pink-700 ring-pink-600/20",
+          Sabtu: "bg-red-50 text-red-700 ring-red-600/20",
+          Minggu: "bg-indigo-50 text-indigo-700 ring-indigo-600/20",
+        };
+
+        return (
+          <div className="flex flex-wrap gap-1">
+            {[
+              row.original.senin && "Senin",
+              row.original.selasa && "Selasa",
+              row.original.rabu && "Rabu",
+              row.original.kamis && "Kamis",
+              row.original.jumat && "Jumat",
+              row.original.sabtu && "Sabtu",
+              row.original.minggu && "Minggu",
+            ]
+              .filter((p) => typeof p !== "number")
+              .map((day) => (
+                <span
+                  key={day}
+                  className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${dayColors[day]}`}
+                >
+                  {day}
+                </span>
+              ))}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "jam_mulai",
       header: "Jam Mulai",
     },
@@ -952,7 +990,7 @@ export function MasterData() {
             size="icon"
             onClick={() => {
               setEditingSchedule({
-                id_jadwal: row.original.id_jadwal,
+                ...row.original,
                 id_resepsionis:
                   row.original.id_karyawan[0] === "R"
                     ? row.original.id_karyawan
@@ -969,8 +1007,6 @@ export function MasterData() {
                   row.original.id_karyawan[0] === "K"
                     ? row.original.id_karyawan
                     : "",
-                jam_mulai: row.original.jam_mulai,
-                jam_selesai: row.original.jam_selesai,
               });
             }}
           >
@@ -1237,6 +1273,12 @@ export function MasterData() {
                 onAdd={() => {
                   setIsAddScheduleModalOpen(true);
                 }}
+                isLoading={scheduleQuery.isLoading}
+                isRefetching={scheduleQuery.isRefetching}
+                error={scheduleQuery.error}
+                onRefresh={() =>
+                  queryClient.invalidateQueries({ queryKey: ["schedules"] })
+                }
               />
             </CardContent>
           </Card>

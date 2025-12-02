@@ -20,5 +20,12 @@ class JadwalKaryawan extends Model
         'id_kasir',
         'jam_mulai',
         'jam_selesai',
+        "senin",
+        "selasa",
+        "rabu",
+        "kamis",
+        "jumat",
+        "sabtu",
+        "minggu"
     ];
 }

@@ -66,6 +66,10 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::get('karyawan-tanpa-jadwal', [JadwalKaryawanController::class, 'indexKaryawanTanpaJadwal']);
 });
 
+Route::middleware(['auth:sanctum', 'role:admin,doctor,lab,cashier,manager'])->group(function () {
+    Route::get('transaksi-pembayaran-lengkap', [TransaksiPembayaranController::class, 'indexLengkap']);
+});
+
 Route::middleware(['auth:sanctum', 'role:admin,manager,cashier'])->group(function () {
     Route::get('klinik', [KlinikController::class, 'index']);
 });
@@ -77,13 +81,16 @@ Route::middleware(['auth:sanctum', 'role:admin,manager,doctor,lab,cashier'])->gr
     Route::get('tarif-layanan', [TarifLayananController::class, 'index']);
 });
 
+Route::middleware(['auth:sanctum', 'role:admin,manager,receptionist,doctor,lab'])->group(function () {
+    Route::get('antrian-lengkap', [AntrianController::class, 'indexLengkap']);
+});
+
 Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab'])->group(function () {
     Route::get('antrian', [AntrianController::class, 'index']);
     Route::post('antrian', [AntrianController::class, 'store']);
     Route::get('antrian/{antrian}', [AntrianController::class, 'show']);
     Route::put('antrian/{antrian}', [AntrianController::class, 'update']);
     Route::delete('antrian/{antrian}', [AntrianController::class, 'destroy']);
-    Route::get('antrian-lengkap', [AntrianController::class, 'indexLengkap']);
     Route::get('pasien', [PasienController::class, 'index']);
     Route::post('pasien', [PasienController::class, 'store']);
     Route::get('pasien/{pasien}', [PasienController::class, 'show']);
@@ -119,7 +126,6 @@ Route::middleware(['auth:sanctum', 'role:admin,doctor,lab,cashier'])->group(func
     Route::get('transaksi-pembayaran/{transaksi_pembayaran}', [TransaksiPembayaranController::class, 'show']);
     Route::put('transaksi-pembayaran/{transaksi_pembayaran}', [TransaksiPembayaranController::class, 'update']);
     Route::delete('transaksi-pembayaran/{transaksi_pembayaran}', [TransaksiPembayaranController::class, 'destroy']);
-    Route::get('transaksi-pembayaran-lengkap', [TransaksiPembayaranController::class, 'indexLengkap']);
     Route::get('penggunaan-layanan-lengkap/{id_pembayaran}', [PenggunaanLayananController::class, 'showByIdPembayaran']);
     Route::post('penggunaan-layanan/{id_pembayaran}', [PenggunaanLayananController::class, 'store']);
     Route::put('penggunaan-layanan/{id_pembayaran}', [PenggunaanLayananController::class, 'update']);

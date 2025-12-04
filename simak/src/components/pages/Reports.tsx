@@ -11,41 +11,16 @@ import {
   YAxis,
 } from "recharts";
 
+import apiFetch from "@/lib/api";
+import { fetchAllTransactionsAPI } from "@/services/transactionServices";
+import type {
+  BackendQueueResponse,
+  QueueStatus,
+  ViewTransactionClient,
+} from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-
-const patientVisitsData = [
-  { month: "Jan", visits: 245, newPatients: 45 },
-  { month: "Feb", visits: 298, newPatients: 52 },
-  { month: "Mar", visits: 312, newPatients: 61 },
-  { month: "Apr", visits: 289, newPatients: 48 },
-  { month: "May", visits: 335, newPatients: 58 },
-  { month: "Jun", visits: 378, newPatients: 72 },
-  { month: "Jul", visits: 402, newPatients: 68 },
-  { month: "Aug", visits: 425, newPatients: 75 },
-  { month: "Sep", visits: 398, newPatients: 63 },
-  { month: "Oct", visits: 445, newPatients: 82 },
-];
-
-const financialData = [
-  { month: "Jan", revenue: 42000000 },
-  { month: "Feb", revenue: 48500000 },
-  { month: "Mar", revenue: 52000000 },
-  { month: "Apr", revenue: 45000000 },
-  { month: "May", revenue: 58000000 },
-  { month: "Jun", revenue: 62000000 },
-  { month: "Jul", revenue: 68000000 },
-  { month: "Aug", revenue: 72000000 },
-  { month: "Sep", revenue: 65000000 },
-  { month: "Oct", revenue: 75000000 },
-];
-
-const departmentData = [
-  { department: "General", patients: 450 },
-  { department: "Cardiology", patients: 280 },
-  { department: "Pediatrics", patients: 320 },
-  { department: "Orthopedics", patients: 190 },
-  { department: "Dermatology", patients: 220 },
-];
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -57,6 +32,238 @@ const formatCurrency = (value: number) => {
 };
 
 export function Reports() {
+  const [currentYear] = useState(new Date().getFullYear());
+
+  const { data: transactions = [] } = useQuery<ViewTransactionClient[]>({
+    queryKey: ["transactions"],
+    queryFn: fetchAllTransactionsAPI,
+  });
+  const { data: visits = [] } = useQuery<
+    {
+      tanggal: Date;
+      keterangan: QueueStatus;
+    }[]
+  >({
+    queryKey: ["visits"],
+    queryFn: async () => {
+      const response = await apiFetch("/antrian-lengkap");
+      return (response.data as BackendQueueResponse[]).map((d) => ({
+        tanggal: new Date(d.tanggal),
+        keterangan: d.keterangan,
+      }));
+    },
+  });
+
+  const patientVisitsData = [
+    {
+      month: "Jan",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 0)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Feb",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 1)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Mar",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 2)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Apr",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 3)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Mei",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 4)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Jun",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 5)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Jul",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 6)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Agt",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 7)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Sep",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 8)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Okt",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 9)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Nov",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 10)
+        .reduce((sum) => sum + 1, 0),
+    },
+    {
+      month: "Des",
+      visits: visits
+        .filter((v) => v.tanggal.getMonth() === 11)
+        .reduce((sum) => sum + 1, 0),
+    },
+  ];
+
+  const financialData = [
+    {
+      month: "Jan",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 0
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Feb",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 1
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Mar",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 2
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Apr",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 3
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Mei",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 4
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Jun",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 5
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Jul",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 6
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Agt",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 7
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Sep",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 8
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Okt",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 9
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Nov",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 10
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+    {
+      month: "Des",
+      revenue: transactions
+        .filter(
+          (t) =>
+            t.status_pembayaran === "Lunas" &&
+            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getMonth() === 11
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0),
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -66,98 +273,11 @@ export function Reports() {
             Lihat laporan keuangan dan kunjungan pasien
           </p>
         </div>
-        {/* <div className="flex gap-3">
-          <Select defaultValue="2025">
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Year" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2025">2025</SelectItem>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2023">2023</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button className="bg-green-600 hover:bg-green-700">
-            <Download className="w-4 h-4 mr-2" />
-            Export Report
-          </Button>
-        </div> */}
       </div>
-
-      {/* Summary Cards */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Total Visits (YTD)
-                </p>
-                <h2 className="mt-2">3,527</h2>
-                <div className="flex items-center gap-1 mt-2">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-green-600">+18.5%</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  New Patients (YTD)
-                </p>
-                <h2 className="mt-2">624</h2>
-                <div className="flex items-center gap-1 mt-2">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-green-600">+24.3%</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Revenue (YTD)</p>
-                <h2 className="mt-2">Rp 588M</h2>
-                <div className="flex items-center gap-1 mt-2">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-green-600">+22.1%</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Avg. Daily Visits
-                </p>
-                <h2 className="mt-2">42</h2>
-                <div className="flex items-center gap-1 mt-2">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                  <span className="text-sm text-green-600">+12.8%</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div> */}
-
       {/* Patient Visits Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Grafik Kunjungan Pasien</CardTitle>
+          <CardTitle>Grafik Kunjungan Pasien Tahun {currentYear}</CardTitle>
           <p className="text-sm text-muted-foreground">
             Kunjungan pasien bulanan
           </p>
@@ -184,14 +304,14 @@ export function Reports() {
                 name="Kunjungan"
                 dot={{ fill: "#059669", r: 4 }}
               />
-              <Line
+              {/* <Line
                 type="monotone"
                 dataKey="newPatients"
                 stroke="#10B981"
                 strokeWidth={3}
                 name="Pasien Baru"
                 dot={{ fill: "#10B981", r: 4 }}
-              />
+              /> */}
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -200,10 +320,8 @@ export function Reports() {
       {/* Financial Report */}
       <Card>
         <CardHeader>
-          <CardTitle>Grafik Pendapatan</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Revenue vs Expenses comparison
-          </p>
+          <CardTitle>Grafik Pendapatan Tahun {currentYear}</CardTitle>
+          <p className="text-sm text-muted-foreground">Pendapatan bulanan</p>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -212,7 +330,7 @@ export function Reports() {
               <XAxis dataKey="month" stroke="#6B7280" />
               <YAxis
                 stroke="#6B7280"
-                tickFormatter={(value) => `${value / 1000000}M`}
+                tickFormatter={(value) => `${value / 1000000}Jt`}
               />
               <Tooltip
                 formatter={(value: number) => formatCurrency(value)}

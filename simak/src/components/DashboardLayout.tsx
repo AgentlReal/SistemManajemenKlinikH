@@ -202,7 +202,7 @@ export function DashboardLayout({
           <div className="flex items-center gap-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 hover:bg-gray-50 rounded-lg px-2 py-1.5 transition-colors">
+                <button className="flex items-center gap-3 hover:bg-gray-50 rounded-lg px-2 py-1.5 transition-colors hover:cursor-pointer">
                   <Avatar className="w-9 h-9 border-2 border-green-100">
                     <AvatarFallback className="bg-green-100 text-green-700">
                       {user ? user.name[0] : "U"}
@@ -219,11 +219,11 @@ export function DashboardLayout({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Settings className="w-4 h-4 mr-2" />
-                  Settings
+                  Edit Akun
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={onLogout} className="text-red-600">
                   <LogOut className="w-4 h-4 mr-2" />

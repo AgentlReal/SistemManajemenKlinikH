@@ -219,14 +219,16 @@ export const serviceFeeSchema = z.object({
 });
 
 export const clinicInfoSchema = z.object({
-  name: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
+  id_klinik: z.coerce.number().int(warnings.fee.int).min(0, warnings.fee.min),
 
-  address: z
+  nama_klinik: z.string().min(1, warnings.name.min).max(100, warnings.name.max),
+
+  alamat: z
     .string()
     .min(1, warnings.address.min)
     .max(500, warnings.address.max),
 
-  phone: z
+  nomor_telepon: z
     .string()
     .min(1, warnings.phone.min)
     .regex(/^(\+62|62|0)[0-9]{8,15}$/, warnings.phone.regex),
@@ -236,12 +238,12 @@ export const clinicInfoSchema = z.object({
     .min(1, "Email harus diisi")
     .max(255, "Email tidak boleh lebih dari 255 karakter"),
 
-  license: z
+  izin_operasional: z
     .string()
     .min(1, warnings.license.min)
     .max(500, warnings.license.max),
 
-  operatingHours: z.string().min(1, "Jam beroperasi harus diisi"),
+  jam_operasional: z.string().min(1, "Jam beroperasi harus diisi"),
 });
 
 export const departmentSchema = z.object({

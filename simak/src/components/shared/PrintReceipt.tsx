@@ -1,5 +1,6 @@
+import { fetchAllClinicsAPI } from "@/services/clinicServices";
 import { fetchAllServicesAPI } from "@/services/serviceServices";
-import type { ViewService, ViewTransactionClient } from "@/types";
+import type { ClinicInfo, ViewService, ViewTransactionClient } from "@/types";
 import {
   Document,
   Page,
@@ -8,6 +9,7 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
+import startcase from "@stdlib/string-startcase";
 import { formatCurrency } from "../pages/MasterData";
 
 // Create styles
@@ -213,6 +215,7 @@ const calculatedData = {
 interface TransactionData {
   transaction: ViewTransactionClient & {
     services: ViewService[];
+    clinicInfo: ClinicInfo;
   };
 }
 // Receipt Document Component
@@ -223,10 +226,18 @@ const ReceiptDocument = ({ order }: { order: TransactionData }) => {
         {/* Receipt-like dimensions */}
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.storeName}>KLINIK HAIKHAH</Text>
-          <Text style={styles.storeAddress}>123 Shopping Mall, Downtown</Text>
-          <Text style={styles.storeAddress}>City, State 12345</Text>
-          <Text style={styles.storeAddress}>Phone: (555) 123-4567</Text>
+          <Text style={styles.storeName}>
+            {order.transaction.clinicInfo.nama_klinik.toUpperCase()}
+          </Text>
+          <Text style={styles.storeAddress}>
+            {order.transaction.clinicInfo.alamat}
+          </Text>
+          <Text style={styles.storeAddress}>
+            No Telp: {order.transaction.clinicInfo.nomor_telepon}
+          </Text>
+          <Text style={styles.storeAddress}>
+            Email: {order.transaction.clinicInfo.email}
+          </Text>
         </View>
         {/* Receipt Info */}
         <View style={styles.receiptInfo}>
@@ -327,14 +338,11 @@ const ReceiptDocument = ({ order }: { order: TransactionData }) => {
       </View> */}
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Thank you for shopping with us!</Text>
           <Text style={styles.footerText}>
-            Items can be returned within 30 days with receipt
+            Terima kasih telah berobat di{" "}
+            {startcase(order.transaction.clinicInfo.nama_klinik)}!
           </Text>
-          <Text style={styles.footerText}>Store Hours: 24 Jam</Text>
-          <Text style={styles.footerText}>www.supermart-store.com</Text>
-
-          <Text style={styles.thankYou}>HAVE A NICE DAY!</Text>
+          <Text style={styles.thankYou}>SALAM SATU SEHAT!</Text>
         </View>
       </Page>
     </Document>
@@ -346,8 +354,10 @@ export const printReceiptPDF = async (transaction: ViewTransactionClient) => {
     transaction.id_pembayaran
   )) as ViewService[];
 
+  const clinicInfo = ((await fetchAllClinicsAPI()) as ClinicInfo[])[0];
+
   const transactionData: TransactionData = {
-    transaction: { ...transaction, services },
+    transaction: { ...transaction, services, clinicInfo },
   };
 
   const blob = await pdf(<ReceiptDocument order={transactionData} />).toBlob();

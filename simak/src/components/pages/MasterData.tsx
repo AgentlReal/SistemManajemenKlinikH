@@ -1,10 +1,19 @@
-import { fetchAllUsersAPI, type UserData } from "@/services/authServices";
+import {
+  createUserAPI,
+  fetchAllUsersAPI,
+  updateUserAPI,
+  type UserData,
+} from "@/services/authServices";
 import {
   createCashierAPI,
   deleteCashierAPI,
   fetchAllCashiersAPI,
   updateCashierAPI,
 } from "@/services/cashierServices";
+import {
+  createOrUpdateClinicAPI,
+  fetchAllClinicsAPI,
+} from "@/services/clinicServices";
 import {
   createDepartmentAPI,
   deleteDepartmentAPI,
@@ -62,6 +71,7 @@ import {
   DollarSign,
   Edit,
   Heart,
+  Loader2Icon,
   Stethoscope,
   Trash2,
   UserRoundPen,
@@ -69,30 +79,22 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AddCashierModal } from "../modals/AddCashierModal";
+import { AddClinicInfoModal } from "../modals/AddClinicInfoModal";
 import { AddDepartmentModal } from "../modals/AddDepartmentModal";
 import { AddDoctorModal } from "../modals/AddDoctorModal";
 import { AddLabStaffModal } from "../modals/AddLabStaffModal";
 import { AddReceptionistModal } from "../modals/AddReceptionistModal";
 import { AddScheduleModal } from "../modals/AddScheduleModal";
 import { AddServiceFeeModal } from "../modals/AddServiceFeeModal";
+import { AddUserModal, type UserUpdate } from "../modals/AddUserModal";
 import { DeleteConfirmModal } from "../modals/DeleteConfirmModal";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { DataTable } from "../ui/data-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-
-const clinicInfo: ClinicInfo = {
-  name: "Klinik Haikhah",
-  address:
-    "Jl. Pramuka Gg. Rengas Sejahtera No. 1, Kabupaten Kubu Raya, Kalimantan Barat",
-  phone: "+62 21 1234 5678",
-  email: "klinikhaikhah@info.com",
-  license: "CLINIC-LICENSE-2025-001",
-  operatingHours: "24 Jam",
-};
 
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -103,6 +105,18 @@ export const formatCurrency = (amount: number) => {
 };
 
 export function MasterData() {
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserData | null>(null);
+  const [addUser, setAddUser] = useState<{
+    id_resepsionis: string | null;
+    id_dokter: string | null;
+    id_staf_lab: string | null;
+    id_kasir: string | null;
+  } | null>(null);
+
+  const [isAddClinicModalOpen, setIsAddClinicModalOpen] = useState(false);
+  const [editingClinic, setEditingClinic] = useState<ClinicInfo | null>(null);
+
   const [isAddReceptionistModalOpen, setIsAddReceptionistModalOpen] =
     useState(false);
   useState<Receptionist | null>(null);
@@ -161,6 +175,74 @@ export function MasterData() {
   const { data: users = [] } = useQuery<UserData[]>({
     queryKey: ["users"],
     queryFn: () => fetchAllUsersAPI(),
+  });
+
+  const createUserMutation = useMutation<
+    UserData,
+    Error,
+    Omit<UserUpdate, "id"> & {
+      id_resepsionis: string | null;
+      id_dokter: string | null;
+      id_staf_lab: string | null;
+      id_kasir: string | null;
+    }
+  >({
+    mutationFn: async (updatedUser) => {
+      await createUserAPI(updatedUser);
+      toast.success("Akun berhasil ditambahkan!");
+      setEditingReceptionist(null);
+      return {} as UserData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: () => {
+      toast.error("Akun gagal ditambahkan!");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+  const updateUserMutation = useMutation<
+    UserData,
+    Error,
+    UserUpdate & { updatedAt: string }
+  >({
+    mutationFn: async (updatedUser) => {
+      await updateUserAPI(updatedUser);
+      toast.success("Akun berhasil diperbarui!");
+      setEditingReceptionist(null);
+      return {} as UserData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: () => {
+      toast.error("Akun gagal diperbarui!");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+
+  const clinicQuery = useQuery<ClinicInfo[]>({
+    queryKey: ["clinic"],
+    queryFn: () => fetchAllClinicsAPI(),
+  });
+
+  useEffect(() => {
+    setEditingClinic(clinicQuery.data ? clinicQuery.data[0] : null);
+  }, [clinicQuery.data]);
+
+  const createClinicMutation = useMutation<ClinicInfo, Error, ClinicInfo>({
+    mutationFn: async (newReceptionist) => {
+      await createOrUpdateClinicAPI(newReceptionist);
+      toast.success("Info Klinik berhasil ditambahkan!");
+      return {} as ClinicInfo;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clinic"] });
+    },
+    onError: () => {
+      toast.error("Info Klinik gagal ditambahkan!");
+      queryClient.invalidateQueries({ queryKey: ["clinic"] });
+    },
   });
 
   //Receptionists Query and Mutations
@@ -584,46 +666,60 @@ export function MasterData() {
     {
       id: "actions",
       header: "Aksi",
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-2">
-          {!!receptionistUsers.find(
-            (r) => r.id_resepsionis === row.original.id_resepsionis
-          ) ? (
+      cell: ({ row }) => {
+        const receptionistUser = receptionistUsers.find(
+          (r) => r.id_resepsionis === row.original.id_resepsionis
+        );
+        return (
+          <div className="flex items-center justify-end gap-2">
+            {!!receptionistUser ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setEditingUser(receptionistUser);
+                }}
+                title="Edit Akun"
+              >
+                <UserRoundPen className="w-4 h-4" />
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setAddUser({
+                    id_resepsionis: row.original.id_resepsionis,
+                    id_dokter: null,
+                    id_staf_lab: null,
+                    id_kasir: null,
+                  });
+                }}
+                title="Tambah Akun"
+              >
+                <UserRoundPlus className="w-4 h-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {}}
-              title="Edit Akun"
+              onClick={() => setEditingReceptionist(row.original)}
             >
-              <UserRoundPen className="w-4 h-4" />
+              <Edit className="w-4 h-4" />
             </Button>
-          ) : (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {}}
-              title="Tambah Akun"
+              className="text-red-600 hover:text-red-700"
+              onClick={() =>
+                setDeleteReceptionistId(row.original.id_resepsionis)
+              }
             >
-              <UserRoundPlus className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" />
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEditingReceptionist(row.original)}
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteReceptionistId(row.original.id_resepsionis)}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      ),
+          </div>
+        );
+      },
     },
   ];
 
@@ -658,58 +754,72 @@ export function MasterData() {
     {
       id: "actions",
       header: "Aksi",
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-2">
-          {!!doctorUsers.find((r) => r.id_dokter === row.original.id_dokter) ? (
+      cell: ({ row }) => {
+        const doctorUser = doctorUsers.find(
+          (r) => r.id_dokter === row.original.id_dokter
+        );
+        return (
+          <div className="flex items-center justify-end gap-2">
+            {!!doctorUser ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setEditingUser(doctorUser);
+                }}
+                title="Edit Akun"
+              >
+                <UserRoundPen className="w-4 h-4" />
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setAddUser({
+                    id_resepsionis: null,
+                    id_dokter: row.original.id_dokter,
+                    id_staf_lab: null,
+                    id_kasir: null,
+                  });
+                }}
+                title="Tambah Akun"
+              >
+                <UserRoundPlus className="w-4 h-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {}}
-              title="Edit Akun"
+              onClick={() =>
+                setEditingDoctor({
+                  id_dokter: row.original.id_dokter,
+                  id_poli: row.original.id_poli,
+                  alamat: row.original.alamat,
+                  gaji: row.original.gaji,
+                  jenis_kelamin: row.original.jenis_kelamin,
+                  nama_dokter: row.original.nama_dokter,
+                  nama_poli: "apalah",
+                  nomor_lisensi: row.original.nomor_lisensi,
+                  nomor_telepon: row.original.nomor_telepon,
+                  spesialis: row.original.spesialis,
+                  tanggal_lahir: row.original.tanggal_lahir,
+                })
+              }
             >
-              <UserRoundPen className="w-4 h-4" />
+              <Edit className="w-4 h-4" />
             </Button>
-          ) : (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {}}
-              title="Tambah Akun"
+              className="text-red-600 hover:text-red-700"
+              onClick={() => setDeleteDoctorId(row.original.id_dokter)}
             >
-              <UserRoundPlus className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" />
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              setEditingDoctor({
-                id_dokter: row.original.id_dokter,
-                id_poli: row.original.id_poli,
-                alamat: row.original.alamat,
-                gaji: row.original.gaji,
-                jenis_kelamin: row.original.jenis_kelamin,
-                nama_dokter: row.original.nama_dokter,
-                nama_poli: "apalah",
-                nomor_lisensi: row.original.nomor_lisensi,
-                nomor_telepon: row.original.nomor_telepon,
-                spesialis: row.original.spesialis,
-                tanggal_lahir: row.original.tanggal_lahir,
-              })
-            }
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteDoctorId(row.original.id_dokter)}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      ),
+          </div>
+        );
+      },
     },
   ];
 
@@ -738,44 +848,58 @@ export function MasterData() {
     {
       id: "actions",
       header: "Aksi",
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-2">
-          {!!cashierUsers.find((r) => r.id_kasir === row.original.id_kasir) ? (
+      cell: ({ row }) => {
+        const cashierUser = cashierUsers.find(
+          (r) => r.id_kasir === row.original.id_kasir
+        );
+        return (
+          <div className="flex items-center justify-end gap-2">
+            {!!cashierUser ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setEditingUser(cashierUser);
+                }}
+                title="Edit Akun"
+              >
+                <UserRoundPen className="w-4 h-4" />
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setAddUser({
+                    id_resepsionis: null,
+                    id_dokter: null,
+                    id_staf_lab: null,
+                    id_kasir: row.original.id_kasir,
+                  });
+                }}
+                title="Tambah Akun"
+              >
+                <UserRoundPlus className="w-4 h-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {}}
-              title="Edit Akun"
+              onClick={() => setEditingCashier(row.original)}
             >
-              <UserRoundPen className="w-4 h-4" />
+              <Edit className="w-4 h-4" />
             </Button>
-          ) : (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {}}
-              title="Tambah Akun"
+              className="text-red-600 hover:text-red-700"
+              onClick={() => setDeleteCashierId(row.original.id_kasir)}
             >
-              <UserRoundPlus className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" />
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEditingCashier(row.original)}
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteCashierId(row.original.id_kasir)}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      ),
+          </div>
+        );
+      },
     },
   ];
 
@@ -804,46 +928,58 @@ export function MasterData() {
     {
       id: "actions",
       header: "Aksi",
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end gap-2">
-          {!!labStaffUsers.find(
-            (r) => r.id_staf_lab === row.original.id_staf_lab
-          ) ? (
+      cell: ({ row }) => {
+        const labStaffUser = labStaffUsers.find(
+          (r) => r.id_staf_lab === row.original.id_staf_lab
+        );
+        return (
+          <div className="flex items-center justify-end gap-2">
+            {!!labStaffUser ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setEditingUser(labStaffUser);
+                }}
+                title="Edit Akun"
+              >
+                <UserRoundPen className="w-4 h-4" />
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setAddUser({
+                    id_resepsionis: null,
+                    id_dokter: null,
+                    id_staf_lab: row.original.id_staf_lab,
+                    id_kasir: null,
+                  });
+                }}
+                title="Tambah Akun"
+              >
+                <UserRoundPlus className="w-4 h-4" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {}}
-              title="Edit Akun"
+              onClick={() => setEditingLabStaff(row.original)}
             >
-              <UserRoundPen className="w-4 h-4" />
+              <Edit className="w-4 h-4" />
             </Button>
-          ) : (
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {}}
-              title="Tambah Akun"
+              className="text-red-600 hover:text-red-700"
+              onClick={() => setDeleteLabStaffId(row.original.id_staf_lab)}
             >
-              <UserRoundPlus className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" />
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEditingLabStaff(row.original)}
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-red-600 hover:text-red-700"
-            onClick={() => setDeleteLabStaffId(row.original.id_staf_lab)}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      ),
+          </div>
+        );
+      },
     },
   ];
   const serviceFeeColumns: ColumnDef<ServiceFee>[] = [
@@ -936,7 +1072,7 @@ export function MasterData() {
     },
     {
       accessorKey: "hari_kerja",
-      header: "Hari Kerja",
+      header: () => <div className="text-center">Hari Kerja</div>,
       cell: ({ row }) => {
         const dayColors: { [key: string]: string } = {
           Senin: "bg-blue-50 text-blue-700 ring-blue-600/20",
@@ -1105,7 +1241,10 @@ export function MasterData() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Informasi Klinik</CardTitle>
-              <Button className="bg-green-600 hover:bg-green-700">
+              <Button
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => setIsAddClinicModalOpen(true)}
+              >
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Info
               </Button>
@@ -1114,29 +1253,77 @@ export function MasterData() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm text-muted-foreground">Nama Klinik</p>
-                  <p className="mt-1">{clinicInfo.name}</p>
+                  <p className="mt-1">
+                    {clinicQuery.isLoading ? (
+                      <div className="flex w-full justify-start">
+                        <Loader2Icon className="animate-spin" />
+                      </div>
+                    ) : (
+                      clinicQuery.data && clinicQuery.data[0].nama_klinik
+                    )}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">No Lisensi</p>
-                  <p className="mt-1 font-mono">{clinicInfo.license}</p>
+                  <p className="mt-1 font-mono">
+                    {clinicQuery.isLoading ? (
+                      <div className="flex w-full justify-start ">
+                        <Loader2Icon className="animate-spin" />
+                      </div>
+                    ) : (
+                      clinicQuery.data && clinicQuery.data[0].izin_operasional
+                    )}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Alamat</p>
-                  <p className="mt-1">{clinicInfo.address}</p>
+                  <p className="mt-1">
+                    {clinicQuery.isLoading ? (
+                      <div className="flex w-full justify-start ">
+                        <Loader2Icon className="animate-spin" />
+                      </div>
+                    ) : (
+                      clinicQuery.data && clinicQuery.data[0].alamat
+                    )}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">No Telp</p>
-                  <p className="mt-1">{clinicInfo.phone}</p>
+                  <p className="mt-1">
+                    {clinicQuery.isLoading ? (
+                      <div className="flex w-full justify-start ">
+                        <Loader2Icon className="animate-spin" />
+                      </div>
+                    ) : (
+                      clinicQuery.data && clinicQuery.data[0].nomor_telepon
+                    )}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="mt-1">{clinicInfo.email}</p>
+                  <p className="mt-1">
+                    {clinicQuery.isLoading ? (
+                      <div className="flex w-full justify-start ">
+                        <Loader2Icon className="animate-spin" />
+                      </div>
+                    ) : (
+                      clinicQuery.data && clinicQuery.data[0].email
+                    )}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">
                     Jam Beroperasi
                   </p>
-                  <p className="mt-1">{clinicInfo.operatingHours}</p>
+                  <p className="mt-1">
+                    {clinicQuery.isLoading ? (
+                      <div className="flex w-full justify-start ">
+                        <Loader2Icon className="animate-spin" />
+                      </div>
+                    ) : (
+                      clinicQuery.data && clinicQuery.data[0].jam_operasional
+                    )}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -1284,6 +1471,40 @@ export function MasterData() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <AddUserModal
+        isOpen={isAddUserModalOpen || editingUser !== null || addUser !== null}
+        onClose={() => {
+          setIsAddUserModalOpen(false);
+          setEditingUser(null);
+          setAddUser(null);
+        }}
+        editingUser={
+          editingUser && {
+            username: editingUser.username,
+            id: editingUser.id,
+          }
+        }
+        addUser={
+          addUser && {
+            id_resepsionis: addUser.id_resepsionis,
+            id_dokter: addUser.id_dokter,
+            id_kasir: addUser.id_kasir,
+            id_staf_lab: addUser.id_staf_lab,
+          }
+        }
+        onAdd={createUserMutation.mutate}
+        onUpdate={updateUserMutation.mutate}
+      />
+
+      <AddClinicInfoModal
+        isOpen={isAddClinicModalOpen}
+        onClose={() => {
+          setIsAddClinicModalOpen(false);
+        }}
+        onSave={createClinicMutation.mutate}
+        editingClinic={editingClinic}
+      />
 
       <AddReceptionistModal
         isOpen={isAddReceptionistModalOpen || editingReceptionist !== null}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\UpdateAuthRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -43,10 +44,13 @@ class AuthController extends Controller
             $validatedData = $request->validated();
 
             $user = User::create([
-                'name' => $validatedData['name'],
+
                 'username' => $validatedData['username'],
                 'password' => Hash::make($validatedData['password']),
-                'role' => $validatedData['role'],
+                'id_resepsionis' => $validatedData['id_resepsionis'],
+                'id_dokter' => $validatedData['id_dokter'],
+                'id_staf_lab' => $validatedData['id_staf_lab'],
+                'id_kasir' => $validatedData['id_kasir'],
             ]);
 
             $token = $user->createToken('auth-token')->plainTextToken;
@@ -58,8 +62,8 @@ class AuthController extends Controller
                     'user' => [
                         'id' => $user->id,
                         'username' => $user->username,
-                        'name' => $user->name,
-                        'role' => $user->role
+
+
                     ],
                     'access_token' => $token,
                     'token_type' => 'Bearer',
@@ -69,6 +73,40 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateAuthRequest $request, $id): JsonResponse
+    {
+        try {
+            $user = User::find($id);
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found.'
+                ], 404);
+            }
+
+            $validatedData = $request->validated();
+            $validatedData['password'] = Hash::make($validatedData['password']);
+
+            $user->update($validatedData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User updated successfully.',
+                'data' => $user
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update user.',
                 'error' => $e->getMessage()
             ], 500);
         }

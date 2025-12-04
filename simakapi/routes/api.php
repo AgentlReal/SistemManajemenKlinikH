@@ -20,17 +20,14 @@ use App\Http\Controllers\ResepDokterController;
 use App\Http\Controllers\PenggunaanLayananController;
 use App\Http\Controllers\RekamMedisController;
 
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:sanctum']);
 
 Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::get('users', [AuthController::class, 'index']);
-    Route::get('klinik', [KlinikController::class, 'index']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::put('user/{user}', [AuthController::class, 'update']);
     Route::post('klinik', [KlinikController::class, 'store']);
-    Route::get('klinik/{klinik}', [KlinikController::class, 'show']);
-    Route::put('klinik/{klinik}', [KlinikController::class, 'update']);
-    Route::delete('klinik/{klinik}', [KlinikController::class, 'destroy']);
     Route::get('resepsionis', [ResepsionisController::class, 'index']);
     Route::post('resepsionis', [ResepsionisController::class, 'store']);
     Route::get('resepsionis/{resepsioni}', [ResepsionisController::class, 'show']);
@@ -69,6 +66,9 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::get('karyawan-tanpa-jadwal', [JadwalKaryawanController::class, 'indexKaryawanTanpaJadwal']);
 });
 
+Route::middleware(['auth:sanctum', 'role:admin,manager,cashier'])->group(function () {
+    Route::get('klinik', [KlinikController::class, 'index']);
+});
 Route::middleware(['auth:sanctum', 'role:admin,manager,receptionist'])->group(function () {
     Route::get('dokter-lengkap', [DokterController::class, 'indexLengkap']);
 });

@@ -39,17 +39,23 @@ class KlinikController extends Controller
         try {
             $validatedData = $request->validated();
 
-            $klinik = Klinik::create($validatedData);
+            $klinik = Klinik::updateOrCreate(
+                ['id_klinik' => $validatedData['id_klinik']],
+                $validatedData
+            );
+
+            $message = $klinik->wasRecentlyCreated ? 'Klinik created successfully.' : 'Klinik updated successfully.';
+            $statusCode = $klinik->wasRecentlyCreated ? 201 : 200;
 
             return response()->json([
                 'success' => true,
-                'message' => 'Klinik created successfully.',
+                'message' => $message,
                 'data' => $klinik
-            ], 201);
+            ], $statusCode);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create klinik.',
+                'message' => 'Failed to create or update klinik.',
                 'error' => $e->getMessage()
             ], 500);
         }

@@ -14,6 +14,7 @@ class Klinik extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id_klinik',
         'nama_klinik',
         'izin_operasional',
         'alamat',

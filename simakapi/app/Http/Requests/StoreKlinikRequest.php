@@ -14,6 +14,7 @@ class StoreKlinikRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id_klinik' => 'required|integer',
             'nama_klinik' => 'nullable|string|max:255',
             'izin_operasional' => 'nullable|string|max:100',
             'alamat' => 'nullable|string',

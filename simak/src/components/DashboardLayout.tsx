@@ -1,7 +1,9 @@
 import { APP_NAME } from "@/constants";
 import { useAuth } from "@/hooks/use-auth";
+import { updateUserAPI, type UserData } from "@/services/authServices";
 import type { Role } from "@/types";
 import startcase from "@stdlib/string-startcase";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
   BarChart3,
@@ -15,7 +17,9 @@ import {
   Users,
   type LucideProps,
 } from "lucide-react";
-import { type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { toast } from "sonner";
+import { AddUserModal, type UserUpdate } from "./modals/AddUserModal";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";
 import {
@@ -124,6 +128,29 @@ export function DashboardLayout({
   onLogout,
 }: DashboardLayoutProps) {
   const { user } = useAuth();
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [editingUser] = useState<UserData | null>(user);
+
+  const queryClient = useQueryClient();
+
+  const updateUserMutation = useMutation<
+    UserData,
+    Error,
+    UserUpdate & { updatedAt: string }
+  >({
+    mutationFn: async (updatedUser) => {
+      await updateUserAPI(updatedUser);
+      toast.success("Akun berhasil diperbarui!");
+      return {} as UserData;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: () => {
+      toast.error("Akun gagal diperbarui!");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon" variant="floating">
@@ -221,7 +248,7 @@ export function DashboardLayout({
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsAddUserModalOpen(true)}>
                   <Settings className="w-4 h-4 mr-2" />
                   Edit Akun
                 </DropdownMenuItem>
@@ -236,6 +263,21 @@ export function DashboardLayout({
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">{children}</main>
+        <AddUserModal
+          isOpen={isAddUserModalOpen}
+          onClose={() => {
+            setIsAddUserModalOpen(false);
+          }}
+          editingUser={
+            editingUser && {
+              username: editingUser.username,
+              id: editingUser.id,
+            }
+          }
+          addUser={null}
+          onAdd={() => {}}
+          onUpdate={updateUserMutation.mutate}
+        />
       </div>
     </SidebarProvider>
   );

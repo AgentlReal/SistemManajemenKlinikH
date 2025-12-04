@@ -190,7 +190,7 @@ export function MasterData() {
     mutationFn: async (updatedUser) => {
       await createUserAPI(updatedUser);
       toast.success("Akun berhasil ditambahkan!");
-      setEditingReceptionist(null);
+      setEditingUser(null);
       return {} as UserData;
     },
     onSuccess: () => {
@@ -209,7 +209,7 @@ export function MasterData() {
     mutationFn: async (updatedUser) => {
       await updateUserAPI(updatedUser);
       toast.success("Akun berhasil diperbarui!");
-      setEditingReceptionist(null);
+      setEditingUser(null);
       return {} as UserData;
     },
     onSuccess: () => {

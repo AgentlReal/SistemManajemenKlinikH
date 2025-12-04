@@ -52,7 +52,6 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::get('tarif-layanan/{tarif_layanan}', [TarifLayananController::class, 'show']);
     Route::put('tarif-layanan/{tarif_layanan}', [TarifLayananController::class, 'update']);
     Route::delete('tarif-layanan/{tarif_layanan}', [TarifLayananController::class, 'destroy']);
-    Route::get('poli', [PoliController::class, 'index']);
     Route::post('poli', [PoliController::class, 'store']);
     Route::get('poli/{poli}', [PoliController::class, 'show']);
     Route::put('poli/{poli}', [PoliController::class, 'update']);
@@ -62,7 +61,6 @@ Route::middleware(['auth:sanctum', 'role:admin,manager'])->group(function () {
     Route::get('jadwal-karyawan/{jadwal_karyawan}', [JadwalKaryawanController::class, 'show']);
     Route::put('jadwal-karyawan/{jadwal_karyawan}', [JadwalKaryawanController::class, 'update']);
     Route::delete('jadwal-karyawan/{jadwal_karyawan}', [JadwalKaryawanController::class, 'destroy']);
-    Route::get('jadwal-karyawan-lengkap', [JadwalKaryawanController::class, 'getJadwalLengkap']);
     Route::get('karyawan-tanpa-jadwal', [JadwalKaryawanController::class, 'indexKaryawanTanpaJadwal']);
 });
 
@@ -74,7 +72,9 @@ Route::middleware(['auth:sanctum', 'role:admin,manager,cashier'])->group(functio
     Route::get('klinik', [KlinikController::class, 'index']);
 });
 Route::middleware(['auth:sanctum', 'role:admin,manager,receptionist'])->group(function () {
+    Route::get('jadwal-karyawan-lengkap', [JadwalKaryawanController::class, 'getJadwalLengkap']);
     Route::get('dokter-lengkap', [DokterController::class, 'indexLengkap']);
+    Route::get('poli', [PoliController::class, 'index']);
 });
 Route::middleware(['auth:sanctum', 'role:admin,manager,doctor,lab,cashier'])->group(function () {
 

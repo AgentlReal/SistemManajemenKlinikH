@@ -468,7 +468,7 @@ export interface BackendQueuePayload {
   id_dokter: string;
   id_pasien: number;
   keluhan: string;
-  nomor_antrian: string;
+  // nomor_antrian: string;
   keterangan: QueueStatus;
 }
 

@@ -1,10 +1,14 @@
 import { useAuth } from "@/hooks/use-auth";
+import { fetchAllDepartmentsAPI } from "@/services/departmentServices";
 import { fetchAllDoctorsAPI } from "@/services/doctorServices";
 import { fetchAllPatientsAPI } from "@/services/patientServices";
+import { fetchAllSchedulesAPI } from "@/services/scheduleServices";
 import {
   type BackendQueuePayload,
+  type Department,
   type QueueStatus,
   type ViewDoctor,
+  type ViewSchedule,
 } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
@@ -44,12 +48,22 @@ const addQueueFormSchema = z.object({
   id_pasien: z.coerce.number().min(1, "ID Pasien harus diisi"),
   id_dokter: z.string().min(1, "ID Dokter harus diisi"),
   keluhan: z.string().min(1, "Keluhan harus diisi"),
-  nomor_antrian: z.string().min(1, "Nomor Antrian harus diisi"),
+  // nomor_antrian: z.string().min(1, "Nomor Antrian harus diisi"),
   keterangan: z.enum<QueueStatus[]>(
     ["Menunggu", "Berlangsung", "Selesai"],
     "Status harus diisi"
   ),
 });
+
+const dayMapper: Record<number, string> = {
+  1: "senin",
+  2: "selasa",
+  3: "rabu",
+  4: "kamis",
+  5: "jumat",
+  6: "sabtu",
+  7: "minggu",
+};
 
 interface AddQueueModalProps {
   isOpen: boolean;
@@ -81,6 +95,7 @@ export function AddQueueModal({
 
   const [patientPopoverOpen, setPatientPopoverOpen] = useState(false);
   const [doctorPopoverOpen, setDoctorPopoverOpen] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
 
   const { data: patients = [] } = useQuery({
     queryKey: ["patients"],
@@ -94,6 +109,16 @@ export function AddQueueModal({
     queryFn: () => fetchAllDoctorsAPI(),
   });
 
+  const { data: departments = [] } = useQuery<Department[]>({
+    queryKey: ["departments"],
+    queryFn: () => fetchAllDepartmentsAPI(),
+  });
+
+  const { data: schedules = [] } = useQuery<ViewSchedule[]>({
+    queryKey: ["schedules"],
+    queryFn: () => fetchAllSchedulesAPI(),
+  });
+
   const [searchPatient, setSearchPatient] = useState("");
   const [searchDoctor, setSearchDoctor] = useState("");
 
@@ -103,8 +128,18 @@ export function AddQueueModal({
       setValue("id_dokter", editingQueue.id_dokter);
       setValue("id_pasien", editingQueue.id_pasien);
       setValue("keluhan", editingQueue.keluhan);
-      setValue("nomor_antrian", editingQueue.nomor_antrian);
+      // setValue("nomor_antrian", editingQueue.nomor_antrian);
       setValue("keterangan", editingQueue.keterangan);
+
+      setSelectedDepartment(
+        departments
+          .map((d) => d.nama_poli)
+          .find(
+            (de) =>
+              doctors.find((d) => d.id_dokter === editingQueue.id_dokter)
+                ?.nama_poli === de
+          ) || ""
+      );
     } else {
       reset();
       setValue("id_resepsionis", user?.id_resepsionis || "R001");
@@ -123,6 +158,7 @@ export function AddQueueModal({
 
   const handleClose = () => {
     reset();
+    setSelectedDepartment("");
     onClose();
   };
 
@@ -133,8 +169,21 @@ export function AddQueueModal({
   );
   const filteredDoctors = doctors.filter(
     (doctor) =>
-      doctor.nama_dokter.toLowerCase().includes(searchDoctor.toLowerCase()) ||
-      doctor.id_dokter.toLowerCase().includes(searchDoctor.toLowerCase())
+      doctor.nama_poli === selectedDepartment &&
+      !!schedules.find(
+        (s) =>
+          s.id_karyawan === doctor.id_dokter &&
+          s[dayMapper[new Date().getDay()] as "senin"] &&
+          new Date(
+            `${new Date().toISOString().split("T")[0]}T${s.jam_mulai}`
+          ).getTime() < Date.now() &&
+          Date.now() <
+            new Date(
+              `${new Date().toISOString().split("T")[0]}T${s.jam_selesai}`
+            ).getTime()
+      ) &&
+      (doctor.nama_dokter.toLowerCase().includes(searchDoctor.toLowerCase()) ||
+        doctor.id_dokter.toLowerCase().includes(searchDoctor.toLowerCase()))
   );
 
   return (
@@ -212,67 +261,6 @@ export function AddQueueModal({
               )}
             />
 
-            <Controller
-              name="id_dokter"
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <div className="space-y-2">
-                  <Label htmlFor="id_dokter">Nama Dokter</Label>
-                  <Popover
-                    open={doctorPopoverOpen}
-                    onOpenChange={setDoctorPopoverOpen}
-                  >
-                    <PopoverTrigger asChild disabled={!!editingQueue}>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className="w-full justify-between"
-                      >
-                        {value
-                          ? doctors.find((doctor) => doctor.id_dokter === value)
-                              ?.nama_dokter
-                          : "Pilih dokter..."}
-                        <ChevronsUpDown className="opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0" align="start">
-                      <Command shouldFilter={false}>
-                        <CommandInput
-                          placeholder="Cari dokter berdasarkan ID atau Nama..."
-                          className="h-9"
-                          value={searchDoctor}
-                          onValueChange={setSearchDoctor}
-                        />
-                        <CommandList>
-                          <CommandEmpty>Tidak ada dokter.</CommandEmpty>
-                          <CommandGroup>
-                            {filteredDoctors.map((doctor) => (
-                              <CommandItem
-                                key={doctor.id_dokter}
-                                value={doctor.id_dokter}
-                                onSelect={(currentValue) => {
-                                  onChange(currentValue);
-                                  setSearchDoctor("");
-                                  setDoctorPopoverOpen(false);
-                                }}
-                              >
-                                {doctor.id_dokter} - {doctor.nama_dokter}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  {errors.id_dokter && (
-                    <p className="text-sm text-destructive">
-                      {errors.id_dokter.message}
-                    </p>
-                  )}
-                </div>
-              )}
-            />
-
             <div className="space-y-2">
               <Label htmlFor="keluhan">Keluhan</Label>
               <Input
@@ -289,20 +277,91 @@ export function AddQueueModal({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nomor_antrian">Nomor Antrian</Label>
-              <Input
-                id="nomor_antrian"
-                {...register("nomor_antrian")}
-                required
+              <Label htmlFor="poli">Poli</Label>
+              <Select
+                onValueChange={(v) => setSelectedDepartment(() => v)}
+                defaultValue={selectedDepartment}
                 disabled={!!editingQueue}
-              />
-              {errors.nomor_antrian && (
-                <p className="text-sm text-destructive">
-                  {errors.nomor_antrian.message}
-                </p>
-              )}
+                required
+              >
+                <SelectTrigger id="poli">
+                  <SelectValue placeholder="Pilih poli" />
+                </SelectTrigger>
+                <SelectContent>
+                  {departments.map((d) => (
+                    <SelectItem value={d.nama_poli}>{d.nama_poli}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
+            {selectedDepartment && (
+              <Controller
+                name="id_dokter"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <div className="space-y-2">
+                    <Label htmlFor="id_dokter">Nama Dokter</Label>
+                    <Popover
+                      open={doctorPopoverOpen}
+                      onOpenChange={setDoctorPopoverOpen}
+                    >
+                      <PopoverTrigger asChild disabled={!!editingQueue}>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="w-full justify-between"
+                        >
+                          {!value
+                            ? "Pilih dokter..."
+                            : filteredDoctors.find(
+                                (doctor) => doctor.id_dokter === value
+                              )
+                            ? filteredDoctors.find(
+                                (doctor) => doctor.id_dokter === value
+                              )?.nama_dokter
+                            : "Pilih dokter..."}
+                          <ChevronsUpDown className="opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Cari dokter berdasarkan ID atau Nama..."
+                            className="h-9"
+                            value={searchDoctor}
+                            onValueChange={setSearchDoctor}
+                          />
+                          <CommandList>
+                            <CommandEmpty>Tidak ada dokter.</CommandEmpty>
+                            <CommandGroup>
+                              {filteredDoctors.map((doctor) => (
+                                <CommandItem
+                                  key={doctor.id_dokter}
+                                  value={doctor.id_dokter}
+                                  onSelect={(currentValue) => {
+                                    onChange(currentValue);
+                                    setSearchDoctor("");
+                                    setDoctorPopoverOpen(false);
+                                  }}
+                                >
+                                  {doctor.id_dokter} - {doctor.nama_dokter}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    {errors.id_dokter && (
+                      <p className="text-sm text-destructive">
+                        {errors.id_dokter.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+            )}
             {editingQueue && (
               <Controller
                 name="keterangan"

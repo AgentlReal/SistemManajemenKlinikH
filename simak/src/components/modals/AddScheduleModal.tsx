@@ -123,17 +123,7 @@ export function AddScheduleModal({
   }, [editingSchedule, isOpen]);
 
   const onValid: SubmitHandler<z.infer<typeof schema>> = (data) => {
-    console.log(data);
-
     if (editingSchedule) {
-      console.log({
-        ...data,
-        id_resepsionis: data.id_resepsionis || null,
-        id_dokter: data.id_dokter || null,
-        id_staf_lab: data.id_staf_lab || null,
-        id_kasir: data.id_kasir || null,
-        id_jadwal: editingSchedule.id_jadwal,
-      });
       onUpdate({
         ...data,
         id_resepsionis: data.id_resepsionis || null,
@@ -141,6 +131,12 @@ export function AddScheduleModal({
         id_staf_lab: data.id_staf_lab || null,
         id_kasir: data.id_kasir || null,
         id_jadwal: editingSchedule.id_jadwal,
+        jam_mulai:
+          data.jam_mulai.length > 5 ? data.jam_mulai : data.jam_mulai + ":00",
+        jam_selesai:
+          data.jam_selesai.length > 5
+            ? data.jam_selesai
+            : data.jam_selesai + ":00",
       });
     } else {
       onAdd({
@@ -149,6 +145,12 @@ export function AddScheduleModal({
         id_dokter: data.id_dokter || null,
         id_staf_lab: data.id_staf_lab || null,
         id_kasir: data.id_kasir || null,
+        jam_mulai:
+          data.jam_mulai.length > 5 ? data.jam_mulai : data.jam_mulai + ":00",
+        jam_selesai:
+          data.jam_selesai.length > 5
+            ? data.jam_selesai
+            : data.jam_selesai + ":00",
       });
     }
     onClose();
@@ -592,7 +594,6 @@ export function AddScheduleModal({
                 type="time"
                 id="jam_mulai"
                 placeholder="20000"
-                step={1}
               />
               {errors.jam_mulai && (
                 <p className="text-sm text-destructive">
@@ -607,7 +608,6 @@ export function AddScheduleModal({
                 type="time"
                 id="jam_selesai"
                 placeholder="20000"
-                step={1}
               />
               {errors.jam_selesai && (
                 <p className="text-sm text-destructive">

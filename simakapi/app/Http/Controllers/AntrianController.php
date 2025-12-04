@@ -61,6 +61,19 @@ class AntrianController extends Controller
         try {
             $validatedData = $request->validated();
 
+            // Generate nomor_antrian
+            $lastAntrian = Antrian::orderBy('id_antrian', 'desc')->first();
+            $today = date('Y-m-d');
+            $queueNumber = 1;
+
+            if ($lastAntrian && date('Y-m-d', strtotime($lastAntrian->tanggal)) == $today) {
+                $lastQueueNumber = (int) substr($lastAntrian->nomor_antrian, 1);
+                $queueNumber = $lastQueueNumber + 1;
+            }
+
+            $validatedData['nomor_antrian'] = 'A' . str_pad($queueNumber, 3, '0', STR_PAD_LEFT);
+
+
             $antrian = Antrian::create($validatedData);
 
             return response()->json([

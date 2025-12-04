@@ -1111,10 +1111,18 @@ export function MasterData() {
     {
       accessorKey: "jam_mulai",
       header: "Jam Mulai",
+      cell: ({ getValue }) => {
+        const time = getValue() as string;
+        return time.length < 6 ? time : time.slice(0, 5);
+      },
     },
     {
       accessorKey: "jam_selesai",
       header: "Jam Selesai",
+      cell: ({ getValue }) => {
+        const time = getValue() as string;
+        return time.length < 6 ? time : time.slice(0, 5);
+      },
     },
     {
       id: "actions",

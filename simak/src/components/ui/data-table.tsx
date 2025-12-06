@@ -52,6 +52,9 @@ interface DataTableProps<TData, TValue> {
   error?: Error | null;
   onAdd?: () => void;
   onRefresh?: () => void;
+  filterColumnId?: string;
+  filterPlaceholder?: string;
+  filterOptions?: string[];
 }
 
 export function DataTable<TData, TValue>({
@@ -63,6 +66,9 @@ export function DataTable<TData, TValue>({
   error,
   onAdd,
   onRefresh,
+  filterColumnId,
+  filterPlaceholder,
+  filterOptions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -87,6 +93,47 @@ export function DataTable<TData, TValue>({
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-4">
         <p className="font-semibold">Daftar {startcase(title)}</p>
         <div className="flex gap-2">
+          {filterColumnId &&
+            (filterOptions ? (
+              <Select
+                value={
+                  (table
+                    .getColumn(filterColumnId)
+                    ?.getFilterValue() as string) ?? ""
+                }
+                onValueChange={(value) => {
+                  const filterValue = value === "--all--" ? "" : value;
+                  table.getColumn(filterColumnId)?.setFilterValue(filterValue);
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={filterPlaceholder ?? "Filter..."} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="--all--">All</SelectItem>
+                  {filterOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                placeholder={filterPlaceholder ?? `Filter ${filterColumnId}...`}
+                value={
+                  (table
+                    .getColumn(filterColumnId)
+                    ?.getFilterValue() as string) ?? ""
+                }
+                onChange={(event) =>
+                  table
+                    .getColumn(filterColumnId)
+                    ?.setFilterValue(event.target.value)
+                }
+                className="max-w-sm"
+              />
+            ))}
           <div className="relative w-full md:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input

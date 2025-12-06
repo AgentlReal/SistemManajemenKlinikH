@@ -99,7 +99,7 @@ export function ManageQueue() {
     BackendQueuePayload
   >({
     mutationFn: async (payload) => {
-      const updated = await updateQueueAPI(payload);
+      await updateQueueAPI(payload);
       toast.success("Queue entry updated successfully!");
       setEditingQueue(null);
     },
@@ -272,6 +272,9 @@ export function ManageQueue() {
             onRefresh={() =>
               queryClient.invalidateQueries({ queryKey: ["queues"] })
             }
+            filterColumnId="keterangan"
+            filterPlaceholder="Filter dengan Status..."
+            filterOptions={["Menunggu", "Berlangsung", "Selesai"]}
           />
         </CardContent>
       </Card>

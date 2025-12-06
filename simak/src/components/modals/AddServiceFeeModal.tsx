@@ -109,6 +109,7 @@ export function AddServiceFeeModal({
                     <SelectContent>
                       <SelectItem value="Dokter">Dokter</SelectItem>
                       <SelectItem value="Laboratorium">Laboratorium</SelectItem>
+                      <SelectItem value="Administrasi">Administrasi</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.tipe_layanan && (

@@ -14,7 +14,7 @@ class UpdateTarifLayananRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tipe_layanan' => 'nullable|in:Dokter,Laboratorium',
+            'tipe_layanan' => 'nullable|in:Dokter,Laboratorium,Administrasi',
             'Harga' => 'nullable|integer',
             'nama_layanan' => 'nullable|string|max:100',
         ];

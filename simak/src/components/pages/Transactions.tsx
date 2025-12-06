@@ -13,7 +13,7 @@ import type {
 } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { DollarSign, Plus, Printer } from "lucide-react";
+import { Plus, Printer } from "lucide-react";
 import { useState } from "react";
 import { BsBank, BsCash } from "react-icons/bs";
 import { TfiPrinter } from "react-icons/tfi";
@@ -173,6 +173,19 @@ export function Transactions() {
       header: "Aksi",
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-2">
+          {row.original.status_pembayaran === "Belum Lunas" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setSelectedTransaction(() => row.original);
+                setIsAddModalOpen(() => true);
+              }}
+              title="Tambah Biaya"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          )}
           {row.original.status_pembayaran === "Belum Lunas" &&
             user?.role === "cashier" && (
               <div
@@ -188,20 +201,6 @@ export function Transactions() {
               >
                 Proses
               </div>
-            )}
-          {row.original.status_pembayaran === "Belum Lunas" &&
-            ["doctor", "lab"].includes(user?.role || "") && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  setSelectedTransaction(() => row.original);
-                  setIsAddModalOpen(() => true);
-                }}
-                title="Tambah Biaya"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
             )}
 
           {row.original.status_pembayaran === "Lunas" &&
@@ -248,7 +247,7 @@ export function Transactions() {
       </div>
 
       {/* Revenue Stats */}
-      {!["doctor", "lab"].includes(user?.role || "") && (
+      {/* {!["doctor", "lab"].includes(user?.role || "") && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardContent className="p-6">
@@ -288,7 +287,7 @@ export function Transactions() {
             </CardContent>
           </Card>
         </div>
-      )}
+      )} */}
       <Card>
         <CardContent>
           <DataTable
@@ -311,6 +310,9 @@ export function Transactions() {
             onRefresh={() =>
               queryClient.invalidateQueries({ queryKey: ["transactions"] })
             }
+            filterColumnId="status"
+            filterPlaceholder="Filter dengan Status..."
+            filterOptions={["Lunas", "Belum Lunas"]}
           />
         </CardContent>
       </Card>

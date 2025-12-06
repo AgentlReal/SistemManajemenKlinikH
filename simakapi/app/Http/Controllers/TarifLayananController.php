@@ -44,7 +44,7 @@ class TarifLayananController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'TarifLayanan created successfully.',
-                'data' => $tarifLayanans
+                'data' => $tarifLayanan
             ], 201);
         } catch (\Exception $e) {
             return response()->json([

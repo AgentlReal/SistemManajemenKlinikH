@@ -208,7 +208,10 @@ export const labStaffSchema = z.object({
 });
 
 export const serviceFeeSchema = z.object({
-  tipe_layanan: z.enum(["Dokter", "Laboratorium"], warnings.category),
+  tipe_layanan: z.enum(
+    ["Dokter", "Laboratorium", "Administrasi"],
+    warnings.category
+  ),
 
   nama_layanan: z
     .string()

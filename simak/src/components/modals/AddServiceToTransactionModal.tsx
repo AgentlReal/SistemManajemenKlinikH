@@ -109,7 +109,9 @@ export function AddServiceToTransactionModal({
     0
   );
 
-  const filteredServiceFees = user?.id_dokter
+  const filteredServiceFees = user?.id_kasir
+    ? serviceFees.filter((s) => s.tipe_layanan === "Administrasi")
+    : user?.id_dokter
     ? serviceFees.filter((s) => s.tipe_layanan === "Dokter")
     : user?.id_staf_lab
     ? serviceFees.filter((s) => s.tipe_layanan === "Laboratorium")
@@ -261,9 +263,6 @@ export function AddServiceToTransactionModal({
         </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
-            Batal
-          </Button>
           <Button
             onClick={onClose}
             className="bg-green-600 hover:bg-green-700"

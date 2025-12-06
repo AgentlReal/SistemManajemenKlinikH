@@ -1,73 +1,67 @@
-
 # Sistem Manajemen Klinik Haikhah
 
-This is a clinic management system built with a React frontend and a Laravel backend.
+Sebuah sistem manajemen klinik yang dibangun menggunakan frontend React dan backend Laravel.
 
-## Project Structure
+## Struktur Proyek
 
-The project is divided into two main parts:
+Proyek ini terbagi menjadi dua direktori utama:
 
--   `simak/`: The React frontend application.
--   `simakapi/`: The Laravel backend API.
+-   `simak/`: Berisi kode sumber untuk aplikasi frontend (React).
+-   `simakapi/`: Berisi kode sumber untuk API backend (Laravel).
 
-## Tech Stack
+## Teknologi yang Digunakan
 
 ### Frontend (`simak`)
 
--   **Framework:** React with Vite and TypeScript
+-   **Framework:** React dengan Vite dan TypeScript
 -   **Styling:** Tailwind CSS
--   **State Management:** React Query
--   **Forms:** React Hook Form with Zod for validation
--   **UI Components:** Radix UI, Lucide React, Recharts, Sonner
+-   **Manajemen State:** React Query
+-   **Formulir:** React Hook Form dengan Zod untuk validasi
+-   **Komponen UI:** Radix UI, Lucide React, Recharts, Sonner
 
 ### Backend (`simakapi`)
 
 -   **Framework:** Laravel 11
--   **Authentication:** Laravel Sanctum
+-   **Autentikasi:** Laravel Sanctum
 -   **Database:** SQLite
 
-## Getting Started
+## Instalasi dan Konfigurasi
 
-### Prerequisites
+### Prasyarat
 
--   Node.js and npm (for the frontend)
--   PHP and Composer (for the backend)
+-   Node.js dan npm
+-   PHP dan Composer
 
-### Frontend (`simak`)
+### Langkah Persiapan
 
-1.  Navigate to the `simak` directory:
-    ```bash
-    cd simak
-    ```
-2.  Install the dependencies:
+1.  **Instal Dependensi Utama:**
+    Perintah ini akan menginstal `concurrently` yang dibutuhkan untuk menjalankan kedua aplikasi secara bersamaan.
     ```bash
     npm install
     ```
-3.  Run the development server:
-    ```bash
-    npm run dev
-    ```
 
-### Backend (`simakapi`)
+2.  **Konfigurasi Database dan Lingkungan Backend:**
+    -   Impor berkas `simakapi.sql` ke dalam sistem database Anda (contoh: MySQL, PostgreSQL).
+    -   Salin berkas `.env.example` menjadi `.env` di dalam direktori `simakapi`.
+    -   Sesuaikan isi berkas `.env` tersebut, terutama bagian koneksi database (`DB_*`), agar sesuai dengan pengaturan database Anda.
 
-1.  Navigate to the `simakapi` directory:
-    ```bash
-    cd simakapi
-    ```
-2.  Install the dependencies:
-    ```bash
-    composer install
-    ```
-3.  Run the development server:
-    ```bash
-    composer run dev
-    ```
+3.  **Instal Dependensi Frontend dan Backend:**
+    -   Masuk ke direktori `simak` dan jalankan `npm install` untuk memasang dependensi frontend.
+    -   Masuk ke direktori `simakapi` dan jalankan `composer install` untuk memasang dependensi backend.
 
-## Development Conventions
+## Menjalankan Aplikasi
 
--   The frontend and backend are developed separately.
--   The frontend communicates with the backend via a REST API.
--   Authentication is handled by Laravel Sanctum.
--   API routes are defined in `simakapi/routes/api.php`.
--   Frontend components are located in `simak/src/components`.
--   The main application logic for the frontend is in `simak/src/App.tsx`.
+Setelah semua langkah persiapan selesai, kembali ke direktori utama (root) proyek. Kemudian, jalankan perintah berikut untuk menjalankan aplikasi frontend dan backend secara bersamaan:
+
+```bash
+npm run dev
+```
+
+## Konvensi Pengembangan
+
+-   Pengembangan frontend dan backend dilakukan secara terpisah di dalam direktorinya masing-masing.
+-   Komunikasi antara frontend dan backend terjalin melalui REST API.
+-   Proses autentikasi pengguna ditangani oleh Laravel Sanctum.
+-   Semua rute API didefinisikan dalam berkas `simakapi/routes/api.php`.
+-   Komponen-komponen antarmuka (UI) untuk frontend berada di direktori `simak/src/components`.
+-   Logika utama aplikasi frontend dapat ditemukan pada berkas `simak/src/App.tsx`.

@@ -64,6 +64,8 @@ export function Transactions() {
     Transaction
   >({
     mutationFn: async (updatedTransaction) => {
+      console.log(updatedTransaction);
+
       await updateTransactionAPI(updatedTransaction);
       toast.success("Transaksi Berhasil Diproses!");
       return {} as ViewTransactionClient;

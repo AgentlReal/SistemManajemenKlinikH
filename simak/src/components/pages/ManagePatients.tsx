@@ -130,7 +130,11 @@ export function ManagePatients() {
             variant="ghost"
             size="icon"
             onClick={() => setEditingPatient(row.original)}
-            title="View Details"
+            title={
+              user && authorizedRoles.update.includes(user.role)
+                ? "Edit Pasien"
+                : "Lihat Detail Pasien"
+            }
           >
             {user && authorizedRoles.update.includes(user.role) ? (
               <Edit className="w-4 h-4" />

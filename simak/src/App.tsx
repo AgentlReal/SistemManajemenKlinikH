@@ -78,7 +78,7 @@ export default function App() {
     return (
       <>
         <LoginPage onLogin={handleLogin} />
-        <Toaster position="top-right" />
+        <Toaster position="bottom-right" />
       </>
     );
   }
@@ -92,7 +92,7 @@ export default function App() {
       >
         {renderPage()}
       </DashboardLayout>
-      <Toaster position="top-right" />
+      <Toaster position="bottom-right" />
     </>
   );
 }

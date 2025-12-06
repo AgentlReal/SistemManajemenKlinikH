@@ -31,7 +31,7 @@ import {
   Search,
   TriangleAlert,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -73,9 +73,28 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  const modifiedColumns = useMemo(() => {
+    if (filterColumnId && filterOptions) {
+      return columns.map((col) => {
+        const columnDef = col as { accessorKey?: string; id?: string };
+        if (
+          (columnDef.accessorKey && columnDef.accessorKey === filterColumnId) ||
+          (columnDef.id && columnDef.id === filterColumnId)
+        ) {
+          return {
+            ...col,
+            filterFn: "equalsString" as const,
+          };
+        }
+        return col;
+      });
+    }
+    return columns;
+  }, [columns, filterColumnId, filterOptions]);
+
   const table = useReactTable({
     data: data || [],
-    columns,
+    columns: modifiedColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -110,7 +129,7 @@ export function DataTable<TData, TValue>({
                   <SelectValue placeholder={filterPlaceholder ?? "Filter..."} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="--all--">All</SelectItem>
+                  <SelectItem value="--all--">Semua</SelectItem>
                   {filterOptions.map((option) => (
                     <SelectItem key={option} value={option}>
                       {option}

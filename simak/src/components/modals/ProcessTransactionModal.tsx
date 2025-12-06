@@ -63,87 +63,85 @@ export function ProcessTransactionModal({
         </DialogHeader>
 
         <div className="flex-grow overflow-y-auto p-1">
+          <div className="mt-6">
+            <h3 className="text-lg font-medium mb-2">Layanan Ditambahkan</h3>
+          </div>
           {isLoading ? (
             <div className="flex flex-col justify-center items-center">
               <Loader2 className="w-6 h-6 animate-spin" />
             </div>
-          ) : (
-            cart.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-medium mb-2">
-                  Layanan Ditambahkan
-                </h3>
-                <div className="border rounded-lg">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nama Layanan</TableHead>
-                        <TableHead className="text-center">Jumlah</TableHead>
-                        <TableHead className="text-right">
-                          Harga Satuan
-                        </TableHead>
-                        <TableHead className="text-right">Subtotal</TableHead>
-                        <TableHead className="w-[50px]"></TableHead>
+          ) : cart.length > 0 ? (
+            <div>
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nama Layanan</TableHead>
+                      <TableHead className="text-center">Jumlah</TableHead>
+                      <TableHead className="text-right">Harga Satuan</TableHead>
+                      <TableHead className="text-right">Subtotal</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {cart.map((item) => (
+                      <TableRow key={item.id_tarif_layanan}>
+                        <TableCell>{item.nama_layanan}</TableCell>
+                        <TableCell className="text-center">
+                          {item.kuantitas}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          Rp {item.harga_saat_itu.toLocaleString("id-ID")}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          Rp{" "}
+                          {(
+                            item.harga_saat_itu * item.kuantitas
+                          ).toLocaleString("id-ID")}
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {cart.map((item) => (
-                        <TableRow key={item.id_tarif_layanan}>
-                          <TableCell>{item.nama_layanan}</TableCell>
-                          <TableCell className="text-center">
-                            {item.kuantitas}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            Rp {item.harga_saat_itu.toLocaleString("id-ID")}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            Rp{" "}
-                            {(
-                              item.harga_saat_itu * item.kuantitas
-                            ).toLocaleString("id-ID")}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-                <div className="flex justify-end mt-4">
-                  <div className="text-right">
-                    <p className="text-muted-foreground">Total Keseluruhan</p>
-                    <p className="text-2xl font-bold">
-                      Rp {total.toLocaleString("id-ID")}
-                    </p>
-                  </div>
-                </div>
-                <h3 className="text-lg font-medium mb-2">Metode Pembayaran</h3>
-                <Select
-                  onValueChange={(v) => {
-                    setCurrentTransaction((o) => ({
-                      ...o,
-                      metode_pembayaran: v,
-                    }));
-                  }}
-                  defaultValue={
-                    currentTransaction.metode_pembayaran === "Belum Dipilih"
-                      ? ""
-                      : currentTransaction.metode_pembayaran
-                  }
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih Metode Pembayaran" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Tunai">
-                      <BsCash /> Tunai
-                    </SelectItem>
-                    <SelectItem value="Transfer bank">
-                      <BsBank /> Transfer bank
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-            )
+              <div className="flex justify-end mt-4">
+                <div className="text-right">
+                  <p className="text-muted-foreground">Total Keseluruhan</p>
+                  <p className="text-2xl font-bold">
+                    Rp {total.toLocaleString("id-ID")}
+                  </p>
+                </div>
+              </div>
+              <h3 className="text-lg font-medium mb-2">Metode Pembayaran</h3>
+              <Select
+                onValueChange={(v) => {
+                  setCurrentTransaction((o) => ({
+                    ...o,
+                    metode_pembayaran: v,
+                  }));
+                }}
+                defaultValue={
+                  currentTransaction.metode_pembayaran === "Belum Dipilih"
+                    ? ""
+                    : currentTransaction.metode_pembayaran
+                }
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Metode Pembayaran" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Tunai">
+                    <BsCash /> Tunai
+                  </SelectItem>
+                  <SelectItem value="Transfer bank">
+                    <BsBank /> Transfer bank
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
+            "Belum ada layanan yang ditambahkan ke transaksi ini."
           )}
         </div>
 
@@ -153,13 +151,14 @@ export function ProcessTransactionModal({
           </Button>
           <Button
             onClick={() => {
-              console.log(currentTransaction);
-
               onProcess({
                 id_pembayaran: currentTransaction.id_pembayaran,
                 id_antrian: currentTransaction.id_antrian,
                 id_kasir: currentTransaction.id_kasir,
-                tanggal_transaksi: new Date().toISOString().split("T")[0],
+                tanggal_transaksi:
+                  new Date().toISOString().split("T")[0] +
+                  " " +
+                  new Date().toTimeString().split(" ")[0],
                 metode_pembayaran: currentTransaction.metode_pembayaran,
                 status_pembayaran: "Lunas",
               });

@@ -89,7 +89,7 @@ export function AddSoapNoteModal({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px] max-h-3/4 overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New SOAP Note</DialogTitle>
+          <DialogTitle>Tambah SOAP</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <form onSubmit={handleSubmit(onValid)} className="space-y-4">
@@ -169,7 +169,7 @@ export function AddSoapNoteModal({
                 type="submit"
                 className="bg-green-600 hover:bg-green-700 hover:cursor-pointer"
               >
-                Save Note
+                Tambah
               </Button>
             </DialogFooter>
           </form>

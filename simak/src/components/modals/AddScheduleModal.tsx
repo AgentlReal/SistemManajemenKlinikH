@@ -79,7 +79,6 @@ export function AddScheduleModal({
   });
 
   const {
-    watch,
     register,
     handleSubmit,
     formState: { errors },

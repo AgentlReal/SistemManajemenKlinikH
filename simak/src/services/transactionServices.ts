@@ -5,13 +5,6 @@ import type {
   ViewTransactionClient,
 } from "@/types";
 
-const transformTransactionToAPI = (
-  transaction: Omit<ViewTransactionClient, "id_staf_lab">
-) => ({
-  ...transaction,
-  tanggal_transaksi: transaction.tanggal_transaksi.toISOString().split("T")[0],
-});
-
 const transformTransactionFromAPI = (
   transaction: ViewTransactionAPI
 ): ViewTransactionClient => ({

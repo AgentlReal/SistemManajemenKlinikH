@@ -185,48 +185,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const receiptData = {
-  receiptNumber: "RCP-2024-001283",
-  date: new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }),
-  time: new Date().toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }),
-  cashier: "John Smith",
-  items: [
-    { name: "Organic Bananas", quantity: 2, price: 1.99 },
-    { name: "Whole Wheat Bread", quantity: 1, price: 3.49 },
-    { name: "Milk 2% 1 Gallon", quantity: 1, price: 4.29 },
-    { name: "Eggs Large Dozen", quantity: 1, price: 3.99 },
-    { name: "Chicken Breast 1lb", quantity: 2, price: 5.99 },
-    { name: "Coca-Cola 2L", quantity: 1, price: 2.49 },
-    { name: "Potato Chips", quantity: 1, price: 3.79 },
-    { name: "Toilet Paper 12pk", quantity: 1, price: 12.99 },
-  ],
-  subtotal: 44.01,
-  taxRate: 8.25,
-  taxAmount: 3.63,
-  discount: 2.0,
-  total: 45.64,
-  paymentMethod: "CASH",
-  amountPaid: 50.0,
-  change: 4.36,
-};
-
-// Calculate derived values
-const calculatedData = {
-  ...receiptData,
-  taxAmount: receiptData.subtotal * (receiptData.taxRate / 100),
-  total:
-    receiptData.subtotal +
-    receiptData.subtotal * (receiptData.taxRate / 100) -
-    receiptData.discount,
-};
-
 interface TransactionData {
   transaction: ViewTransactionClient & {
     services: ViewService[];

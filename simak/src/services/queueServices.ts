@@ -9,7 +9,7 @@ const transformQueueToAPI = (
   id_dokter: queue.id_dokter,
   id_pasien: queue.id_pasien,
   keluhan: queue.keluhan,
-  nomor_antrian: queue.nomor_antrian,
+
   keterangan: queue.keterangan,
 });
 
@@ -21,7 +21,7 @@ export const fetchAllQueuesAPI = async () => {
 export const createQueueAPI = async (
   newQueuePayload: Omit<BackendQueuePayload, "id_antrian">
 ) => {
-  const response = await apiFetch("/antrian", {
+  await apiFetch("/antrian", {
     method: "POST",
     body: JSON.stringify(newQueuePayload),
   });
@@ -30,13 +30,10 @@ export const createQueueAPI = async (
 export const updateQueueAPI = async (
   updatedQueuePayload: BackendQueuePayload
 ) => {
-  const response = await apiFetch(
-    `/antrian/${updatedQueuePayload.id_antrian}`,
-    {
-      method: "PUT",
-      body: JSON.stringify(transformQueueToAPI(updatedQueuePayload)),
-    }
-  );
+  await apiFetch(`/antrian/${updatedQueuePayload.id_antrian}`, {
+    method: "PUT",
+    body: JSON.stringify(transformQueueToAPI(updatedQueuePayload)),
+  });
 };
 
 export const deleteQueueAPI = async (id: number): Promise<void> => {

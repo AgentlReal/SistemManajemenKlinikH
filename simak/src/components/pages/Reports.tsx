@@ -19,8 +19,16 @@ import type {
   ViewTransactionClient,
 } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { DollarSign, UsersRound } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -32,7 +40,9 @@ const formatCurrency = (value: number) => {
 };
 
 export function Reports() {
-  const [currentYear] = useState(new Date().getFullYear());
+  const [currentYearTransaction, setCurrentYearTransaction] = useState(2025);
+  const [currentYearVisit, setCurrentYearVisit] = useState(2025);
+  const [years, setYears] = useState<Number[]>([]);
 
   const { data: transactions = [] } = useQuery<ViewTransactionClient[]>({
     queryKey: ["transactions"],
@@ -54,77 +64,137 @@ export function Reports() {
     },
   });
 
+  useEffect(() => {
+    let tempYears = [
+      ...transactions.map((t) => t.tanggal_transaksi.getFullYear()),
+    ];
+    tempYears.push(new Date().getFullYear());
+    tempYears = [...new Set([...tempYears])];
+    tempYears.sort((a, b) => b - a);
+    setYears(() => tempYears);
+    setCurrentYearTransaction(() => tempYears[0]);
+    setCurrentYearVisit(() => tempYears[0]);
+  }, []);
+
   const patientVisitsData = [
     {
       month: "Jan",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 0)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 0
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Feb",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 1)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 1
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Mar",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 2)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 2
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Apr",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 3)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 3
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Mei",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 4)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 4
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Jun",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 5)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 5
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Jul",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 6)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 6
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Agt",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 7)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 7
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Sep",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 8)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 8
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Okt",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 9)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 9
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Nov",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 10)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 10
+        )
         .reduce((sum) => sum + 1, 0),
     },
     {
       month: "Des",
       visits: visits
-        .filter((v) => v.tanggal.getMonth() === 11)
+        .filter(
+          (v) =>
+            v.tanggal.getFullYear() === currentYearVisit &&
+            v.tanggal.getMonth() === 11
+        )
         .reduce((sum) => sum + 1, 0),
     },
   ];
@@ -136,7 +206,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 0
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -147,7 +217,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 1
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -158,7 +228,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 2
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -169,7 +239,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 3
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -180,7 +250,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 4
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -191,7 +261,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 5
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -202,7 +272,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 6
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -213,7 +283,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 7
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -224,7 +294,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 8
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -235,7 +305,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 9
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -246,7 +316,7 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 10
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
@@ -257,12 +327,26 @@ export function Reports() {
         .filter(
           (t) =>
             t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.getFullYear() === currentYear &&
+            t.tanggal_transaksi.getFullYear() === currentYearTransaction &&
             t.tanggal_transaksi.getMonth() === 11
         )
         .reduce((sum, t) => sum + t.jumlah_total, 0),
     },
   ];
+
+  const totalVisit = visits
+    ? visits
+        .filter((v) => v.tanggal.getFullYear() === currentYearTransaction)
+        .reduce((sum) => sum + 1, 0)
+    : 0;
+
+  const totalRevenue = transactions
+    ? transactions
+        .filter(
+          (t) => t.tanggal_transaksi.getFullYear() === currentYearTransaction
+        )
+        .reduce((sum, t) => sum + t.jumlah_total, 0)
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -274,10 +358,63 @@ export function Reports() {
           </p>
         </div>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Total Kunjungan Tahun {currentYearVisit}
+                </p>
+                <h2 className="mt-2">{totalVisit}</h2>
+              </div>
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                <UsersRound className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Total Pendapatan Tahun {currentYearTransaction}
+                </p>
+                <h2 className="mt-2">{formatCurrency(totalRevenue)}</h2>
+              </div>
+              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
       {/* Patient Visits Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Grafik Kunjungan Pasien Tahun {currentYear}</CardTitle>
+          <CardTitle>
+            <div className="flex items-center gap-1">
+              Grafik Kunjungan Pasien Tahun{" "}
+              <Select
+                onValueChange={(v) => {
+                  setCurrentYearVisit(() => Number(v));
+                }}
+                defaultValue={String(currentYearVisit)}
+                required
+              >
+                <SelectTrigger id="gender">
+                  <SelectValue placeholder="Pilih jenis kelamin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((y) => (
+                    <SelectItem value={String(y)}>{String(y)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardTitle>
           <p className="text-sm text-muted-foreground">
             Kunjungan pasien bulanan
           </p>
@@ -320,7 +457,27 @@ export function Reports() {
       {/* Financial Report */}
       <Card>
         <CardHeader>
-          <CardTitle>Grafik Pendapatan Tahun {currentYear}</CardTitle>
+          <CardTitle>
+            <div className="flex items-center gap-1">
+              Grafik Pendapatan Tahun
+              <Select
+                onValueChange={(v) => {
+                  setCurrentYearTransaction(() => Number(v));
+                }}
+                defaultValue={String(currentYearTransaction)}
+                required
+              >
+                <SelectTrigger id="gender">
+                  <SelectValue placeholder="Pilih jenis kelamin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((y) => (
+                    <SelectItem value={String(y)}>{String(y)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardTitle>
           <p className="text-sm text-muted-foreground">Pendapatan bulanan</p>
         </CardHeader>
         <CardContent>

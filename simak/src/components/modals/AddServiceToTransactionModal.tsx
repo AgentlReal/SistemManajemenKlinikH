@@ -102,8 +102,6 @@ export function AddServiceToTransactionModal({
 
   const handleAddService = createServiceMutation.mutate;
 
-  const handleRemoveService = (serviceId: string) => {};
-
   const total = cart.reduce(
     (acc, item) => acc + item.harga_saat_itu * item.kuantitas,
     0

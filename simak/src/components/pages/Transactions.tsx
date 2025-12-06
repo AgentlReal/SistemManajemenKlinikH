@@ -84,21 +84,6 @@ export function Transactions() {
     queryFn: () => fetchAllDoctorRecipesAPI(),
   });
 
-  const totalRevenue = transactions
-    ? transactions
-        .filter(
-          (t) =>
-            t.status_pembayaran === "Lunas" &&
-            t.tanggal_transaksi.toDateString() === new Date().toDateString()
-        )
-        .reduce((sum, t) => sum + t.jumlah_total, 0)
-    : 0;
-  const pendingPayments = transactions
-    ? transactions
-        .filter((t) => t.status_pembayaran === "Belum Lunas")
-        .reduce((sum, t) => sum + t.jumlah_total, 0)
-    : 0;
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",

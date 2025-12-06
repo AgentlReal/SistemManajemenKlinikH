@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { fetchAllDoctorRecipesAPI } from "@/services/doctorRecipeServices";
 import {
   fetchAllTransactionsAPI,
   updateTransactionAPI,
@@ -7,6 +8,7 @@ import {
 import type {
   Transaction,
   TransactionStatus,
+  ViewDoctorRecipe,
   ViewTransactionClient,
 } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +16,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DollarSign, Plus, Printer } from "lucide-react";
 import { useState } from "react";
 import { BsBank, BsCash } from "react-icons/bs";
+import { TfiPrinter } from "react-icons/tfi";
 import { toast } from "sonner";
 import { AddServiceToTransactionModal } from "../modals/AddServiceToTransactionModal";
 import { ProcessTransactionModal } from "../modals/ProcessTransactionModal";
@@ -22,7 +25,6 @@ import { Badge, badgeVariants } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { DataTable } from "../ui/data-table";
-
 const statusConfig: Record<
   TransactionStatus,
   { label: string; color: string }
@@ -75,6 +77,11 @@ export function Transactions() {
     },
   });
 
+  const { data: doctorRecipes = [] } = useQuery<ViewDoctorRecipe[]>({
+    queryKey: ["recipes"],
+    queryFn: () => fetchAllDoctorRecipesAPI(),
+  });
+
   const totalRevenue = transactions
     ? transactions
         .filter(
@@ -123,6 +130,7 @@ export function Transactions() {
       cell: ({ getValue }) => formatCurrency(getValue() as number),
     },
     {
+      id: "method",
       accessorKey: "metode_pembayaran",
       header: "Metode Pembayaran",
       cell: ({ getValue }) => {
@@ -148,6 +156,7 @@ export function Transactions() {
       },
     },
     {
+      id: "status",
       accessorKey: "status_pembayaran",
       header: "Status",
       cell: ({ getValue }) => {
@@ -201,9 +210,21 @@ export function Transactions() {
                 variant="ghost"
                 size="icon"
                 onClick={() => printReceiptPDF(row.original)}
-                title="Print Transaksi"
+                title={
+                  doctorRecipes.filter(
+                    (d) => d.id_pembayaran === row.original.id_pembayaran
+                  ).length !== 0
+                    ? `Print Transaksi dan Resep Dokter`
+                    : `Print Transaksi`
+                }
               >
-                <Printer className="w-4 h-4" />
+                {doctorRecipes.filter(
+                  (d) => d.id_pembayaran === row.original.id_pembayaran
+                ).length !== 0 ? (
+                  <TfiPrinter />
+                ) : (
+                  <Printer className="w-4 h-4" />
+                )}
               </Button>
             )}
         </div>
@@ -227,49 +248,62 @@ export function Transactions() {
       </div>
 
       {/* Revenue Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Total Pendapatan Hari Ini
-                </p>
-                <h2 className="mt-2">{formatCurrency(totalRevenue)}</h2>
-                <p className="text-xs text-green-600 mt-2">
-                  Transaksi sudah dibayar
-                </p>
+      {!["doctor", "lab"].includes(user?.role || "") && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Total Pendapatan Hari Ini
+                  </p>
+                  <h2 className="mt-2">{formatCurrency(totalRevenue)}</h2>
+                  <p className="text-xs text-green-600 mt-2">
+                    Transaksi sudah dibayar
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-green-600" />
+                </div>
               </div>
-              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Pembayaran Ditunda
-                </p>
-                <h2 className="mt-2">{formatCurrency(pendingPayments)}</h2>
-                <p className="text-xs text-red-600 mt-2">Menunggu Pembayaran</p>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Pembayaran Ditunda
+                  </p>
+                  <h2 className="mt-2">{formatCurrency(pendingPayments)}</h2>
+                  <p className="text-xs text-red-600 mt-2">
+                    Menunggu Pembayaran
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-red-600" />
+                </div>
               </div>
-              <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
+            </CardContent>
+          </Card>
+        </div>
+      )}
       <Card>
         <CardContent>
           <DataTable
-            columns={columns}
-            data={transactions}
+            columns={
+              ["doctor", "lab"].includes(user?.role || "")
+                ? columns.filter((c) => c.id !== "method" && c.id !== "status")
+                : columns
+            }
+            data={
+              ["doctor", "lab"].includes(user?.role || "")
+                ? transactions.filter(
+                    (t) => t.status_pembayaran === "Belum Lunas"
+                  )
+                : transactions
+            }
             title="transaksi"
             isLoading={isLoading}
             isRefetching={isRefetching}

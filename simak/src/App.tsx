@@ -21,6 +21,7 @@ export default function App() {
   const handleLogin = async (username: string, password: string) => {
     try {
       await auth.login(username, password);
+      toast.success("Login berhasil!");
     } catch (error) {
       if (error instanceof Error) {
         toast.error("Username atau password salah");

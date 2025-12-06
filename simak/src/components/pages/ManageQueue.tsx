@@ -167,7 +167,6 @@ export function ManageQueue() {
                 id_pasien: row.original.id_pasien,
                 id_resepsionis: "R001",
                 keluhan: row.original.keluhan,
-                nomor_antrian: row.original.nomor_antrian,
                 keterangan: row.original.keterangan,
               })
             }

@@ -6,6 +6,7 @@ use App\Models\Pasien;
 use App\Http\Requests\StorePasienRequest;
 use App\Http\Requests\UpdatePasienRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class PasienController extends Controller
 {
@@ -90,6 +91,34 @@ class PasienController extends Controller
     {
         try {
             $pasien = Pasien::where('NIK', $nik)->first();
+
+            if (!$pasien) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pasien not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pasien retrieved successfully.',
+                'data' => $pasien
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve pasien.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    /**
+     * Display the specified resource.
+     */
+    public function showByRekamMedis($idrm): JsonResponse
+    {
+        try {
+            $pasien = DB::select('CALL GetPasienByRekamMedis(?)', [$idrm])[0];
 
             if (!$pasien) {
                 return response()->json([

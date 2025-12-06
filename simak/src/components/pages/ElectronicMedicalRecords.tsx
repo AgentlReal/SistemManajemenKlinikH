@@ -1,6 +1,9 @@
 import { useAuth } from "@/hooks/use-auth";
 import apiFetch from "@/lib/api";
-import { fetchAllPatientDoctorRecipesAPI } from "@/services/doctorRecipeServices";
+import {
+  createPatientDoctorRecipeAPI,
+  fetchAllPatientDoctorRecipesAPI,
+} from "@/services/doctorRecipeServices";
 import {
   createPatientLabResultAPI,
   fetchAllPatientLabResultsAPI,
@@ -21,7 +24,10 @@ import { AgeFromDate } from "age-calculator";
 import { Activity, ClipboardEdit, FileText, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { AddDoctorRecipeModal } from "../modals/AddDoctorRecipeModal";
+import {
+  AddDoctorRecipeModal,
+  type DoctorRecipe,
+} from "../modals/AddDoctorRecipeModal";
 import { AddLabResultModal } from "../modals/AddLabResultModal";
 import { AddSoapNoteModal } from "../modals/AddSoapNoteModal";
 import { Button } from "../ui/button";
@@ -84,7 +90,7 @@ export function ElectronicMedicalRecords() {
     Omit<SOAPNote, "id_soap">
   >({
     mutationFn: async (newSOAP) => {
-      const viewSoapNotes = await createPatientSOAPAPI(newSOAP);
+      await createPatientSOAPAPI(newSOAP);
       return {} as SOAPNote;
     },
     onSuccess: () => {
@@ -140,6 +146,23 @@ export function ElectronicMedicalRecords() {
       setDoctorRecipes([]);
     },
   });
+  const createDoctorRecipeMutation = useMutation<
+    ViewDoctorRecipe,
+    Error,
+    DoctorRecipe
+  >({
+    mutationFn: async (nik) => {
+      await createPatientDoctorRecipeAPI(nik);
+      return {} as ViewDoctorRecipe;
+    },
+    onSuccess: () => {
+      toast.success("Berhasil menambahkan Resep Dokter!");
+      doctorRecipeMutation.mutate(searchNIK);
+    },
+    onError: () => {
+      toast.success("Gagal menambahkan Resep Dokter!");
+    },
+  });
 
   const patientMutation = useMutation<Patient, Error, string>({
     mutationFn: async (nik) => {
@@ -181,23 +204,6 @@ export function ElectronicMedicalRecords() {
       labResultMutation.mutate(searchNIK);
       doctorRecipeMutation.mutate(searchNIK);
     }
-  };
-
-  const handleAddSoapNote = (
-    data: Omit<SOAPNote, "id" | "date" | "doctor">
-  ) => {
-    console.log("New SOAP Note:", data);
-    toast.success("SOAP note added successfully!");
-  };
-
-  const handleAddLabResult = (data: any) => {
-    console.log("New Lab Result:", data);
-    toast.success("Lab result added successfully!");
-  };
-
-  const handleAddDoctorRecipe = (data: any) => {
-    // setDoctorRecipes([newRecipe, ...doctorRecipes]);
-    toast.success("Resep dokter berhasil ditambahkan!");
   };
 
   return (
@@ -538,7 +544,9 @@ export function ElectronicMedicalRecords() {
       <AddDoctorRecipeModal
         isOpen={isAddDoctorRecipeModalOpen}
         onClose={() => setIsAddDoctorRecipeModalOpen(false)}
-        onAdd={handleAddDoctorRecipe}
+        onAdd={createDoctorRecipeMutation.mutate}
+        id_rekam_medis={selectedElectronicMedicalRecord?.id_rekam_medis}
+        editingRecipe={null}
       />
     </div>
   );

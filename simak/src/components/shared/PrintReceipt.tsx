@@ -1,6 +1,12 @@
 import { fetchAllClinicsAPI } from "@/services/clinicServices";
+import { fetchAllDoctorRecipesAPI } from "@/services/doctorRecipeServices";
 import { fetchAllServicesAPI } from "@/services/serviceServices";
-import type { ClinicInfo, ViewService, ViewTransactionClient } from "@/types";
+import type {
+  ClinicInfo,
+  ViewDoctorRecipe,
+  ViewService,
+  ViewTransactionClient,
+} from "@/types";
 import {
   Document,
   Page,
@@ -86,6 +92,15 @@ const styles = StyleSheet.create({
   },
   colQty: {
     width: "15%",
+    fontSize: 9,
+    textAlign: "center",
+  },
+  colDrugName: {
+    width: "50%",
+    fontSize: 9,
+  },
+  colDrugNote: {
+    width: "50%",
     fontSize: 9,
     textAlign: "center",
   },
@@ -216,6 +231,7 @@ interface TransactionData {
   transaction: ViewTransactionClient & {
     services: ViewService[];
     clinicInfo: ClinicInfo;
+    doctorRecipes: ViewDoctorRecipe[];
   };
 }
 // Receipt Document Component
@@ -345,6 +361,81 @@ const ReceiptDocument = ({ order }: { order: TransactionData }) => {
           <Text style={styles.thankYou}>SALAM SATU SEHAT!</Text>
         </View>
       </Page>
+      {order.transaction.doctorRecipes.length !== 0 && (
+        <Page size={[280, 600]} style={styles.page}>
+          {/* Receipt-like dimensions */}
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.storeName}>
+              {order.transaction.clinicInfo.nama_klinik.toUpperCase()}
+            </Text>
+            <Text style={styles.storeAddress}>
+              {order.transaction.clinicInfo.alamat}
+            </Text>
+            <Text style={styles.storeAddress}>
+              No Telp: {order.transaction.clinicInfo.nomor_telepon}
+            </Text>
+            <Text style={styles.storeAddress}>
+              Email: {order.transaction.clinicInfo.email}
+            </Text>
+          </View>
+          {/* Receipt Info */}
+          <View style={styles.receiptInfo}>
+            <View style={styles.infoColumn}>
+              <Text style={styles.infoLabel}>Pasien</Text>
+              <Text style={styles.infoValue}>
+                {order.transaction.nama_pasien}
+              </Text>
+
+              <Text style={styles.infoLabel}>Tanggal</Text>
+              <Text style={styles.infoValue}>
+                {order.transaction.tanggal_transaksi.toLocaleDateString(
+                  "id-ID"
+                )}
+              </Text>
+            </View>
+
+            <View style={styles.infoColumn}>
+              <Text style={styles.infoLabel}>Kasir</Text>
+              <Text style={styles.infoValue}>{order.transaction.id_kasir}</Text>
+
+              <Text style={styles.infoLabel}>Waktu</Text>
+              <Text style={styles.infoValue}>
+                {order.transaction.tanggal_transaksi.toLocaleTimeString()}
+              </Text>
+            </View>
+          </View>
+          {/* Items Table */}
+          <View style={styles.itemsTable}>
+            {/* Table Header */}
+            <View style={styles.tableHeader}>
+              <Text style={[styles.colDrugName, styles.headerText]}>
+                Nama Obat
+              </Text>
+              <Text style={[styles.colDrugNote, styles.headerText]}>
+                Keterangan
+              </Text>
+            </View>
+
+            {/* Table Rows */}
+            {order.transaction.doctorRecipes.map((item, index) => (
+              <View style={styles.tableRow} key={index}>
+                <Text style={styles.colDrugName}>{item.nama_obat}</Text>
+                <Text style={styles.colDrugNote}>{item.keterangan_resep}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              Terima kasih telah berobat di{" "}
+              {startcase(order.transaction.clinicInfo.nama_klinik)}!
+            </Text>
+            <Text style={styles.thankYou}>SALAM SATU SEHAT!</Text>
+          </View>
+        </Page>
+      )}
     </Document>
   );
 };
@@ -356,8 +447,12 @@ export const printReceiptPDF = async (transaction: ViewTransactionClient) => {
 
   const clinicInfo = ((await fetchAllClinicsAPI()) as ClinicInfo[])[0];
 
+  const doctorRecipes = (
+    (await fetchAllDoctorRecipesAPI()) as ViewDoctorRecipe[]
+  ).filter((d) => d.id_pembayaran === transaction.id_pembayaran);
+
   const transactionData: TransactionData = {
-    transaction: { ...transaction, services, clinicInfo },
+    transaction: { ...transaction, services, clinicInfo, doctorRecipes },
   };
 
   const blob = await pdf(<ReceiptDocument order={transactionData} />).toBlob();

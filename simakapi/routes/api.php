@@ -95,6 +95,7 @@ Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab'])->group
     Route::post('pasien', [PasienController::class, 'store']);
     Route::get('pasien/{pasien}', [PasienController::class, 'show']);
     Route::get('pasien/nik/{pasien}', [PasienController::class, 'showByNik']);
+    Route::get('pasien/rekam-medis/{rekam_medis}', [PasienController::class, 'showByRekamMedis']);
     Route::put('pasien/{pasien}', [PasienController::class, 'update']);
     Route::delete('pasien/{pasien}', [PasienController::class, 'destroy']);
     // Route::resource('rekam-medis', RekamMedisController::class);
@@ -112,12 +113,15 @@ Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab'])->group
     Route::put('hasil-lab/{hasil_lab}', [HasilLabController::class, 'update']);
     Route::delete('hasil-lab/{hasil_lab}', [HasilLabController::class, 'destroy']);
     Route::get('/hasil-lab/pasien/{nik}', [HasilLabController::class, 'showByPasienNik']);
-    Route::get('resep-dokter', [ResepDokterController::class, 'index']);
     Route::post('resep-dokter', [ResepDokterController::class, 'store']);
     Route::get('resep-dokter/{resep_dokter}', [ResepDokterController::class, 'show']);
     Route::put('resep-dokter/{resep_dokter}', [ResepDokterController::class, 'update']);
     Route::delete('resep-dokter/{resep_dokter}', [ResepDokterController::class, 'destroy']);
     Route::get('/resep-dokter/pasien/{nik}', [ResepDokterController::class, 'showByPasienNik']);
+});
+
+Route::middleware(['auth:sanctum', 'role:admin,receptionist,doctor,lab,cashier'])->group(function () {
+    Route::get('resep-dokter', [ResepDokterController::class, 'index']);
 });
 
 Route::middleware(['auth:sanctum', 'role:admin,doctor,lab,cashier'])->group(function () {

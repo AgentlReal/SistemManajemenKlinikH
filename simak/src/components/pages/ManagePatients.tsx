@@ -99,7 +99,7 @@ export function ManagePatients() {
     },
   });
 
-  const columns: ColumnDef<Patient>[] = [
+  const allColumns: ColumnDef<Patient>[] = [
     {
       accessorKey: "nik",
       header: "NIK",
@@ -175,7 +175,7 @@ export function ManagePatients() {
       <Card>
         <CardContent>
           <DataTable
-            columns={columns}
+            columns={allColumns}
             data={patients}
             title="pasien"
             isLoading={isLoading}

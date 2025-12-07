@@ -39,17 +39,31 @@ class TarifLayananController extends Controller
         try {
             $validatedData = $request->validated();
 
-            $tarifLayanan = TarifLayanan::create($validatedData);
+            $tarifLayanan = TarifLayanan::onlyTrashed()
+                ->where('tipe_layanan', $validatedData['tipe_layanan'])
+                ->where('nama_layanan', $validatedData['nama_layanan'])
+                ->first();
+
+            if ($tarifLayanan) {
+                $tarifLayanan->restore();
+                $tarifLayanan->update($validatedData);
+                $message = 'TarifLayanan restored and updated successfully.';
+                $statusCode = 200;
+            } else {
+                $tarifLayanan = TarifLayanan::create($validatedData);
+                $message = 'TarifLayanan created successfully.';
+                $statusCode = 201;
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'TarifLayanan created successfully.',
+                'message' => $message,
                 'data' => $tarifLayanan
-            ], 201);
+            ], $statusCode);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create tarifLayanan.',
+                'message' => 'Failed to process tarifLayanan.',
                 'error' => $e->getMessage()
             ], 500);
         }

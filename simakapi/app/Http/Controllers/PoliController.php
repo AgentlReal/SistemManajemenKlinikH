@@ -39,17 +39,30 @@ class PoliController extends Controller
         try {
             $validatedData = $request->validated();
 
-            $poli = Poli::create($validatedData);
+            $poli = Poli::onlyTrashed()
+                ->where('nama_poli', $validatedData['nama_poli'])
+                ->first();
+
+            if ($poli) {
+                $poli->restore();
+                $poli->update($validatedData);
+                $message = 'Poli restored and updated successfully.';
+                $statusCode = 200;
+            } else {
+                $poli = Poli::create($validatedData);
+                $message = 'Poli created successfully.';
+                $statusCode = 201;
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Poli created successfully.',
+                'message' => $message,
                 'data' => $poli
-            ], 201);
+            ], $statusCode);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create poli.',
+                'message' => 'Failed to process poli.',
                 'error' => $e->getMessage()
             ], 500);
         }

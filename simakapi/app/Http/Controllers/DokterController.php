@@ -63,17 +63,45 @@ class DokterController extends Controller
         try {
             $validatedData = $request->validated();
 
-            $dokter = Dokter::create($validatedData);
+            $dokter = Dokter::withTrashed()
+                ->where(function ($query) use ($validatedData) {
+                    $query->where('nama', $validatedData['nama'])
+                          ->where('tanggal_lahir', $validatedData['tanggal_lahir'])
+                          ->where('jenis_kelamin', $validatedData['jenis_kelamin']);
+                })
+                ->orWhere('nomor_telepon', $validatedData['nomor_telepon'])
+                ->orWhere('nomor_lisensi', $validatedData['nomor_lisensi'])
+                ->first();
+
+            if ($dokter && $dokter->trashed()) {
+                $dokter->restore();
+                $dokter->update($validatedData);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Dokter restored and updated successfully.',
+                    'data' => $dokter
+                ], 200);
+            }
+
+            if ($dokter && !$dokter->trashed()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dokter with the same data already exists.',
+                ], 409);
+            }
+
+            $newDokter = Dokter::create($validatedData);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Dokter created successfully.',
-                'data' => $dokter
+                'data' => $newDokter
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create dokter.',
+                'message' => 'Failed to create or restore dokter.',
                 'error' => $e->getMessage()
             ], 500);
         }

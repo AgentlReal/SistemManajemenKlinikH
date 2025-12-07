@@ -12,7 +12,7 @@ import type {
 import startcase from "@stdlib/string-startcase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Clock, Edit, Trash2 } from "lucide-react";
+import { Clock, Edit } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AddQueueModal } from "../modals/AddQueueModal";
@@ -175,7 +175,7 @@ export function ManageQueue() {
           >
             <Edit className="w-4 h-4" />
           </Button>
-          <Button
+          {/* <Button
             variant="ghost"
             size="icon"
             className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:cursor-pointer"
@@ -183,7 +183,7 @@ export function ManageQueue() {
             title="Delete"
           >
             <Trash2 className="w-4 h-4" />
-          </Button>
+          </Button> */}
         </div>
       ),
     },

@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('dokter', function (Blueprint $table) {
-            $table->foreign(['id_poli'], 'dokter_ibfk_1')->references(['id_poli'])->on('poli')->onUpdate('no action')->onDelete('no action');
+        Schema::table('pasien', function (Blueprint $table) {
+            $table->softDeletes();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('dokter', function (Blueprint $table) {
-            $table->dropForeign('dokter_ibfk_1');
+        Schema::table('pasien', function (Blueprint $table) {
+            $table->dropSoftDeletes();
         });
     }
 };

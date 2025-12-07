@@ -19,6 +19,13 @@ return new class extends Migration
             $table->char('id_kasir', 4)->nullable()->index('id_kasir');
             $table->time('jam_mulai')->nullable();
             $table->time('jam_selesai')->nullable();
+            $table->boolean('senin')->nullable()->default(false);
+            $table->boolean('selasa')->nullable()->default(false);
+            $table->boolean('rabu')->nullable()->default(false);
+            $table->boolean('kamis')->nullable()->default(false);
+            $table->boolean('jumat')->nullable()->default(false);
+            $table->boolean('sabtu')->nullable()->default(false);
+            $table->boolean('minggu')->nullable()->default(false);
         });
     }
 

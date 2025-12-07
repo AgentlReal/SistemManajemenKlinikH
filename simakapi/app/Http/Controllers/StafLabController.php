@@ -39,17 +39,36 @@ class StafLabController extends Controller
         try {
             $validatedData = $request->validated();
 
-            $stafLab = StafLab::create($validatedData);
+            $stafLab = StafLab::onlyTrashed()
+                ->where(function ($query) use ($validatedData) {
+                    $query->where('nama', $validatedData['nama'])
+                        ->where('tanggal_lahir', $validatedData['tanggal_lahir'])
+                        ->where('jenis_kelamin', $validatedData['jenis_kelamin']);
+                })
+                ->orWhere('nomor_telepon', $validatedData['nomor_telepon'])
+                ->orWhere('nomor_lisensi', $validatedData['nomor_lisensi'])
+                ->first();
+
+            if ($stafLab) {
+                $stafLab->restore();
+                $stafLab->update($validatedData);
+                $message = 'StafLab restored and updated successfully.';
+                $statusCode = 200;
+            } else {
+                $stafLab = StafLab::create($validatedData);
+                $message = 'StafLab created successfully.';
+                $statusCode = 201;
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'StafLab created successfully.',
+                'message' => $message,
                 'data' => $stafLab
-            ], 201);
+            ], $statusCode);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create stafLab.',
+                'message' => 'Failed to process stafLab.',
                 'error' => $e->getMessage()
             ], 500);
         }

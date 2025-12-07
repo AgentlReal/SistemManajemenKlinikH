@@ -39,17 +39,35 @@ class KasirController extends Controller
         try {
             $validatedData = $request->validated();
 
-            $kasir = Kasir::create($validatedData);
+            $kasir = Kasir::onlyTrashed()
+                ->where(function ($query) use ($validatedData) {
+                    $query->where('nama', $validatedData['nama'])
+                        ->where('tanggal_lahir', $validatedData['tanggal_lahir'])
+                        ->where('jenis_kelamin', $validatedData['jenis_kelamin']);
+                })
+                ->orWhere('nomor_telepon', $validatedData['nomor_telepon'])
+                ->first();
+
+            if ($kasir) {
+                $kasir->restore();
+                $kasir->update($validatedData);
+                $message = 'Kasir restored and updated successfully.';
+                $statusCode = 200;
+            } else {
+                $kasir = Kasir::create($validatedData);
+                $message = 'Kasir created successfully.';
+                $statusCode = 201;
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Kasir created successfully.',
+                'message' => $message,
                 'data' => $kasir
-            ], 201);
+            ], $statusCode);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create kasir.',
+                'message' => 'Failed to process kasir.',
                 'error' => $e->getMessage()
             ], 500);
         }

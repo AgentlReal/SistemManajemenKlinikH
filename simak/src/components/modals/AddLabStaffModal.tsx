@@ -67,6 +67,7 @@ export function AddLabStaffModal({
   }, [editingLabStaff, isOpen]);
 
   const onValid: SubmitHandler<z.infer<typeof schema>> = (data) => {
+    data.tanggal_lahir.setDate(data.tanggal_lahir.getDate() + 1);
     if (editingLabStaff) {
       onUpdate({
         ...data,

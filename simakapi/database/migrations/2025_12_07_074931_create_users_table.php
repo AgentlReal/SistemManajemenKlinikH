@@ -15,8 +15,12 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('username')->unique();
             $table->string('password');
-            $table->string('name');
-            $table->enum('role', ['receptionist', 'doctor', 'lab', 'cashier', 'manager', 'admin']);
+            $table->string('name')->nullable();
+            $table->enum('role', ['receptionist', 'doctor', 'lab', 'cashier', 'manager', 'admin'])->nullable();
+            $table->char('id_resepsionis', 4)->nullable()->index('users_ibfk_1');
+            $table->char('id_dokter', 4)->nullable()->index('users_ibfk_2');
+            $table->char('id_staf_lab', 4)->nullable()->index('users_ibfk_3');
+            $table->char('id_kasir', 4)->nullable()->index('users_ibfk_4');
             $table->rememberToken();
             $table->timestamps();
         });

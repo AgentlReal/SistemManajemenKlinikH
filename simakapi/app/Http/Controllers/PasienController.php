@@ -40,17 +40,26 @@ class PasienController extends Controller
         try {
             $validatedData = $request->validated();
 
-            $pasien = Pasien::create($validatedData);
+            $pasien = Pasien::withTrashed()->where('NIK', $validatedData['NIK'])->first();
+
+            if ($pasien) {
+                $pasien->restore();
+                $pasien->update($validatedData);
+                $message = 'Pasien restored and updated successfully.';
+            } else {
+                $pasien = Pasien::create($validatedData);
+                $message = 'Pasien created successfully.';
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Pasien created successfully.',
+                'message' => $message,
                 'data' => $pasien
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create pasien.',
+                'message' => 'Failed to create or update pasien.',
                 'error' => $e->getMessage()
             ], 500);
         }

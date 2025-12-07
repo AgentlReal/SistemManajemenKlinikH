@@ -68,6 +68,7 @@ export function AddPatientModal({
   }, [editingPatient, isOpen]);
 
   const onValid: SubmitHandler<z.infer<typeof schema>> = (data) => {
+    data.birthDate.setDate(data.birthDate.getDate() + 1);
     if (editingPatient) {
       onUpdate({
         ...data,

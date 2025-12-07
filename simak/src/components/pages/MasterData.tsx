@@ -1160,6 +1160,9 @@ export function MasterData() {
             variant="ghost"
             size="icon"
             className="text-red-600 hover:text-red-700"
+            onClick={() => {
+              setDeleteScheduleId(row.original.id_jadwal);
+            }}
           >
             <Trash2 className="w-4 h-4" />
           </Button>

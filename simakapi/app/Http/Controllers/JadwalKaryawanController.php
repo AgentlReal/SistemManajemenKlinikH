@@ -42,17 +42,52 @@ class JadwalKaryawanController extends Controller
         try {
             $validatedData = $request->validated();
 
-            $jadwalKaryawan = JadwalKaryawan::create($validatedData);
+            $jadwalKaryawan = JadwalKaryawan::withTrashed()
+                ->where(function ($query) use ($validatedData) {
+                    if (!empty($validatedData['id_resepsionis'])) {
+                        $query->orWhere('id_resepsionis', $validatedData['id_resepsionis']);
+                    }
+                    if (!empty($validatedData['id_dokter'])) {
+                        $query->orWhere('id_dokter', $validatedData['id_dokter']);
+                    }
+                    if (!empty($validatedData['id_staf_lab'])) {
+                        $query->orWhere('id_staf_lab', $validatedData['id_staf_lab']);
+                    }
+                    if (!empty($validatedData['id_kasir'])) {
+                        $query->orWhere('id_kasir', $validatedData['id_kasir']);
+                    }
+                })
+                ->first();
+
+            if ($jadwalKaryawan && $jadwalKaryawan->trashed()) {
+                $jadwalKaryawan->restore();
+                $jadwalKaryawan->update($validatedData);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'JadwalKaryawan restored and updated successfully.',
+                    'data' => $jadwalKaryawan
+                ], 200);
+            }
+
+            if ($jadwalKaryawan && !$jadwalKaryawan->trashed()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'JadwalKaryawan with the same data already exists.',
+                ], 409);
+            }
+
+            $newJadwalKaryawan = JadwalKaryawan::create($validatedData);
 
             return response()->json([
                 'success' => true,
                 'message' => 'JadwalKaryawan created successfully.',
-                'data' => $jadwalKaryawan
+                'data' => $newJadwalKaryawan
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create jadwalKaryawan.',
+                'message' => 'Failed to create or restore jadwalKaryawan.',
                 'error' => $e->getMessage()
             ], 500);
         }

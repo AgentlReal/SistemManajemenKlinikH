@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tarif_layanan', function (Blueprint $table) {
             $table->integer('id_tarif_layanan', true);
-            $table->enum('tipe_layanan', ['Dokter', 'Laboratorium'])->nullable();
+            $table->enum('tipe_layanan', ['Dokter', 'Laboratorium', 'Administrasi'])->nullable();
             $table->integer('Harga')->nullable();
             $table->string('nama_layanan', 100)->nullable();
         });

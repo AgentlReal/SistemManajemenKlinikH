@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreDokterRequest extends FormRequest
 {
@@ -20,7 +21,9 @@ class StoreDokterRequest extends FormRequest
             'gaji' => 'nullable|integer',
             'nomor_telepon' => 'nullable|string|max:20',
             'spesialis' => 'nullable|string|max:50',
-            'nomor_lisensi' => 'nullable|string|max:50|unique:dokter,nomor_lisensi',
+            'nomor_lisensi' => ['nullable', 'string', 'max:50', Rule::unique('dokter')->where(function ($query) {
+                return $query->whereNull('deleted_at');
+            })],
             'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
             'alamat' => 'nullable|string',
         ];

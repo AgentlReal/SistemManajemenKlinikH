@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/use-auth";
 import {
   createQueueAPI,
   deleteQueueAPI,
@@ -48,6 +49,7 @@ export function ManageQueue() {
   const [editingQueue, setEditingQueue] = useState<BackendQueuePayload | null>(
     null
   );
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const {
@@ -157,24 +159,26 @@ export function ManageQueue() {
       header: () => <div className="text-right mr-4">Aksi</div>,
       cell: ({ row }) => (
         <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              setEditingQueue({
-                id_antrian: row.original.id_antrian,
-                id_dokter: row.original.id_dokter,
-                id_pasien: row.original.id_pasien,
-                id_resepsionis: "R001",
-                keluhan: row.original.keluhan,
-                keterangan: row.original.keterangan,
-              })
-            }
-            title="Edit"
-            className="hover:cursor-pointer"
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
+          {row.original.keterangan !== "Selesai" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                setEditingQueue({
+                  id_antrian: row.original.id_antrian,
+                  id_dokter: row.original.id_dokter,
+                  id_pasien: row.original.id_pasien,
+                  id_resepsionis: "R001",
+                  keluhan: row.original.keluhan,
+                  keterangan: row.original.keterangan,
+                })
+              }
+              title="Edit"
+              className="hover:cursor-pointer"
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
+          )}
           {/* <Button
             variant="ghost"
             size="icon"
@@ -268,7 +272,11 @@ export function ManageQueue() {
             columns={columns}
             data={queue}
             title="antrian"
-            onAdd={() => setIsAddModalOpen(true)}
+            onAdd={
+              user?.role === "receptionist"
+                ? () => setIsAddModalOpen(true)
+                : undefined
+            }
             onRefresh={() =>
               queryClient.invalidateQueries({ queryKey: ["queues"] })
             }
